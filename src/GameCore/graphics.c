@@ -18,8 +18,10 @@
 #include "menu_battle.h"
 #include "stats.h"
 #include "entities.h"
+#include "lib_debugging.h"
 #include "player.h"
 #include "utils.h"
+#include "lib_decl.h"
 
 /**********************************************************************************************************************/
 /**  copy the given rect of the give pixel array into the given clip pixel array
@@ -204,7 +206,8 @@ void OrderUnitsByBufferLine(EntityId* units, uint8_t* meta)
     {
         if (!GetBit(g_run.creatures.onMap, id)) continue;
         Position pos = g_run.creatures.position[id];
-        uint8_t row = pos.y / BUFFER_H;
+        uint8_t row = pos.y / GetBufferWidth();
+
         uint16_t cursor = 0;
         for (uint8_t i = 0; i <= row; i++)
             cursor += meta[i];
@@ -256,7 +259,7 @@ void DrawMiniMap()
 
 
     const uint16_t screen_w = 320;
-    const uint8_t buffer_lines = 320 / BUFFER_H;
+    const uint8_t buffer_lines = 320 / GetBufferWidth();
     const uint8_t centerOffset = 32;
 
     uint8_t meta[buffer_lines];
@@ -267,12 +270,12 @@ void DrawMiniMap()
 
     uint16_t cursor = 0;
     uint16_t transparency = g_gameFlash.GetColor[PAL_KEY];
-    for (uint16_t y = 0; y < MAP_H; y += BUFFER_H)
+    for (uint16_t y = 0; y < MAP_H; y += GetBufferHeight())
     {
         SetFrameBuffer(g_gameFlash.GetColor[PAL_OFF_WHITE_GRAY]);
-        memset(g_run.tileCache.frameBuffer.frameBuffer, g_gameFlash.GetColor[PAL_DARK_GRN_BLACK], sizeof(g_run.tileCache.frameBuffer));
+        memset(GetFrameBuffer2bytes(), g_gameFlash.GetColor[PAL_DARK_GRN_BLACK], sizeof(*GetFrameBuffer2bytes()));
         cursor = (screen_w - MAP_W) / 2; //reset position
-        for (uint16_t row = 0; row < BUFFER_H; row++)
+        for (uint16_t row = 0; row < GetBufferHeight(); row++)
         {
             uint16_t cy = y + row;
             if (cy >= MAP_H) break;
@@ -280,15 +283,15 @@ void DrawMiniMap()
             {
                 uint16_t color = g_gameFlash.GetColor[colors[GetMapTile(x, cy)]];
                 if (color == transparency) continue;
-                g_run.tileCache.frameBuffer.frameBuffer[cursor++] = color;
+                GetFrameBuffer2bytes()[cursor++] = color;
             }
             cursor += (screen_w - MAP_W);
         }
 
         uint16_t c = 0;
-        for (uint8_t i = 0; i < y / BUFFER_H; i++) c += meta[i];
+        for (uint8_t i = 0; i < y / GetBufferHeight(); i++) c += meta[i];
 
-        uint8_t buffer_line = y / BUFFER_H;
+        uint8_t buffer_line = y / GetBufferHeight();
         uint8_t n = meta[buffer_line];
         for (uint16_t j = c; j < c + n; j++)
         {
@@ -298,10 +301,10 @@ void DrawMiniMap()
             if (GetPlayerID() == units[j])
                 color = g_gameFlash.GetColor[PAL_DEEP_BLUE];
 
-            g_run.tileCache.frameBuffer.frameBuffer[centerOffset + (row * (centerOffset * 2)) + (row * MAP_W) + pos.x] = color;
+            GetFrameBuffer2bytes()[centerOffset + (row * (centerOffset * 2)) + (row * MAP_W) + pos.x] = color;
         }
 
-        Draw(0, y, screen_w, BUFFER_H, g_run.tileCache.frameBuffer.frameBuffer1byte);
+        Draw(0, y, screen_w, GetBufferWidth(), GetFrameBuffer1byte());
     }
 }
 

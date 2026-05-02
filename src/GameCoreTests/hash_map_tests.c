@@ -5,6 +5,7 @@
 #include "hash_map_tests.h"
 
 #include "hash_map.h"
+#include "lib_debugging.h"
 #include "types.h"
 #include "utils.h"
 

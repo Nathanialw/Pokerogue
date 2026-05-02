@@ -4,6 +4,7 @@
 
 #include "creatures.h"
 
+#include "lib_debugging.h"
 #include "memory_rom.h"
 #include "stats.h"
 #include "types.h"

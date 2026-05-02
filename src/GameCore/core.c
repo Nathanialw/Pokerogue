@@ -9,6 +9,7 @@
 #include "collision.h"
 #include "map.h"
 #include "entities.h"
+#include "lib_debugging.h"
 #include "player.h"
 #include "sound.h"
 #include "status_effects.h"
@@ -26,11 +27,17 @@
 **********************************************************************************************************************/
 void InitGame(void)
 {
+    DEBUG("init gmae");
     GameRunInit();
+    DEBUG("reset ent");
     ResetEntities(false);
+    DEBUG("init map");
     InitMap();
+    DEBUG("init player");
     InitPlayer();
+    DEBUG("populate level");
     PopulateLevelCreatures();
+    DEBUG("set camera");
     SetCameraPlayer();
 }
 

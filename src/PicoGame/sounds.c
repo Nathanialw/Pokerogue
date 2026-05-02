@@ -10,14 +10,14 @@
 #include <string.h>
 
 #include "sounds.h"
-
-#include "constants.h"
 #include "hardware.h"
+
 #include "pico_constants.h"
-#include "memory_rom.h"
-#include "memory_ram.h"
-#include "sound.h"
-#include "types.h"
+#include "lib_types.h"
+#include "lib_enums.h"
+// #include "memory_rom.h"
+// #include "memory_ram.h"
+// #include "sound.h"
 
 
 #define SAMPLE_RATE 44100
@@ -36,7 +36,7 @@ static audio_format_t audio_format =
 **********************************************************************************************************************/
 void Pico_AudioInit(void)
 {
-    DEBUG("Initializing audio at %d Hz", SAMPLE_RATE);
+    //DEBUG("Initializing audio at %d Hz", SAMPLE_RATE);
 
     struct audio_buffer_format producer_format = {
         .format = &audio_format,
@@ -47,7 +47,7 @@ void Pico_AudioInit(void)
 
     if (!ap)
     {
-        DEBUG("Failed to create audio pool");
+        //DEBUG("Failed to create audio pool");
         while (1) sleep_ms(1000);
     }
 
@@ -59,18 +59,18 @@ void Pico_AudioInit(void)
     const struct audio_format* out = audio_i2s_setup(&audio_format, &config);
     if (!out)
     {
-        DEBUG("audio_i2s_setup failed");
+        //DEBUG("audio_i2s_setup failed");
         while (1) sleep_ms(1000);
     }
 
     if (!audio_i2s_connect(ap))
     {
-        DEBUG("audio_i2s_connect failed");
+        //DEBUG("audio_i2s_connect failed");
         while (1) sleep_ms(1000);
     }
 
     audio_i2s_set_enabled(true);
-    DEBUG("Audio initialized successfully");
+    //DEBUG("Audio initialized successfully");
 }
 
 /**********************************************************************************************************************/
@@ -182,7 +182,7 @@ void CheckVolume()
 {
     static int16_t last_raw = 0;
     int16_t raw = Pico_VolumeControl();
-    // DEBUG("Raw: %d", raw);
+    // //DEBUG("Raw: %d", raw);
     if (raw < 0)
     {
         RecoverADS1115();
@@ -193,8 +193,8 @@ void CheckVolume()
         last_raw = raw;
     }
 
-    g_run.music.master_volume = (MAX_VOLUME - raw) * 2;
-    // DEBUG("Volume: %d %d", raw, g_run.music.master_volume);
+    // g_run.music.master_volume = (MAX_VOLUME - raw) * 2;
+    // //DEBUG("Volume: %d %d", raw, g_run.music.master_volume);
 }
 
 
@@ -520,7 +520,7 @@ int16_t MixEffects(int16_t final_sample)
 **********************************************************************************************************************/
 void AudioPlayVoices(const MusicData* music_data, const Note* music)
 {
-    DEBUG("Starting audio_play_voices with %d voices", music_data->numVoices);
+    //DEBUG("Starting audio_play_voices with %d voices", music_data->numVoices);
 
     int voice_count = music_data->numVoices;
 
@@ -552,7 +552,7 @@ void AudioPlayVoices(const MusicData* music_data, const Note* music)
         delay_samples[v] = (delay_ms * SAMPLE_RATE) / 1000;
         if (delay_samples[v] > 10 * SAMPLE_RATE)
         {
-            DEBUG("Capping excessive delay for voice %d", v);
+            //DEBUG("Capping excessive delay for voice %d", v);
             delay_samples[v] = 0;
         }
     }
@@ -572,7 +572,7 @@ void AudioPlayVoices(const MusicData* music_data, const Note* music)
         }
         if (!running)
         {
-            DEBUG("All voices finished after %d samples", total_samples_processed);
+            //DEBUG("All voices finished after %d samples", total_samples_processed);
             break;
         }
 
@@ -607,7 +607,7 @@ void AudioPlayVoices(const MusicData* music_data, const Note* music)
 
                     if (n.duration > 15)
                     {
-                        DEBUG("Invalid duration %d at voice %d index %d", n.duration, v, idx[v]-1);
+                        //DEBUG("Invalid duration %d at voice %d index %d", n.duration, v, idx[v]-1);
                         continue;
                     }
 
@@ -626,11 +626,11 @@ void AudioPlayVoices(const MusicData* music_data, const Note* music)
                     {
                         if (n.note > 127)
                         {
-                            DEBUG("Invalid note %d at voice %d", n.note, v);
+                            //DEBUG("Invalid note %d at voice %d", n.note, v);
                             continue;
                         }
 
-                        int32_t freq = g_gameFlash.noteFreqFixed[n.note];
+                        int32_t freq = 0;//g_gameFlash.noteFreqFixed[n.note];
 
                         SynthVoices[v].current_instrument = n.instrument;
                         SynthVoices[v].current_articulation = n.articulation;
@@ -652,7 +652,7 @@ void AudioPlayVoices(const MusicData* music_data, const Note* music)
                     total_samples_note[v] = samples_left[v];
                     if (samples_left[v] > 1000000)
                     {
-                        DEBUG("Voice %d sample count %d too large!", v, samples_left[v]);
+                        //DEBUG("Voice %d sample count %d too large!", v, samples_left[v]);
                         samples_left[v] = 1000;
                     }
                 }
@@ -685,14 +685,15 @@ void AudioPlayVoices(const MusicData* music_data, const Note* music)
 
                     if ((i % 1000) == 0)
                     {
-                        if (g_run.music.w)
-                            CheckVolume();
-                        else
-                            UpdateBacklight();
-                        g_run.music.w = !g_run.music.w;
+                        // if (g_run.music.w)
+                        //     CheckVolume();
+                        // else
+                        //     UpdateBacklight();
+                        // g_run.music.w = !g_run.music.w;
                     }
 
-                    int32_t scaled_sample = (int32_t)(((int64_t)final_sample * g_run.music.master_volume) >> FIXED_SHIFT);
+                    // int32_t scaled_sample = (int32_t)(((int64_t)final_sample * g_run.music.master_volume) >> FIXED_SHIFT);
+                    int32_t scaled_sample = 0;
                     mix += scaled_sample;
 
                     samples_left[v]--;
@@ -717,7 +718,7 @@ void AudioPlayVoices(const MusicData* music_data, const Note* music)
         tight_loop_contents();
     }
 
-    DEBUG("Playback complete");
+    //DEBUG("Playback complete");
 }
 
 

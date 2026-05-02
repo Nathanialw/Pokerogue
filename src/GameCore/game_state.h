@@ -10,7 +10,6 @@ State SetInputState(InputState state);
 State SetBattleState(BattleState state);
 bool CheckBattleState(BattleState state);
 
-Delta SetDelta(Delta newDelta);
 
 void GameLoop();
 

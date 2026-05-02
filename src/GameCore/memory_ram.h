@@ -6,6 +6,7 @@
 #include "types.h"
 #include "enums.h"
 #include "hash_map.h"
+#include "lib_types.h"
 #include "utils.h"
 
 /**********************************************************************************************************************
@@ -48,21 +49,6 @@ typedef struct
     **********************************************************************************************************************/
     struct
     {
-        Delta d;
-        bool JSClick_Pressed;
-        bool Up_Pressed;
-        bool Down_Pressed;
-        bool Left_Pressed;
-        bool Right_Pressed;
-        bool WhiteClick_Pressed;
-        bool RedClick_Pressed;
-        bool BlueClick_Pressed;
-        bool GreenClick_Pressed;
-        bool JS_Pressed;
-        bool DPad_Pressed;
-        uint8_t sleepTime;
-        uint8_t defaultSleepTime;
-        uint8_t menuSleepTime;
         int8_t gameSpeed;
         char gameSpeedStr[16];
     } btns;
@@ -105,7 +91,7 @@ typedef struct
     struct
     {
         // uint16_t frameBuffer[BUFFER_H*SCREEN_W];
-        PartialFrameBuffer frameBuffer;
+        // PartialFrameBuffer frameBuffer;
 
         bool dirtyTiles[VIEW_TH][VIEW_TW];
         Creature newSprites[VIEW_TH][VIEW_TW];

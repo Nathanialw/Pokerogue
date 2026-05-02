@@ -47,6 +47,11 @@ add_library(GameCore STATIC
         enums.h
 )
 
+target_compile_definitions(GameCore PRIVATE ENABLE_DEBUG_OUTPUT ENABLE_ASSERTS)
+
+target_link_libraries(GameCore
+        PicoTypes
+)
 
 target_include_directories(GameCore PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}

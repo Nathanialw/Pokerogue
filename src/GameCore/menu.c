@@ -2,12 +2,16 @@
 // Created by nathanial on 2/24/26.
 //
 #include "entities.h"
+#include "lib_decl.h"
+
 #ifdef ENABLE_DEBUG_OUTPUT
 #include <stdio.h>
 #endif
 
 
 #include "menu.h"
+
+#include "lib_debugging.h"
 #include "memory_ram.h"
 #include "memory_rom.h"
 
@@ -26,11 +30,12 @@ uint16_t ListSize(uint16_t n)
 **********************************************************************************************************************/
 bool ListJump()
 {
-    if (g_run.btns.d.x != 0)
+    if (GetInputKeyState().d.x != 0)
     {
-        g_run.btns.d.y = g_run.btns.d.x * LIST_JUMP_AMOUNT;
-        if (HandleMenuOverflow(g_run.btns.d)) return true;
-        SetMenuDelta(g_run.btns.d);
+        Delta d = {};
+        d.y = GetInputKeyState().d.x * LIST_JUMP_AMOUNT;
+        if (HandleMenuOverflow(d)) return true;
+        SetMenuDelta(d);
     }
     return false;
 }

@@ -1,14 +1,21 @@
 add_executable(PicoRogue
         main.c
         init.c
+
         ili9341.c
         input.c
         sounds.c
         hardware.c
+
+        pico_ram.c
+        pico_rom.c
+
         pico_constants.h
 )
 
+
 target_link_libraries(PicoRogue
+        PicoTypes
         GameCore
         pico_stdlib
         hardware_spi
@@ -21,6 +28,9 @@ target_link_libraries(PicoRogue
         pico_audio
         pico_multicore
 )
+
+
+
 
 target_compile_definitions(PicoRogue PRIVATE ENABLE_DEBUG_OUTPUT ENABLE_ASSERTS)
 

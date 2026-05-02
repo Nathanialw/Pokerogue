@@ -3,6 +3,7 @@
 //
 
 #include "effects.h"
+#include "lib_debugging.h"
 #include "map.h"
 #include "memory_rom.h"
 #include "player.h"

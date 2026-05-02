@@ -1,5 +1,3 @@
-
-
 add_executable(GameCoreTests
         main.c
         map.c
@@ -14,7 +12,10 @@ add_executable(GameCoreTests
 target_compile_definitions(GameCoreTests PRIVATE ENABLE_DEBUG_OUTPUT ENABLE_ASSERTS)
 target_compile_definitions(GameCore PRIVATE ENABLE_DEBUG_OUTPUT ENABLE_ASSERTS)
 
-target_link_libraries(GameCoreTests GameCore)
+target_link_libraries(GameCoreTests
+        PicoTypes
+        GameCore
+)
 
 target_include_directories(GameCoreTests PUBLIC
         ${CMAKE_SOURCE_DIR}/src

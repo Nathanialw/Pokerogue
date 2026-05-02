@@ -13,6 +13,7 @@
 #include "memory_ram.h"
 #include "utils.h"
 #include "graphics.h"
+#include "lib_debugging.h"
 
 
 /**********************************************************************************************************************/
@@ -22,11 +23,13 @@ void FullRedraw()
 {
     Camera cam = GetCamera();
 
+    DEBUG("FullRedraw()");
     for (uint16_t sy = 0; sy < VIEW_TH; sy++)
     {
         uint16_t my = cam.y + sy;
         for (uint16_t sx = 0; sx < VIEW_TW; sx++)
         {
+            DEBUG("FullRedraw() - Drawing tile %d %d", sx, sy);
             uint16_t mx = cam.x + sx;
             uint16_t id = GetMapTile(mx, my);
             DrawTile(sx, sy, id);
@@ -34,16 +37,19 @@ void FullRedraw()
         }
     }
 
+    DEBUG("FullRedraw() - Drawing monsters");
     for (uint8_t i = 0; i < ENTITY_COUNT; ++i)
     {
         uint8_t x = g_run.creatures.position[i].x;
         uint8_t y = g_run.creatures.position[i].y;
         if (GetBit(g_run.creatures.onMap, i) && CameraContains(x, y))
         {
+            DEBUG("FullRedraw() - Drawing monster %d", i);
             uint8_t rx = (x - cam.x);
             uint8_t ry = (y - cam.y);
-
+            DEBUG("FullRedraw() - Drawing monster %d %d", rx, ry);
             DrawMonster(rx, ry, g_run.creatures.types[i]);
+            DEBUG("FullRedraw() - Drawing monster %d", g_run.creatures.types[i]);
             g_run.viewObjects[ry][rx] = g_run.creatures.types[i];
         }
     }

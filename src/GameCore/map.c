@@ -6,6 +6,7 @@
 
 #include "camera.h"
 #include "entities.h"
+#include "lib_debugging.h"
 #include "player.h"
 
 #include "utils.h"
@@ -115,13 +116,9 @@ uint8_t GetMapTile(uint8_t x, uint8_t y)
     uint16_t index = (y * MAP_W) + x;
     uint8_t byte = g_run.map[index / 2];
     if (index & 1)
-    {
         return byte >> 4; // High nibble for odd indices
-    }
-    else
-    {
-        return byte & 0x0F; // Low nibble for even indices
-    }
+
+    return byte & 0x0F; // Low nibble for even indices
 }
 
 /**********************************************************************************************************************/
@@ -234,7 +231,6 @@ void InitMapLayout(void)
 **********************************************************************************************************************/
 Position FindOpenMapLocation(ObjectsTypes type)
 {
-
     Position* positions = GetEntityPositions(type);
 
     while (1)

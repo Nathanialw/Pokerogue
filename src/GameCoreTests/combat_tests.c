@@ -7,6 +7,7 @@
 #include "enums.h"
 #include "combat_tests.h"
 
+#include "lib_debugging.h"
 #include "memory_ram.h"
 #include "memory_rom.h"
 

@@ -9,10 +9,10 @@
 **********************************************************************************************************************/
 typedef enum
 {
-    TITLE_SCREEN,
-    GAME_RUNNING,
-    NEW_MAP,
-    SHUTDOWN,
+    TITLE_SCREEN = 0,
+    GAME_RUNNING = 1,
+    NEW_MAP = 2,
+    SHUTDOWN = 3,
     GAME_STATE_SIZE,
 } GameState;
 

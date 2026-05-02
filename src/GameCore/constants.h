@@ -4,6 +4,7 @@
 #pragma once
 #include <stdbool.h>
 #include <data_constants.inc>
+#include "lib_types.h"
 
 /**********************************************************************************************************************/
 /*
@@ -14,36 +15,6 @@
 
 // compile options
 #define INCLUDE_BATTLERS
-
-/**********************************************************************************************************************/
-/** Testing macros
-**********************************************************************************************************************/
-#ifdef ENABLE_ASSERTS
-#include <stdio.h>
-#include <stdlib.h>
-#define ASSERT(cond, fmt, ...) \
-do { \
-if (!(cond)) { \
-fprintf(stderr, "[ASSERT] %s:%d: " fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__); \
-fflush(stderr); \
-abort(); \
-}} while(0)
-#else
-#define ASSERT(cond, fmt, ...) ((void)0)
-#endif
-#ifdef ENABLE_DEBUG_OUTPUT
-#include <stdio.h>
-/**********************************************************************************************************************/
-/** Prints only when #ifdef ENABLE_DEBUG_OUTPUT is set
- *  Handles formatted strings with as printf
-**********************************************************************************************************************/
-#define DEBUG(fmt, ...) \
-    do { fprintf(stderr, "[DEBUG] %s:%d: " fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__); fflush(stderr);} while(0)
-#define DEBUG_INLINE(fmt, ...) \
-    do { fprintf(stderr, fmt, ##__VA_ARGS__); fflush(stderr);} while(0)
-#else
-#define DEBUG(fmt, ...) do {} while(0) // this should be optimized out by the compiler
-#endif
 
 /**********************************************************************************************************************/
 /** Function macros
@@ -181,9 +152,9 @@ _Static_assert(DIALOGUE_H + RESOURCE_FRAME_H + BATTLER_AREA_H <= 240, "cannot ex
 /**********************************************************************************************************************/
 /** GRAPHICS constants
 **********************************************************************************************************************/
-#define BUFFER_H (16)
-#define BUFFER_W (392)
-#define BUFFER_SIZE (BUFFER_W * BUFFER_H)
+// #define BUFFER_H (16)
+// #define BUFFER_W (392)
+// #define BUFFER_SIZE (BUFFER_W * BUFFER_H)
 
 /**********************************************************************************************************************/
 /**STAT MODIFIERS cosntants
@@ -194,5 +165,4 @@ _Static_assert(DIALOGUE_H + RESOURCE_FRAME_H + BATTLER_AREA_H <= 240, "cannot ex
 /**********************************************************************************************************************/
 /**SOUNDS constants
 **********************************************************************************************************************/
-#define MAX_VOICES 6
 #define GENERATED_MELODY_LENGTH 64

@@ -8,7 +8,7 @@
 #include "hardware/i2c.h"
 #include "hardware/pwm.h"
 
-#include "memory_ram.h"
+// #include "memory_ram.h"
 #include "pico_constants.h"
 
 /**********************************************************************************************************************/
@@ -22,6 +22,7 @@
 #define BATTERY_STATUS
 
 uint8_t counter = MAX_COUNTER;
+uint8_t volts = 0;
 
 /**********************************************************************************************************************/
 /**  Reads the pin input on the pico
@@ -41,39 +42,39 @@ uint16_t Pico_ReadBatteryADC(void)
 **********************************************************************************************************************/
 void Pico_BatteryStatus(void)
 {
-    DEBUG("BatteryStatus. %d", counter);
-
-    //commented out for debugging
-    // counter++;
-    // if (counter >= MAX_COUNTER)
+    // DEBUG("BatteryStatus. %d", counter);
+    //
+    // //commented out for debugging
+    // // counter++;
+    // // if (counter >= MAX_COUNTER)
+    // // {
+    //
+    // uint16_t raw = Pico_ReadBatteryADC();
+    // float voltage = raw * 3.3f / 4095.0f;
+    // float battery_voltage = voltage * DIVIDER_RATIO * 100.0f;
+    //
+    // GetAsChars_uint16((uint16_t)battery_voltage, &g_run.hardware.volts);
+    // g_run.hardware.volts[0] = g_run.hardware.volts[2];
+    // g_run.hardware.volts[1] = '.';
+    // g_run.hardware.volts[2] = g_run.hardware.volts[3];
+    // g_run.hardware.volts[3] = g_run.hardware.volts[4];
+    // g_run.hardware.volts[4] = 'v';
+    //
+    //
+    // if (voltage * DIVIDER_RATIO < 3.3f)
     // {
-
-    uint16_t raw = Pico_ReadBatteryADC();
-    float voltage = raw * 3.3f / 4095.0f;
-    float battery_voltage = voltage * DIVIDER_RATIO * 100.0f;
-
-    GetAsChars_uint16((uint16_t)battery_voltage, &g_run.hardware.volts);
-    g_run.hardware.volts[0] = g_run.hardware.volts[2];
-    g_run.hardware.volts[1] = '.';
-    g_run.hardware.volts[2] = g_run.hardware.volts[3];
-    g_run.hardware.volts[3] = g_run.hardware.volts[4];
-    g_run.hardware.volts[4] = 'v';
-
-
-    if (voltage * DIVIDER_RATIO < 3.3f)
-    {
-        // LOW BATTERY ACTIONS
-        // Example:
-        // reduce volume
-        // set a global flag
-        // trigger UI warning
-
-        gpio_put(LED, 1); // simple indicator
-    }
-    else
-    {
-        gpio_put(LED, 0);
-    }
+    //     // LOW BATTERY ACTIONS
+    //     // Example:
+    //     // reduce volume
+    //     // set a global flag
+    //     // trigger UI warning
+    //
+    //     gpio_put(LED, 1); // simple indicator
+    // }
+    // else
+    // {
+    //     gpio_put(LED, 0);
+    // }
     // }
 }
 
@@ -175,7 +176,7 @@ void I2C_BusClear(void)
 
 void RecoverADS1115(void)
 {
-    DEBUG("Recovering ADS");
+    // DEBUG("Recovering ADS");
     i2c_deinit(I2C_PORT);
     I2C_BusClear();
     sleep_ms(1);

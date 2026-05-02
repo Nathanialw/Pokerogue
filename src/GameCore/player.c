@@ -8,6 +8,7 @@
 #include "map.h"
 #include "memory_ram.h"
 #include "entities.h"
+#include "lib_debugging.h"
 
 #include "utils.h"
 #include "stats.h"

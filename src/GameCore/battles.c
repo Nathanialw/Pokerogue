@@ -5,6 +5,7 @@
 #include "battles.h"
 
 #include "entities.h"
+#include "lib_debugging.h"
 #include "memory_ram.h"
 #include "memory_rom.h"
 

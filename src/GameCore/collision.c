@@ -4,6 +4,7 @@
 
 #include "collision.h"
 
+#include "lib_debugging.h"
 #include "memory_ram.h"
 #include "menu_battle.h"
 

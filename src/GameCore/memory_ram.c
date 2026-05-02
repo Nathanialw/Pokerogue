@@ -12,9 +12,6 @@ void GameRunInit()
     g_run.floor = 0;
     g_run.settings.fontSize = FONT8x8;
 
-    g_run.btns.sleepTime = 120; //120
-    g_run.btns.defaultSleepTime = 120; //120
-    g_run.btns.menuSleepTime = 200; //200
     g_run.btns.gameSpeed = 10; //200
 
     g_run.menu.selectedMenu = MAIN_MENU;

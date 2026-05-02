@@ -9,6 +9,7 @@
 #include "entities.h"
 
 #include "battles.h"
+#include "lib_debugging.h"
 #include "map.h"
 #include "utils.h"
 #include "stats.h"

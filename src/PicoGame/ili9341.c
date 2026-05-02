@@ -2,25 +2,71 @@
 
 #include <string.h>
 
-#include "memory_ram.h"
+// #include "memory_ram.h"
 #include "pico/stdlib.h"
 #include "hardware/spi.h"
 
-#include "memory_rom.h"
+// #include "memory_rom.h"
+#include "lib_debugging.h"
+#include "lib_types.h"
 #include "pico_constants.h"
+#include "pico_ram.h"
 
 
-void ClearBuffer();
+uint16_t* GetFrameBufferFront(void);
+uint16_t* GetFrameBufferBack(void);
+uint8_t* GetFrameBuffer1byte(void);
+uint16_t* GetFrameBuffer2bytes(void);
+uint16_t GetBufferWidth(void);
+uint16_t GetBufferHeight(void);
+
+void ClearBuffer(void);
 void DrawBuffer(const FrameBuffer f);
-void SetFrameBuffer(Color rgb565);
+void SetFrameBuffer(uint16_t rgb565);
+void SetFrameBufferColor(Color rgb565);
 void DrawSprite(FrameBuffer f, const uint8_t* sprite);
 void DrawToBuffer(const FrameBuffer frameBuffer, const uint16_t* pixels, const Rect_16 rect);
-void FillRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, Color rgb565);
-void FillScreen(Color rgb565);
-void TestAnimation(FrameBuffer f, Rect_16 r, uint16_t color1);
+void FillRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t rgb565);
+void FillRectColor(uint16_t x, uint16_t y, uint16_t w, uint16_t h, Color rgb565);
+void FillScreen(uint16_t rgb565);
+void FillScreenColor(Color rgb565);
+void TestAnimation(FrameBuffer f, Rect_16 r, Color color1);
 void DrawTileKeyed(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint16_t* data);
 void Draw(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint8_t* data);
 
+
+/**********************************************************************************************************************/
+/*
+**********************************************************************************************************************/
+uint16_t* GetFrameBufferFront(void)
+{
+    return g_pico_ram.frameBuffer.front;
+}
+
+uint16_t* GetFrameBufferBack(void)
+{
+    return g_pico_ram.frameBuffer.back;
+}
+
+uint16_t* GetFrameBuffer2bytes(void)
+{
+    return g_pico_ram.frameBuffer.frameBuffer;
+}
+
+uint8_t* GetFrameBuffer1byte(void)
+{
+    return g_pico_ram.frameBuffer.frameBuffer1byte;
+}
+
+uint16_t GetBufferWidth(void)
+{
+    return BUFFER_W;
+}
+
+uint16_t GetBufferHeight(void)
+{
+    return BUFFER_H;
+}
 
 /**********************************************************************************************************************/
 /*
@@ -43,9 +89,13 @@ static inline void Pico_CSDeselect(void) { gpio_put(lcd.cs, 1); }
 /**********************************************************************************************************************/
 /**  Swap the 4 High and 4 low bits of a byte
 **********************************************************************************************************************/
-static inline uint16_t Pico_SwapBytes(uint16_t x)
+static inline uint16_t Pico_SetColorByte(Color c)
 {
-    return (x >> 8) | (x << 8);
+#if defined(SWAP_COLOR_BYTES)
+    return (c.color >> 8) | (c.color << 8);
+#else
+    return x;
+#endif
 }
 
 /**********************************************************************************************************************/
@@ -107,10 +157,11 @@ static void Pico_SetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
 /**********************************************************************************************************************/
 /**  Init the LCD display for a landscape view
 **********************************************************************************************************************/
+
 void Pico_ili9341_Init(void)
 {
     // init LCD
-    lcd.spi = spi1;
+    lcd.spi = SPI_DISPLAY;
     lcd.sck = SCK;
     lcd.mosi = MOSI;
     lcd.cs = CS;
@@ -130,7 +181,7 @@ void Pico_ili9341_Init(void)
     gpio_set_dir(lcd.rst, GPIO_OUT);
 
     // SPI pins
-    spi_init(lcd.spi, 40 * 1000 * 1000); //testing higher,  40 MHz is often OK; if flaky, drop to 20MHz.
+    spi_init(lcd.spi, 20 * 1000 * 1000); //testing higher,  40 MHz is often OK; if flaky, drop to 20MHz.
     gpio_set_function(lcd.sck, GPIO_FUNC_SPI);
     gpio_set_function(lcd.mosi, GPIO_FUNC_SPI);
 
@@ -140,7 +191,7 @@ void Pico_ili9341_Init(void)
     gpio_put(lcd.rst, 1);
     sleep_ms(120);
 
-    // Minimal init sequence (enough for most ILI9341 boards)
+#if defined(ILI9341)
     Pico_WriteCmd(0x01);
     sleep_ms(10); // Software reset
     Pico_WriteCmd(0x28); // Display OFF
@@ -159,13 +210,33 @@ void Pico_ili9341_Init(void)
         (1 << 3) | // BGR: BGR order
         (0 << 2); // horizontal refresh order
 
-
     Pico_WriteData(&madctl, 1);
 
     Pico_WriteCmd(0x11);
     sleep_ms(120); // Sleep Out
     Pico_WriteCmd(0x29);
     sleep_ms(20); // Display ON
+#elif defined(ST7796S)
+    Pico_WriteCmd(0x01);
+    sleep_ms(10); // Software reset
+    Pico_WriteCmd(0x11);
+    sleep_ms(120); // Sleep out
+
+    Pico_WriteCmd(0x36); // MADCTL
+    uint8_t madctl = 0xE8; // Example: BGR, swap XY for landscape? Adjust as needed
+
+    Pico_WriteData(&madctl, 1);
+
+    Pico_WriteCmd(0x3A); // Pixel format
+
+    uint8_t pf = 0x55; // 16bpp
+    Pico_WriteData(&pf, 1);
+
+    Pico_WriteCmd(0x29);
+    sleep_ms(20); // Display on
+#else
+#error "Define ILI9341 or ST7796S"
+#endif
 }
 
 /**********************************************************************************************************************/
@@ -174,26 +245,27 @@ void Pico_ili9341_Init(void)
 **********************************************************************************************************************/
 void Pico_ili9341_DrawRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, Color rgb565)
 {
-    if ((w * h) < (BUFFER_SIZE * 2))
+    // if ((w * h) < (BUFFER_SIZE * 2))
+    if ((w * h) < BUFFER_SIZE_2BYTES)
     {
-        SetFrameBuffer(rgb565);
-        Draw(x, y, w, h, g_run.tileCache.frameBuffer.frameBuffer1byte);
+        SetFrameBufferColor(rgb565);
+        Draw(x, y, w, h, g_pico_ram.frameBuffer.frameBuffer1byte);
     }
     else
     {
         if (w > h)
         {
             w = w / 2;
-            FillRect(x, y, w, h, rgb565);
+            FillRectColor(x, y, w, h, rgb565);
             x += w;
-            FillRect(x, y, w, h, rgb565);
+            FillRectColor(x, y, w, h, rgb565);
         }
         else
         {
             h = h / 2;
-            FillRect(x, y, w, h, rgb565);
+            FillRectColor(x, y, w, h, rgb565);
             y += h;
-            FillRect(x, y, w, h, rgb565);
+            FillRectColor(x, y, w, h, rgb565);
         }
     }
 }
@@ -202,7 +274,24 @@ void Pico_ili9341_DrawRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, Color
 /**  Validates the rect given rect
  *  Calls the Draw rect function to the screen of the given position, dimensions and colour
 **********************************************************************************************************************/
-void FillRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, Color rgb565)
+void FillRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t rgb565)
+{
+    if ((w == 0 || h == 0) || (x >= TFT_W || y >= TFT_H))
+        return;
+
+    if (x + w > TFT_W) w = TFT_W - x;
+    if (y + h > TFT_H) h = TFT_H - y;
+
+    Color c = {.color = rgb565};
+    Pico_ili9341_DrawRect(x, y, w, h, c);
+}
+
+
+/**********************************************************************************************************************/
+/**  Validates the rect given rect
+ *  Calls the Draw rect function to the screen of the given position, dimensions and colour
+**********************************************************************************************************************/
+void FillRectColor(uint16_t x, uint16_t y, uint16_t w, uint16_t h, Color rgb565)
 {
     if ((w == 0 || h == 0) || (x >= TFT_W || y >= TFT_H))
         return;
@@ -216,9 +305,19 @@ void FillRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, Color rgb565)
 /**********************************************************************************************************************/
 /**  Fills the screen with the given colour
 **********************************************************************************************************************/
-void FillScreen(Color rgb565)
+void FillScreen(uint16_t rgb565)
 {
-    FillRect(0, 0, TFT_W, TFT_H, rgb565);
+    Color c = {.color = rgb565};
+    FillRectColor(0, 0, TFT_W, TFT_H, c);
+}
+
+
+/**********************************************************************************************************************/
+/**  Fills the screen with the given colour
+**********************************************************************************************************************/
+void FillScreenColor(Color rgb565)
+{
+    FillRectColor(0, 0, TFT_W, TFT_H, rgb565);
 }
 
 /**********************************************************************************************************************/
@@ -244,7 +343,7 @@ void Draw(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint8_t* data)
 void DrawToBuffer(const FrameBuffer frameBuffer, const uint16_t* pixels, const Rect_16 rect)
 {
     uint16_t width = frameBuffer.w;
-    uint16_t transparency = g_gameFlash.GetColor[PAL_KEY];
+    // = g_gameFlash.GetColor[PAL_KEY];
 
     uint16_t clip_x = 0;
     uint16_t clip_y = 0;
@@ -267,14 +366,16 @@ void DrawToBuffer(const FrameBuffer frameBuffer, const uint16_t* pixels, const R
     {
         for (uint16_t x = clip_x; x < rect.w; x++)
         {
-            uint16_t color = pixels[(y * rect.w) + x];
-            if (color == transparency) continue;
+            Color color;
+            color.color = pixels[(y * rect.w) + x];
+            if (color.color == TRANSPARENCY) continue;
 
             uint16_t screen_x = dest_x + x;
             uint16_t screen_y = dest_y + y;
             uint16_t index = (screen_y * width) + screen_x;
 
-            g_run.tileCache.frameBuffer.frameBuffer[index] = Pico_SwapBytes(color);
+            // g_run.tileCache.frameBuffer.frameBuffer[index] = Pico_SwapBytes(color);
+            g_pico_ram.frameBuffer.frameBuffer[index] = Pico_SetColorByte(color);
         }
     }
 }
@@ -285,21 +386,41 @@ void DrawToBuffer(const FrameBuffer frameBuffer, const uint16_t* pixels, const R
 void Pico_ili9341_SetRectColor(uint16_t length, uint16_t* p, Color rgb565)
 {
     for (uint16_t i = 0; i < length; i++)
-        p[i] = Pico_SwapBytes(rgb565);
+        p[i] = Pico_SetColorByte(rgb565);
 }
 
 /**********************************************************************************************************************/
 /**  fills the frame buffer with the given colour value
 **********************************************************************************************************************/
-void SetFrameBuffer(Color rgb565)
+void SetFrameBufferColor(Color rgb565)
 {
-    Pico_ili9341_SetRectColor(BUFFER_SIZE * 2, g_run.tileCache.frameBuffer.frameBuffer, rgb565);
+    Pico_ili9341_SetRectColor(BUFFER_SIZE_2BYTES, g_pico_ram.frameBuffer.frameBuffer, rgb565);
+    // Pico_ili9341_SetRectColor(BUFFER_SIZE * 2, g_run.tileCache.frameBuffer.frameBuffer, rgb565);
 }
 
 /**********************************************************************************************************************/
 /**  fills the frame buffer with the given colour value
 **********************************************************************************************************************/
-void SetBuffer(uint16_t length, uint16_t* p, Color rgb565)
+void SetFrameBuffer(uint16_t rgb565)
+{
+    Color c = {.color = rgb565};
+    Pico_ili9341_SetRectColor(BUFFER_SIZE_2BYTES, g_pico_ram.frameBuffer.frameBuffer, c);
+    // Pico_ili9341_SetRectColor(BUFFER_SIZE * 2, g_run.tileCache.frameBuffer.frameBuffer, rgb565);
+}
+
+/**********************************************************************************************************************/
+/**  fills the frame buffer with the given colour value
+**********************************************************************************************************************/
+void SetBuffer(uint16_t length, uint16_t* p, uint16_t rgb565)
+{
+    Color c = {.color = rgb565};
+    Pico_ili9341_SetRectColor(length, p, c);
+}
+
+/**********************************************************************************************************************/
+/**  fills the frame buffer with the given colour value
+**********************************************************************************************************************/
+void SetBufferColor(uint16_t length, uint16_t* p, Color rgb565)
 {
     Pico_ili9341_SetRectColor(length, p, rgb565);
 }
@@ -307,9 +428,11 @@ void SetBuffer(uint16_t length, uint16_t* p, Color rgb565)
 /**********************************************************************************************************************/
 /**  clears the frame buffer pixel colour values
 **********************************************************************************************************************/
-void ClearBuffer(void)
+void ClearBuffer()
 {
-    Pico_ili9341_SetRectColor(BUFFER_SIZE * 2, g_run.tileCache.frameBuffer.frameBuffer, g_gameFlash.GetColor[PAL_BRIGHT_RED]);
+    // Pico_ili9341_SetRectColor(BUFFER_SIZE * 2, partialFrameBuffer, g_gameFlash.GetColor[PAL_BRIGHT_RED]);
+    Color c = {.color = 0xFFFF};
+    Pico_ili9341_SetRectColor(BUFFER_SIZE_2BYTES, g_pico_ram.frameBuffer.frameBuffer, c);
 }
 
 /**********************************************************************************************************************/
@@ -317,7 +440,7 @@ void ClearBuffer(void)
 **********************************************************************************************************************/
 void DrawBuffer(const FrameBuffer f)
 {
-    Draw(f.x, f.y, f.w, f.h, g_run.tileCache.frameBuffer.frameBuffer1byte);
+    Draw(f.x, f.y, f.w, f.h, g_pico_ram.frameBuffer.frameBuffer1byte);
 }
 
 /**********************************************************************************************************************/
@@ -343,15 +466,18 @@ void Pico_TestFrameBuffer()
     uint16_t p[10 * 40];
 
     r.x = 5;
-    Pico_ili9341_SetRectColor(10 * 40, p, 0x001f); //blu
+    Color c = {.color = 0x001f};
+    Pico_ili9341_SetRectColor(10 * 40, p, c); //blu
     DrawToBuffer(f, p, r);
 
     r.x = 25;
-    Pico_ili9341_SetRectColor(10 * 40, p, 0x07e0); //grn
+    c.color = 0x07e0;
+    Pico_ili9341_SetRectColor(10 * 40, p, c); //grn
     DrawToBuffer(f, p, r);
 
     r.x = 45;
-    Pico_ili9341_SetRectColor(10 * 40, p, 0xf000); //red
+    c.color = 0xf81f;
+    Pico_ili9341_SetRectColor(10 * 40, p, c); //red
     DrawToBuffer(f, p, r);
 
     DrawBuffer(f);
@@ -360,7 +486,7 @@ void Pico_TestFrameBuffer()
 /**********************************************************************************************************************/
 /**  TEMP - for testing animations
 **********************************************************************************************************************/
-void TestAnimation(FrameBuffer f, Rect_16 r, uint16_t color1)
+void TestAnimation(FrameBuffer f, Rect_16 r, Color color1)
 {
     SetFrameBuffer(0xd6fa); // gray
 
@@ -372,6 +498,58 @@ void TestAnimation(FrameBuffer f, Rect_16 r, uint16_t color1)
     DrawBuffer(f);
 }
 
+
+/**********************************************************************************************************************/
+/**  Color bars to check proper colour
+**********************************************************************************************************************/
+void Pico_TestColors()
+{
+    uint16_t width = 40;
+    FrameBuffer f = {.x = 0, .y = 0, .w = width, .h = 320};
+
+    uint16_t colors[8] =
+    {
+        0xFFFF, //White
+        0xFFE0, //Yellow
+        0x07FF, //Cyan
+        0x0400, //Green
+        0xF81F, //Magenta
+        0xF800, //Red
+        0x001F, //Blue
+        0x0000, //Black
+    };
+
+
+    for (uint8_t i = 0; i < 8; i++)
+    {
+        Color c = {.color = colors[i]};
+        SetFrameBufferColor(c);
+        DrawBuffer(f);
+        f.x += width;
+    }
+}
+
+/**********************************************************************************************************************/
+/**  Test text drawn to the screen
+**********************************************************************************************************************/
+void Pico_TestText()
+{
+    uint16_t width = 40;
+    FrameBuffer f = {.x = 0, .y = 0, .w = width, .h = 320};
+
+    uint16_t colors[8] =
+    {
+        0xFFFF, //White
+        0xFFE0, //Yellow
+        0x07FF, //Cyan
+        0x0400, //Green
+        0xF81F, //Magenta
+        0xF800, //Red
+        0x001F, //Blue
+        0x0000, //Black
+    };
+}
+
 /**********************************************************************************************************************/
 /**  blits pixels to the screen at the given position and dimensions
  *  ignores transparent keyed pixels
@@ -379,27 +557,26 @@ void TestAnimation(FrameBuffer f, Rect_16 r, uint16_t color1)
 **********************************************************************************************************************/
 void DrawTileKeyed(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint16_t* data)
 {
-    // DEBUG("data ptr %p", data);
-    // DEBUG("BLIT x=%d y=%d w=%d h=%d", x, y, w, h);
+    DEBUG("data ptr %p", data);
+    DEBUG("BLIT x=%d y=%d w=%d h=%d", x, y, w, h);
 
-    uint16_t key = g_gameFlash.GetColor[PAL_KEY];
     static uint8_t linebuf[64 * 2];
 
     // DEBUG("start DrawKeyed");
     for (uint16_t row = 0; row < h; row++)
     {
-        // DEBUG("getting new");
+        DEBUG("getting new");
         const uint16_t* src = data + row * w;
-        // DEBUG("getting new success");
+        DEBUG("getting new success");
 
         uint16_t col = 0;
 
         while (col < w)
         {
-            // DEBUG("inner1 %d %d", col, w);
+            DEBUG("inner1 %d %d", col, w);
 
             // Skip transparent pixels
-            if (src[col] == key)
+            if (src[col] == TRANSPARENCY)
             {
                 col++;
                 continue;
@@ -409,7 +586,7 @@ void DrawTileKeyed(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint16_
             uint16_t start = col;
 
             // Advance until transparent or end
-            while (col < w && src[col] != key)
+            while (col < w && src[col] != TRANSPARENCY)
             {
                 col++;
             }
@@ -431,8 +608,7 @@ void DrawTileKeyed(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint16_
                     uint16_t idx = start + offset + i;
                     if (idx >= w)
                     {
-                        DEBUG("OOB idx=%d w=%d start=%d offset=%d i=%d",
-                              idx, w, start, offset, i);
+                        DEBUG("OOB idx=%d w=%d start=%d offset=%d i=%d", idx, w, start, offset, i);
                         break;
                     }
                     uint16_t px = src[start + offset + i];

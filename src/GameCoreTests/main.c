@@ -8,6 +8,7 @@
 #include "core.h"
 #include "creatures.h"
 #include "effects.h"
+#include "lib_debugging.h"
 #include "memory_ram.h"
 #include "utils_tests.h"
 
@@ -15,7 +16,6 @@ State HandleInput(State state)
 {
     return state;
 }
-
 
 
 void SleepMS(uint32_t t)
@@ -70,6 +70,102 @@ void SetBuffer()
 {
 }
 
+bool GetButtonA()
+{
+    return false;
+}
+
+bool GetButtonB()
+{
+    return false;
+}
+
+bool GetButtonY()
+{
+    return false;
+}
+
+bool GetButtonX()
+{
+    return false;
+}
+
+bool GetButtonSelect()
+{
+    return false;
+}
+
+bool GetButtonStart()
+{
+    return false;
+}
+
+bool GetButtonUp()
+{
+    return false;
+}
+
+bool GetButtonDown()
+{
+    return false;
+}
+
+bool GetButtonLeft()
+{
+    return false;
+}
+
+bool GetButtonRight()
+{
+    return false;
+}
+
+bool GetButtonJSClick()
+{
+    return false;
+}
+
+bool GetButtonDPClick()
+{
+    return false;
+}
+
+uint16_t* GetFrameBufferFront()
+{
+    return NULL;
+}
+
+uint16_t* GetFrameBufferBack()
+{
+    return NULL;
+}
+
+uint8_t* GetFrameBuffer1byte()
+{
+    return NULL;
+}
+
+uint16_t* GetFrameBuffer2bytes()
+{
+    return NULL;
+}
+
+uint16_t GetBufferWidth()
+{
+    return 0;
+}
+
+uint16_t GetBufferHeight()
+{
+    return 0;
+}
+
+KeyState GetInputKeyState()
+{
+    KeyState k = {0};
+    return k;
+}
+
 
 int main()
 {
@@ -78,10 +174,9 @@ int main()
     MapDescend(g_run.player.id);
     DEBUG("---");
 
-    //RunCombatTests();
-    // CreatureTests();
-    // CheckAnimationImplemented();
-
+    // RunCombatTests();
+    CreatureTests();
+    CheckAnimationImplemented();
 
 
     return 0;

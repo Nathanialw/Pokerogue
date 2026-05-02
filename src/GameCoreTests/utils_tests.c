@@ -4,6 +4,8 @@
 
 #include "utils.h"
 #include "utils_tests.h"
+
+#include "lib_debugging.h"
 #include "types.h"
 
 #define n 10

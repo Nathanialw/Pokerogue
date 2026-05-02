@@ -5,21 +5,25 @@
 #include "stdbool.h"
 
 #include "pico/bootrom.h"
-#include "pico/stdlib.h"
 #include "hardware/adc.h"
 
 #include "input.h"
-
-#include "types.h"
+#include "lib_types.h"
 #include "camera.h"
+
 #include "game_state.h"
-#include "memory_ram.h"
+#include "lib_debugging.h"
 #include "pico_constants.h"
-#include "rendering.h"
+#include "pico_ram.h"
 
 /**********************************************************************************************************************/
 /*
 **********************************************************************************************************************/
+KeyState GetInputKeyState()
+{
+    return g_pico_ram.input.keyState;
+}
+
 
 #define DEADZONE 600
 
@@ -65,7 +69,7 @@ bool Pico_CheckBtn(uint16_t btn, uint16_t pressDuration)
  *  ON SUCCESS - return true
  *  ON FAIL - return false
 **********************************************************************************************************************/
-bool Pico_InputDelta(void)
+Delta Pico_InputDelta(void)
 {
     Delta d = {0, 0};
     int8_t joy_dx = 0;
@@ -94,11 +98,10 @@ bool Pico_InputDelta(void)
         d.y = joy_dy;
     }
 
-    if (d.x == 0 && d.y == 0) return false;
+    // if (d.x == 0 && d.y == 0) return false;
 
-    SetDelta(d);
 
-    return true;
+    return d;
 }
 
 /**********************************************************************************************************************/
@@ -106,22 +109,123 @@ bool Pico_InputDelta(void)
  *  ON SUCCESS - return true
  *  ON FAIL - return false
 **********************************************************************************************************************/
-bool Pico_InputDeltaDPad(void)
+Delta Pico_InputDeltaDPad(void)
 {
     Delta d = {0, 0};
     int8_t dx = 0;
     int8_t dy = 0;
 
-    if (Pico_CheckBtn(UPBTN, 0)) dy = -1;
-    else if (Pico_CheckBtn(DOWNBTN, 0)) dy = 1;
-    else if (Pico_CheckBtn(LEFTBTN, 0)) dx = -1;
-    else if (Pico_CheckBtn(RIGHTBTN, 0)) dx = 1;
-    if (dx == 0 && dy == 0) return false;
+    // if (Pico_CheckBtn(UPBTN, 0)) dy = -1;
+    // else if (Pico_CheckBtn(DOWNBTN, 0)) dy = 1;
+    // else if (Pico_CheckBtn(LEFTBTN, 0)) dx = -1;
+    // else if (Pico_CheckBtn(RIGHTBTN, 0)) dx = 1;
+    // if (dx == 0 && dy == 0) return false;
     d.x = dx;
     d.y = dy;
 
-    SetDelta(d);
-    return true;
+    return d;
+}
+
+
+uint8_t SN74HC165N_ReadShiftRegister()
+{
+    uint8_t data = 0;
+    gpio_put(SN74HC165N_SH_LD, 0);
+    busy_wait_us(1);
+    gpio_put(SN74HC165N_SH_LD, 1);
+    busy_wait_us(10); // <-- extra delay for first bt to stabilise
+    spi_read_blocking(SPI_BUTTONS, 0, &data, 1);
+    return data;
+}
+
+
+uint16_t SN74HC165N_BitBangShiftRegister()
+{
+    gpio_put(SN74HC165N_SH_LD, 0);
+    busy_wait_us(1);
+    gpio_put(SN74HC165N_SH_LD, 1);
+    busy_wait_us(1);
+
+    uint16_t data = 0;
+    for (int i = 0; i < 16; i++)
+    {
+        data = (data << 1) | gpio_get(SN74HC165N_MISO);
+        gpio_put(SN74HC165N_SCLK, 1);
+        busy_wait_us(1);
+        gpio_put(SN74HC165N_SCLK, 0);
+        busy_wait_us(1);
+    }
+    return data;
+}
+
+void PrintInput(uint16_t n, char* binary)
+{
+    for (int i = 16 - 1; i >= 0; i--)
+    {
+        binary[i] = (n & 1) ? '1' : '0';
+        n >>= 1;
+    }
+    binary[16] = '\0';
+}
+
+bool GetButtonA(void)
+{
+    return g_pico_ram.input.keyState.buttons >> 0 & 1 ? 1 : 0;
+}
+
+bool GetButtonB(void)
+{
+    return g_pico_ram.input.keyState.buttons >> 1 & 1 ? 1 : 0;
+}
+
+bool GetButtonY(void)
+{
+    return g_pico_ram.input.keyState.buttons >> 2 & 1 ? 1 : 0;
+}
+
+bool GetButtonX(void)
+{
+    return g_pico_ram.input.keyState.buttons >> 3 & 1 ? 1 : 0;
+}
+
+bool GetButtonSelect(void)
+{
+    return g_pico_ram.input.keyState.buttons >> 4 & 1 ? 1 : 0;
+}
+
+bool GetButtonStart(void)
+{
+    return g_pico_ram.input.keyState.buttons >> 5 & 1 ? 1 : 0;
+}
+
+bool GetButtonUp(void)
+{
+    return g_pico_ram.input.keyState.buttons >> 6 & 1 ? 1 : 0;
+}
+
+bool GetButtonDown(void)
+{
+    return g_pico_ram.input.keyState.buttons >> 7 & 1 ? 1 : 0;
+}
+
+bool GetButtonLeft(void)
+{
+    return g_pico_ram.input.keyState.buttons >> 8 & 1 ? 1 : 0;
+}
+
+bool GetButtonRight(void)
+{
+    return g_pico_ram.input.keyState.buttons >> 9 & 1 ? 1 : 0;
+}
+
+bool GetButtonJSClick(void)
+{
+    return g_pico_ram.input.keyState.buttons >> 10 & 1 ? 1 : 0;
+}
+
+bool GetButtonDPClick(void)
+{
+    return g_pico_ram.input.keyState.buttons >> 11 & 1 ? 1 : 0;
 }
 
 /**********************************************************************************************************************/
@@ -133,83 +237,48 @@ State HandleInput(State state)
 {
     while (1)
     {
-        sleep_ms(g_run.btns.sleepTime); //sleep between key queries
+        const uint16_t tmp = SN74HC165N_BitBangShiftRegister();
+        if (tmp == g_pico_ram.input.keyState.buttons)
+        {
+            DEBUG("Checking for input");
+            sleep_ms(g_pico_ram.input.sleepTime); //sleep between key queries
+            continue;
+        }
 
-        g_run.btns.sleepTime = g_run.btns.defaultSleepTime;
-        g_run.btns.d.x = 0;
-        g_run.btns.d.y = 0;
+        g_pico_ram.input.keyState.buttons = tmp;
+        char binary[16 + 1];
+        PrintInput(g_pico_ram.input.keyState.buttons, binary);
+        DEBUG("Buttons: 0b%s", binary);
+        DEBUG("button A : %d", GetButtonA());
 
-        bool UpClick_Pressed = g_run.btns.Up_Pressed;
-        bool DownClick_Pressed = g_run.btns.Down_Pressed;
-        bool LeftClick_Pressed = g_run.btns.Left_Pressed;
-        bool RightClick_Pressed = g_run.btns.Right_Pressed;
-
-        bool WhiteClick_Pressed = g_run.btns.WhiteClick_Pressed;
-        bool GreenClick_Pressed = g_run.btns.GreenClick_Pressed;
-        bool RedClick_Pressed = g_run.btns.RedClick_Pressed;
-        bool BlueClick_Pressed = g_run.btns.BlueClick_Pressed;
-
-        bool JSClick_Pressed = g_run.btns.JSClick_Pressed;
-
-        g_run.btns.DPad_Pressed = Pico_InputDeltaDPad();
-        g_run.btns.JS_Pressed = Pico_InputDelta();
-
-        g_run.btns.WhiteClick_Pressed = Pico_CheckBtn(WHITEBTN, 0);
-        g_run.btns.RedClick_Pressed = Pico_CheckBtn(REDBTN, 0);
-        g_run.btns.BlueClick_Pressed = Pico_CheckBtn(BLUEBTN, 0);
-        g_run.btns.GreenClick_Pressed = Pico_CheckBtn(GREENBTN, 0);
-
-        // g_run.btns.JSClick_Pressed = Pico_CheckBtn(JSCLICKBTN, 0);
-        g_run.btns.JSClick_Pressed = Pico_CheckBtn(DCLICKBTN, 0);
-
-
-        if (g_run.btns.DPad_Pressed)
-            break;
-        if (g_run.btns.JS_Pressed)
-            break;
-
-        if (UpClick_Pressed != g_run.btns.Up_Pressed)
-            break;
-        if (DownClick_Pressed != g_run.btns.Down_Pressed)
-            break;
-        if (LeftClick_Pressed != g_run.btns.Left_Pressed)
-            break;
-        if (RightClick_Pressed != g_run.btns.Right_Pressed)
-            break;
-
-        if (WhiteClick_Pressed != g_run.btns.WhiteClick_Pressed)
-            break;
-        if (GreenClick_Pressed != g_run.btns.GreenClick_Pressed)
-            break;
-        if (RedClick_Pressed != g_run.btns.RedClick_Pressed)
-            break;
-        if (BlueClick_Pressed != g_run.btns.BlueClick_Pressed)
-            break;
-        if (JSClick_Pressed != g_run.btns.JSClick_Pressed)
-            break;
-
-        sleep_ms(g_run.btns.defaultSleepTime); //extra sleep when nothing is happening
+        g_pico_ram.input.sleepTime = g_pico_ram.input.defaultSleepTime;
+        g_pico_ram.input.keyState.d.x = 0;
+        g_pico_ram.input.keyState.d.y = 0;
+        break;
     }
 
     State prevState = state;
-
+    DEBUG("UpdateGameState");
     state = UpdateGameState(state);
+    DEBUG("UpdateGameState done");
+
 
     if (state.inputState == REBOOT)
     {
-        if (Pico_CheckBtn(REDBTN, 1000))
-            Pico_Reset();
-        else
-            state.inputState = MOVING;
+        // if (Pico_CheckBtn(REDBTN, 1000))
+        //     Pico_Reset();
+        // else
+        //     state.inputState = MOVING;
     }
 
+    DEBUG("FullRedraw");
 
-    if ((prevState.inputState == MENU || prevState.inputState == BATTLE) && state.inputState == MOVING)
-        FullRedraw();
+    // if ((prevState.inputState == MENU || prevState.inputState == BATTLE) && state.inputState == MOVING)
+    //     FullRedraw();
 
     if (state.inputState == MENU)
-        g_run.btns.sleepTime = g_run.btns.menuSleepTime;
+        g_pico_ram.input.sleepTime = g_pico_ram.input.menuSleepTime;
 
-
+    DEBUG("input Done");
     return state;
 }

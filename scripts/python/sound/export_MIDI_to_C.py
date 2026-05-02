@@ -222,7 +222,7 @@ def export_all_songs(songs, notes_filename, metadata_filename):
             for _ in range(len(song.voices), MAX_VOICES):
                 f.write("0,")
             f.write("}, ")
-            f.write(".delay = {0,0,0,0,0,0} ")
+            f.write(".delay = {0,0,0,0} ")
             f.write("},\n")
 
         f.write(f"\n// Total notes across all songs: {len(all_notes)}\n")

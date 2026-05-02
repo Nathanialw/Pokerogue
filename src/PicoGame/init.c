@@ -11,10 +11,11 @@
 
 #include "init.h"
 
-#include "core.h"
+// #include "core.h"
 #include "hardware.h"
-#include "memory_ram.h"
-#include "sound.h"
+// #include "memory_ram.h"
+// #include "sound.h"
+#include "lib_debugging.h"
 #include "sounds.h"
 #include "hardware/clocks.h"
 #include "hardware/i2c.h"
@@ -45,7 +46,7 @@ void SleepMS(uint32_t t)
 **********************************************************************************************************************/
 void ThreadTwo()
 {
-    MusicData music_data = InitMusicData();
+    // MusicData music_data = InitMusicData();
     while (1)
     {
         Pico_BatteryStatus();
@@ -57,11 +58,45 @@ void ThreadTwo()
         // }
         // else
         // {
-        GenerateDungeonMelody(g_run.music.notes);
-        AudioPlayVoices(&music_data, g_run.music.notes);
+        // GenerateDungeonMelody(g_run.music.notes);
+        // AudioPlayVoices(&music_data, g_run.music.notes);
         // }
     }
 }
+
+void SN74HC165N_Setup()
+{
+    // Initialize SPI at 1 khz
+    spi_init(SPI_BUTTONS, 100 * 1000);
+    spi_set_format(SPI_BUTTONS, 8, SPI_CPOL_0, SPI_CPHA_1, SPI_MSB_FIRST);
+
+    // Assign SPI pins
+    gpio_set_function(SN74HC165N_SCLK, GPIO_FUNC_SPI);
+    gpio_set_function(SN74HC165N_MISO, GPIO_FUNC_SPI);
+
+    // SH/LD as GPIO output, initially high
+    gpio_init(SN74HC165N_SH_LD);
+    gpio_set_dir(SN74HC165N_SH_LD, GPIO_OUT);
+    gpio_put(SN74HC165N_SH_LD, 1);
+    DEBUG("SN74HC165N_Setup");
+}
+
+void SN74HC165N_BitBangInit()
+{
+    gpio_init(SN74HC165N_SH_LD);
+    gpio_set_dir(SN74HC165N_SH_LD, GPIO_OUT);
+    gpio_put(SN74HC165N_SH_LD, 1);
+
+    gpio_init(SN74HC165N_SCLK);
+    gpio_set_dir(SN74HC165N_SCLK, GPIO_OUT);
+    gpio_put(SN74HC165N_SCLK, 0);
+
+    gpio_init(SN74HC165N_MISO);
+    gpio_set_dir(SN74HC165N_MISO, GPIO_IN);
+    DEBUG("SN74HC165N_BITBANG init");
+}
+
+
 
 /**********************************************************************************************************************/
 /**  Pico main init function
@@ -72,28 +107,24 @@ void Pico_Init(void)
 #include <stdio.h>
     stdio_init_all();
     sleep_ms(5000);
-    DEBUG("STARTUP!\n");
+    // DEBUG("STARTUP!\n");
 #endif
     uint32_t freq = clock_get_hz(clk_sys);
-    DEBUG("Current CPU Frequency: %lu.%03lu MHz\n", freq / 1000000, (freq % 1000000) / 1000);
+    DEBUG("Current CPU Frequency: %lu.%03lu MHz", freq / 1000000, (freq % 1000000) / 1000);
 
-    // I/O initialization (same as before)
     gpio_init(LED);
     gpio_set_dir(LED, GPIO_OUT);
 
 
-    // InitBtn(JSCLICKBTN);
-
-    InitBtn(REDBTN);
-    InitBtn(WHITEBTN);
-    InitBtn(BLUEBTN);
-    InitBtn(GREENBTN);
-
-    InitBtn(DCLICKBTN);
-    InitBtn(RIGHTBTN);
-    InitBtn(LEFTBTN);
-    InitBtn(DOWNBTN);
-    InitBtn(UPBTN);
+#if defined(SN74HC165N_SPI)
+    SN74HC165N_Setup();
+#elif defined(SN74HC165N_BITBANG)
+    SN74HC165N_BitBangInit();
+#elif defined(SN74HC165N_PIO)
+#error "SN74HC165N_PIO not yet implemented"
+#else
+#error "Define SN74HC165N_BITBANG or SN74HC165N_SPI or SN74HC165N_PIO"
+#endif
 
     Backlight_Init();
     adc_init();
@@ -109,5 +140,5 @@ void Pico_Init(void)
     Pico_AudioInit();
 
     multicore_launch_core1(ThreadTwo);
-    DEBUG("init complete - game on core 0,  audio running on core 1");
+    // DEBUG("init complete - game on core 0,  audio running on core 1");
 }

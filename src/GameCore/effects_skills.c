@@ -7,6 +7,7 @@
 #include "stats.h"
 #include "types.h"
 #include "effects.h"
+#include "lib_debugging.h"
 #include "player.h"
 
 /**********************************************************************************************************************/

@@ -7,8 +7,10 @@
 
 #include "entities.h"
 #include "graphics.h"
+#include "lib_debugging.h"
 #include "memory_ram.h"
 #include "memory_rom.h"
+#include "lib_decl.h"
 
 /************************************************************************************************************
  *
@@ -201,7 +203,7 @@ void MoveCenterToTop(Rect_16 r, uint16_t d, uint8_t frameLength)
 {
     BasicAsserts(r);
     ASSERT(d <= r.h, "d is larger than r.h, underflow error");
-    const uint8_t* sprite = g_run.tileCache.frameBuffer.frameBuffer1byte;
+    const uint8_t* sprite = GetFrameBuffer1byte();
 
     FrameBuffer f = {r.x, r.y, r.w, r.h};
     uint16_t end_pos = r.h - d;
@@ -230,7 +232,7 @@ void AnimationMirrorImageFloatingUp(Rect_16 r, uint16_t d, uint8_t frameLength)
 {
     BasicAsserts(r);
     ASSERT(d <= r.h, "d is larger than r.h, underflow error");
-    const uint8_t* sprite = g_run.tileCache.frameBuffer.frameBuffer1byte;
+    const uint8_t* sprite = GetFrameBuffer1byte();
 
     FrameBuffer f = {r.x + BATTLER_OFFSET, r.y, r.w, r.h};
     uint16_t end_pos = r.h - d;
@@ -253,7 +255,7 @@ void AnimationSpooky(Rect_16 r, uint16_t d, uint8_t frameLength)
     BasicAsserts(r);
     ASSERT(d <= r.h, "d is larger than r.h, underflow error");
 
-    const uint8_t* sprite = g_run.tileCache.frameBuffer.frameBuffer1byte;
+    const uint8_t* sprite = GetFrameBuffer1byte();
 
     FrameBuffer f = {r.x, r.y, r.w, r.h};
     uint16_t end_pos = r.w * 2;
@@ -275,7 +277,7 @@ void AnimationSpookyMoveCenterToLeft(Rect_16 r, uint16_t d, uint8_t frameLength)
 {
     BasicAsserts(r);
     ASSERT(d <= r.h, "d is larger than r.h, underflow error");
-    const uint8_t* sprite = g_run.tileCache.frameBuffer.frameBuffer1byte;
+    const uint8_t* sprite = GetFrameBuffer1byte();
 
     FrameBuffer f = {r.x, r.y, r.w, r.h};
     uint16_t end_pos = r.w / 2;
@@ -298,7 +300,7 @@ void AnimationSpookyMoveLeftToCenter(Rect_16 r, uint16_t d, uint8_t frameLength)
 {
     BasicAsserts(r);
     ASSERT(d <= r.h, "d is larger than r.h, underflow error");
-    const uint8_t* sprite = g_run.tileCache.frameBuffer.frameBuffer1byte;
+    const uint8_t* sprite = GetFrameBuffer1byte();
 
     sprite += r.w / 2;
     FrameBuffer f = {r.x, r.y, r.w, r.h};
@@ -322,7 +324,7 @@ void AnimationMirrorImage2(Rect_16 r, uint16_t d, uint8_t frameLength)
 {
     BasicAsserts(r);
     ASSERT(d <= r.h, "d is larger than r.h, underflow error");
-    const uint8_t* sprite = g_run.tileCache.frameBuffer.frameBuffer1byte;
+    const uint8_t* sprite = GetFrameBuffer1byte();
 
 
     FrameBuffer f = {r.x + BATTLER_OFFSET, r.y, r.w, r.h};
@@ -344,7 +346,7 @@ void AnimationIceShards(Rect_16 r, uint16_t d, uint8_t frameLength)
 {
     BasicAsserts(r);
     ASSERT(d <= r.h, "d is larger than r.h, underflow error");
-    const uint8_t* sprite = g_run.tileCache.frameBuffer.frameBuffer1byte;
+    const uint8_t* sprite = GetFrameBuffer1byte();
 
     FrameBuffer f = {r.x + BATTLER_OFFSET, r.y, r.w, r.h};
     uint16_t end_pos = r.h - d;
@@ -367,7 +369,7 @@ void AnimationBeam(Rect_16 r, uint16_t d, uint8_t frameLength, uint8_t palletInd
     BasicAsserts(r);
     ASSERT(d <= r.h, "d is larger than r.h, underflow error");;
     SetFrameBuffer(g_gameFlash.GetColor[palletIndex]);
-    const uint8_t* sprite = g_run.tileCache.frameBuffer.frameBuffer1byte;
+    const uint8_t* sprite = GetFrameBuffer1byte();
 
     uint16_t end_pos = r.x + r.w;
     FrameBuffer f = {r.x + r.w - 64, r.y + 64, 4, 4};
@@ -392,7 +394,7 @@ void AnimationRandomParticles(Rect_16 r, uint16_t d, uint8_t frameLength, uint8_
     BasicAsserts(r);
     ASSERT(d <= r.h, "d is larger than r.h, underflow error");
     SetFrameBuffer(g_gameFlash.GetColor[palletIndex]);
-    const uint8_t* sprite = g_run.tileCache.frameBuffer.frameBuffer1byte;
+    const uint8_t* sprite = GetFrameBuffer1byte();
 
     uint16_t end_pos = particleCount;
     uint16_t size = 4;
@@ -423,7 +425,7 @@ void AnimationLineEffect(Rect_16 r, uint16_t d, uint8_t frameLength, uint8_t pal
     //move to the next line
     //cycle through the frame buffer
     uint16_t n = r.w;
-    const uint16_t* sprite = g_run.tileCache.frameBuffer.frameBuffer;
+    const uint16_t* sprite = GetFrameBuffer2bytes();
 
     uint16_t buffer[n];
     SetBuffer(n, buffer, g_gameFlash.GetColor[palletIndex]);

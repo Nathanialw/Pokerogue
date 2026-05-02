@@ -4,6 +4,7 @@
 #include <stddef.h>
 
 #include "battles.h"
+#include "lib_decl.h"
 #ifdef ENABLE_DEBUG_OUTPUT
 #include <stdio.h>
 #endif
@@ -11,6 +12,7 @@
 #include "menu_main.h"
 #include "constants.h"
 #include "entities.h"
+#include "lib_debugging.h"
 
 #include "memory_rom.h"
 #include "memory_ram.h"
@@ -83,8 +85,8 @@ bool MiniMap(bool update)
 **********************************************************************************************************************/
 bool MonsterData(bool update)
 {
-    DEBUG("MonsterData g_run.btns.d.y %d", g_run.btns.d.y);
-    if (ToggleMenu(MONSTER_DATA_LIST_SUBMENU, CREATURE_COUNT) && g_run.btns.d.y == 0)
+    DEBUG("MonsterData g_run.btns.d.y %d", GetInputKeyState().d.y);
+    if (ToggleMenu(MONSTER_DATA_LIST_SUBMENU, CREATURE_COUNT) && GetInputKeyState().d.y == 0)
     {
         if (ListJump()) return true;
 
@@ -120,8 +122,8 @@ bool MonsterData(bool update)
 **********************************************************************************************************************/
 bool Objectpedia(bool update)
 {
-    DEBUG("Objectpedia g_run.btns.d.y %d", g_run.btns.d.y);
-    if (ToggleMenu(OBJECT_DATA_LIST_SUBMENU, OBJECT_COUNT) && g_run.btns.d.y == 0)
+    DEBUG("Objectpedia g_run.btns.d.y %d", GetInputKeyState().d.y);
+    if (ToggleMenu(OBJECT_DATA_LIST_SUBMENU, OBJECT_COUNT) && GetInputKeyState().d.y == 0)
     {
         if (ListJump()) return true;
 
@@ -154,7 +156,7 @@ bool Objectpedia(bool update)
 **********************************************************************************************************************/
 bool Itempedia(bool update)
 {
-    if (ToggleMenu(ITEM_DATA_LIST_SUBMENU, ITEM_COUNT) && g_run.btns.d.y == 0)
+    if (ToggleMenu(ITEM_DATA_LIST_SUBMENU, ITEM_COUNT) && GetInputKeyState().d.y == 0)
     {
         if (ListJump()) return true;
         EntityId item_id = g_run.menu.sel[g_run.menu.depth].y + g_run.menu.menuScrollOffset[g_run.menu.depth].y;
@@ -186,7 +188,7 @@ bool Itempedia(bool update)
 **********************************************************************************************************************/
 bool Spellpedia(bool update)
 {
-    if (ToggleMenu(SPELL_DATA_LIST_SUBMENU, SPELL_COUNT) && g_run.btns.d.y == 0)
+    if (ToggleMenu(SPELL_DATA_LIST_SUBMENU, SPELL_COUNT) && GetInputKeyState().d.y == 0)
     {
         if (ListJump()) return true;
         EntityId spell_id = g_run.menu.sel[g_run.menu.depth].y + g_run.menu.menuScrollOffset[g_run.menu.depth].y;
@@ -218,7 +220,7 @@ bool Spellpedia(bool update)
 **********************************************************************************************************************/
 bool Abilitypedia(bool update)
 {
-    if (ToggleMenu(ABILITY_DATA_LIST_SUBMENU, ABILITY_COUNT) && g_run.btns.d.y == 0)
+    if (ToggleMenu(ABILITY_DATA_LIST_SUBMENU, ABILITY_COUNT) && GetInputKeyState().d.y == 0)
     {
         if (ListJump()) return true;
         EntityId ability_id = g_run.menu.sel[g_run.menu.depth].y + g_run.menu.menuScrollOffset[g_run.menu.depth].y;
@@ -431,10 +433,10 @@ bool Options(bool update)
             }
         case 2:
             {
-                g_run.btns.gameSpeed += g_run.btns.d.x;
+                g_run.btns.gameSpeed += GetInputKeyState().d.x;
                 if (g_run.btns.gameSpeed > 10 || g_run.btns.gameSpeed < 0)
                 {
-                    g_run.btns.gameSpeed += (-g_run.btns.d.x);
+                    g_run.btns.gameSpeed += (-GetInputKeyState().d.x);
                     break;
                 }
 

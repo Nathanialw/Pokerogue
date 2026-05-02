@@ -34,6 +34,7 @@ endif()
 add_subdirectory(src/GameCore)
 add_subdirectory(src/tools/image_viewer)
 add_subdirectory(src/tools/music_editor)
+add_subdirectory(src/PicoTypes)
 
 if(BUILD_TESTS)
     add_subdirectory(src/GameCoreTests)

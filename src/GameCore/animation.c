@@ -7,11 +7,13 @@
 #include "animation_effects.h"
 #include "camera.h"
 #include "graphics.h"
+#include "lib_debugging.h"
 #include "map.h"
 #include "memory_ram.h"
 #include "memory_rom.h"
 #include "tilesets.h"
 #include "types.h"
+#include "lib_decl.h"
 
 /************************************************************************************************************
  *

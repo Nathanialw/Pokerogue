@@ -11,6 +11,8 @@
 #include "game_state.h"
 #include "memory_rom.h"
 #include "entities.h"
+#include "lib_debugging.h"
+#include "lib_decl.h"
 #include "menu.h"
 #include "player.h"
 
@@ -231,7 +233,7 @@ void InitBattleMenu(void)
 **********************************************************************************************************************/
 void UpdateBattleMenu(void)
 {
-    if (g_run.btns.d.x == 0) return;
+    if (GetInputKeyState().d.x == 0) return;
 
     if (g_run.menu.x == BATTLE_MENU_X)
     {
