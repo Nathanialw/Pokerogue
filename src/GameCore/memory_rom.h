@@ -25,6 +25,7 @@ typedef struct
     {
         const Sprite items[ITEM_COUNT];
         const Sprite monsters[CREATURE_COUNT];
+        const Sprite objects[CREATURE_COUNT];
         const Tile biomes[BIOME_COUNT][NUM_TILES];
     } sprites;
 

@@ -76,16 +76,20 @@ typedef struct
     uint8_t map[(MAP_H * MAP_W) / 2];
     // EntityId objectMap[MAP_H][MAP_W];
     uint8_t fog[(MAP_H * MAP_W) / 8]; // TODO: not yet implemented
-    uint8_t vision[40]; // TODO: not yet implemented
     // Node pathing[(MAP_H * MAP_W) / 2]; // TODO: not yet implemented
 
     /**********************************************************************************************************************
     *   Dirty tile rendering cache arrays
     **********************************************************************************************************************/
-    uint8_t viewTiles[VIEW_TH][VIEW_TW];
-    Creature viewObjects[VIEW_TH][VIEW_TW];
-    bool dirtyTiles[VIEW_TH][VIEW_TW];
-    Creature newSprites[VIEW_TH][VIEW_TW];
+    struct
+    {
+        uint8_t vision[(VIEW_TH * VIEW_TW) / 8]; // TODO: not yet implemented
+        uint8_t viewTiles[VIEW_TH][VIEW_TW];
+        uint8_t dirtyTiles[(VIEW_TH * VIEW_TW) / 8];
+        ViewEntities viewCreatures;
+        ViewEntities viewItems;
+        ViewEntities viewObjects;
+    } view;
 
     /**********************************************************************************************************************
     *   graphics cache

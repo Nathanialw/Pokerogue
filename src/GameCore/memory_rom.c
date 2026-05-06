@@ -30,6 +30,10 @@ const GameFlash g_gameFlash =
         {
 #include "inc/map_sprites_creatures.inc"
         },
+        .objects =
+        {
+#include "inc/map_sprites_objects.inc"
+        },
         .biomes =
         {
 #include "inc/map_sprite_biome_tiles.inc"

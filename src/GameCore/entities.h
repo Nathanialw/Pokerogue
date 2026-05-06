@@ -22,7 +22,9 @@ void DestroyObject(EntityId id);
 void CopyCreature(EntityId src_id, EntityId target_id);
 void CopyItem(EntityId src_id, EntityId target_id);
 void CopyObject(EntityId src_id, EntityId target_id);
-void PopulateLevelCreatures();
+void PopulateLevelCreatures(void);
+void PopulateLevelItems(void);
+void PopulateLevelObjects(void);
 
 
 /**********************************************************************************************************************/
@@ -30,7 +32,7 @@ void PopulateLevelCreatures();
 **********************************************************************************************************************/
 IntMax99* GetCreatureSpeeds(void);
 Position* GetEntityPositions(ObjectsTypes type);
-Position* GetEntityNewPositions();
+Position* GetEntityNewPositions(void);
 uint8_t* GetEntitiesOnMap(ObjectsTypes type);
 BitFieldUint8* GetCreaturesAlive(void);
 uint8_t* GetActiveObjects(void);

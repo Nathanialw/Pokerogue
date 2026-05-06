@@ -165,6 +165,8 @@ void GoNextLevel(MapLevelChange dir)
     GenerateDungeon(0);
     ResetEntities(true);
     PopulateLevelCreatures();
+    PopulateLevelObjects();
+    PopulateLevelItems();
     PlacePlayerOnMap();
 }
 

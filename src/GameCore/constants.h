@@ -83,6 +83,10 @@ _Static_assert(OBJECT_COUNT <= 256, "max must be 256 - one byte");
 /**********************************************************************************************************************/
 /** ENTITY constants
 **********************************************************************************************************************/
+#define MAX_ENTITY_ITEM_COUNT 255
+#define MAX_ENTITY_OBJECT_COUNT 255
+#define MAX_ENTITY_CREATURE_COUNT 255
+#define ENTITY_ITEM_COUNT 255
 #define ENTITY_COUNT 255
 #define NO_ENTITY 255
 #define SPR_W 16
@@ -119,6 +123,8 @@ _Static_assert(DIALOGUE_H + RESOURCE_FRAME_H + BATTLER_AREA_H <= 240, "cannot ex
 #define MAP_W 256
 #define MAP_H 240
 
+#define NUM_MAP_ITEMS 64
+#define NUM_MAP_OBJECTS 64
 #define NUM_BIOME_CREATURES 64
 #define NUM_THEME_CREATURES 64
 #define BIOME_MONSTER_TYPES 8

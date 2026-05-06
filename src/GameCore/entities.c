@@ -430,7 +430,7 @@ void ResetEntities(bool copyPlayer)
 /**********************************************************************************************************************/
 /** Creates all the creatures on the map from the BIOME and THEME data
 **********************************************************************************************************************/
-void PopulateLevelCreatures()
+void PopulateLevelCreatures(void)
 {
     uint8_t creature_level = 1;
     for (uint8_t i = 0; i < NUM_BIOME_CREATURES; ++i)
@@ -456,10 +456,24 @@ void PopulateLevelCreatures()
 
 void PopulateLevelItems(void)
 {
+    uint8_t creature_level = 1;
+    for (uint8_t i = 0; i < NUM_MAP_ITEMS; ++i)
+    {
+        const ItemTypes item_type = GetRandom_uint8_t(0, ITEM_COUNT);
+        const Position pos = FindOpenMapLocation(ITEM);
+        SpawnEntity(ITEM, item_type, pos.x, pos.y, creature_level);
+    }
 }
 
 void PopulateLevelObjects(void)
 {
+    uint8_t creature_level = 1;
+    for (uint8_t i = 0; i < NUM_MAP_OBJECTS; ++i)
+    {
+        const Object object_type = GetRandom_uint8_t(0, OBJECT_COUNT);
+        const Position pos = FindOpenMapLocation(OBJECT);
+        SpawnEntity(OBJECT, object_type, pos.x, pos.y, creature_level);
+    }
 }
 
 /**********************************************************************************************************************/

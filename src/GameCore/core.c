@@ -36,6 +36,8 @@ void InitGame(void)
     DEBUG("init player");
     InitPlayer();
     DEBUG("populate level");
+    PopulateLevelItems();
+    PopulateLevelObjects();
     PopulateLevelCreatures();
     DEBUG("set camera");
     SetCameraPlayer();
@@ -52,10 +54,11 @@ void InitGame(void)
 //  Generate a new map and objects, set camera
 void NewMap(void)
 {
-    ResetEntities(false);
-    InitMap();
-    PopulateLevelCreatures();
-    SetCameraPlayer();
+    DEBUG("new map");
+    // ResetEntities(false);
+    // InitMap();
+    // PopulateLevelCreatures();
+    // SetCameraPlayer();
 }
 
 /**********************************************************************************************************************/

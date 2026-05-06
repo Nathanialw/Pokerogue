@@ -22,6 +22,8 @@ typedef char StatusLine[10];
 typedef Ability Attacks[8];
 typedef char SmallStringArray[SMALL_STRINGS];
 
+
+
 /**********************************************************************************************************************/
 /**Bitfield types
 **********************************************************************************************************************/
@@ -31,6 +33,15 @@ typedef char SmallStringArray[SMALL_STRINGS];
 typedef uint8_t BitFieldUint8[32];
 typedef uint16_t BitFieldUint16[16];
 typedef uint32_t BitFieldUint32[8];
+
+/**********************************************************************************************************************
+*   entity view for rendfering
+**********************************************************************************************************************/
+typedef struct
+{
+    uint8_t viewEntities[VIEW_TH][VIEW_TW];
+    uint8_t newSprites[VIEW_TH][VIEW_TW];
+} ViewEntities;
 
 /**********************************************************************************************************************
 *   Creature skills
