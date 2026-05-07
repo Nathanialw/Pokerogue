@@ -36,5 +36,5 @@ void DestroyEnemyCreature();
 void DestroyPlayerCreature();
 void CachePlayerData();
 void PlacePlayerOnMap();
-void PlayerInteract();
-
+void PlayerInteractItemInCell();
+void PlayerInteractObjectInCell();

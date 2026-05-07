@@ -28,15 +28,28 @@
 **********************************************************************************************************************/
 void ClipTile(uint16_t* clip, const uint16_t* pixels, Rect_16 r)
 {
-    for (int y = 0; y < 16; ++y)
+    for (int y = 0; y < TILE_W; ++y)
     {
-        for (int x = 0; x < 16; ++x)
+        for (int x = 0; x < TILE_H; ++x)
         {
-            clip[(16 * y) + x] = pixels[(16 * y) + x];
+            clip[(TILE_W * y) + x] = pixels[(TILE_H * y) + x];
         }
     }
 }
 
+/**********************************************************************************************************************/
+/**  Blit the given tile id to the given screen coords
+**********************************************************************************************************************/
+void DrawChar(uint8_t screen_tx, uint8_t screen_ty, uint8_t tile_id)
+{
+    uint16_t px = (uint16_t)(screen_tx * TILE_W);
+    uint16_t py = (uint16_t)(screen_ty * TILE_H);
+
+    g_run.tileCache.tile_id = tile_id;
+    const Tile t = g_gameFlash.sprites.biomes[g_run.biome][tile_id];
+    CharFromGlyph1bpp(g_run.tileCache.tilePixels.pixels, t.glyph_index, FONT16x16, g_gameFlash.GetColor[t.fg], g_gameFlash.GetColor[t.bg]);
+    DrawTileKeyed(px, py, TILE_W, TILE_H, g_run.tileCache.tilePixels.pixels);
+}
 
 /**********************************************************************************************************************/
 /**  Blit the given tile id to the given screen coords
@@ -646,8 +659,8 @@ void DrawBattler(uint16_t screen_x, uint16_t screen_y, const SpriteLayout layout
 **********************************************************************************************************************/
 void HandleGameMenuLeftBG(const uint16_t x, uint8_t y)
 {
-    const uint16_t w = (SCREEN_TILE_W * TILE_W) - (MAIN_MENU_W * TILE_W);
-    const uint8_t h = (SCREEN_TILE_H * TILE_H);
+    const uint16_t w = (VIEW_TW * TILE_W) - (MAIN_MENU_W * TILE_W);
+    const uint8_t h = (VIEW_TH * TILE_H);
     FillRect(x, y, w, h, g_gameFlash.GetColor[PAL_OFF_WHITE_GRAY]);
 }
 
@@ -697,8 +710,8 @@ void HandleGameMenuBorders()
     uint8_t y = 0;
     const FontSize font_size = g_run.settings.fontSize;
     const uint8_t size = (font_size == FONT8x8) ? TEXT_W : TILE_W;
-    const uint8_t max_lines = (SCREEN_TILE_H * font_size);
-    const uint8_t max_chars = (((SCREEN_TILE_W) * font_size)) + 1;
+    const uint8_t max_lines = (VIEW_TH * font_size);
+    const uint8_t max_chars = (((VIEW_TW) * font_size)) + 1;
 
     char border[max_chars + 1];
     memset(border, '-', max_chars);
@@ -736,7 +749,7 @@ void HandleGameMenuDescription(uint16_t y, const char* desc)
 {
     const FontSize font_size = g_run.settings.fontSize;
     const uint8_t size = (font_size == FONT8x8) ? TEXT_W : TILE_W;
-    const uint8_t max_chars = (SCREEN_TILE_W * font_size) + 1;
+    const uint8_t max_chars = (VIEW_TW * font_size) + 1;
     const uint8_t indent = 1;
     const uint8_t MAX_LINES = 8;
     const uint8_t LINE_LEN = 20;

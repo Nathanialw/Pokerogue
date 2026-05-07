@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 
 from python.data import creature_descriptors, _object_img_data
+from python.data import _trainer_img_data
 from python.data import _creature_img_data
 from python.data import _item_img_data
 from python.data import _skill_img_data
@@ -310,6 +311,9 @@ def main():
 
     test = _object_img_data.Objects[:5] if TEST_MODE else _object_img_data.Objects
     generate_list(test, constants.OBJECT_TABLE, "object")
+
+    test = _trainer_img_data.Trainers[:5] if TEST_MODE else _trainer_img_data.Trainers
+    generate_list(test, constants.TRAINER_TABLE, "trainer")
 
 
 if __name__ == "__main__":

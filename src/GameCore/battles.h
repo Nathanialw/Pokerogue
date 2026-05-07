@@ -14,4 +14,4 @@ bool CastSpell(SpellId spellID, EntityId partyID, EntityId enemyID);
 
 bool UseItem(EntityId item_id, EntityId e_id);
 
-bool InteractObject(EntityId item_id, EntityId e_id);
+bool InteractObject(EntityId object_id, EntityId e_id);

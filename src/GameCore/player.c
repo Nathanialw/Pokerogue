@@ -145,6 +145,7 @@ EntityId PlayerCaptureMonster(EntityId e_id)
 **********************************************************************************************************************/
 EntityId PlayerPickItem(EntityId e_id)
 {
+    if (e_id == NO_ENTITY) return e_id;
     for (uint8_t i = 0; i < MAX_BAG_SIZE; ++i)
         if (g_run.player.itemID[i] == NO_ENTITY)
         {
@@ -351,17 +352,16 @@ void PlacePlayerOnMap()
 /*  interact with item in player's cell
 /*  interact with object in player's cell
 **********************************************************************************************************************/
-void PlayerInteract()
+void PlayerInteractItemInCell()
 {
     Position pos = GetPlayerPosition();
-    //check if an item in the cell
-
     EntityId item_id = CheckTileForEntity(ITEM, g_run.player.id, pos);
-    if (item_id != NO_ENTITY)
-        PlayerPickItem(item_id);
+    PlayerPickItem(item_id);
+}
 
-    //check if an object in the cell
-    // EntityId object_id = CheckTileForEntity(OBJECT, g_run.player.id, pos);
-    // if (item_id != NO_ITEM)
-        // InteractObject(object_id, g_run.player.id);
+void PlayerInteractObjectInCell()
+{
+    Position pos = GetPlayerPosition();
+    EntityId object_id = CheckTileForEntity(OBJECT, g_run.player.id, pos);
+    InteractObject(object_id, g_run.player.id);
 }

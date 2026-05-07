@@ -75,6 +75,10 @@ const GameFlash g_gameFlash =
             {
 #include "inc/text_names_creatures.inc"
             },
+            .trainers =
+            {
+#include "inc/text_names_trainers.inc"
+            },
             .spells =
             {
 #include "inc/text_names_spells.inc"
@@ -100,6 +104,10 @@ const GameFlash g_gameFlash =
             .monsters =
             {
 #include "inc/text_desc_creatures.inc"
+            },
+            .trainers =
+            {
+#include "inc/text_desc_trainers.inc"
             },
             .spells =
             {
@@ -195,10 +203,46 @@ const GameFlash g_gameFlash =
 #include "inc/sprite_object.inc"
         },
 
-#endif
-
         /**********************************************************************************************************************/
         /*
+        **********************************************************************************************************************/
+        .trainerLayout =
+        {
+#include "inc/sprite_trainer_layout.inc"
+        },
+        .trainers =
+        {
+#include "inc/sprite_trainer.inc"
+        },
+#endif
+
+
+        /**********************************************************************************************************************/
+        /*  map Sprites
+        **********************************************************************************************************************/
+        .creatureSprites =
+        {
+#include "inc/sprite_map_creatures.inc"
+        },
+        .trainerSprites =
+        {
+#include "inc/sprite_map_trainers.inc"
+        },
+        .objectSprites =
+        {
+#include "inc/sprite_map_objects.inc"
+        },
+        .itemSprites =
+        {
+#include "inc/sprite_map_items.inc"
+        },
+        .tileSprites =
+        {
+#include "inc/sprite_map_tiles.inc"
+        },
+
+        /**********************************************************************************************************************/
+        /* text font data
         **********************************************************************************************************************/
         .font8x8 =
         {

@@ -168,7 +168,7 @@ def func_c_animation_headers(entity, p, return_type, params):
     print(f"📄 Exported {len(names)} spell headers to {filename}")
 
 
-def export_map_sprites(entity):
+def export_map_sprites_char(entity):
     """Export the database contents to a C array file"""
     filename = f"{constants.INC_FOLDER}/map_sprites_{entity}s.inc"
     sprites = db_manager.get_map_sprites(entity)
@@ -190,6 +190,28 @@ def export_map_sprites(entity):
     print(f"📄 Exported {count} {entity} sprites to {filename}")
 
 
+def export_map_sprites(entity):
+    """Export the database contents to a C array file"""
+    filename = f"{constants.INC_FOLDER}/sprite_map_{entity}s.inc"
+    sprites = []
+    count = len(sprites)
+
+    with open(filename, 'w', encoding='utf-8') as f:
+        f.write(f"// Generated {entity} sprites and color indexes\n")
+        f.write(f"// Database contains {count} total {entity} sprites\n\n")
+        f.write("// Individual sprites\n")
+
+        desc_vars = []
+        for i, (sprite, color) in enumerate(sprites):
+            #
+            f"{{ 0xFFFF 0xFFFF 0xFFFF}}"
+
+        f.write("\n")
+        f.write(f"//Sprites count = {count};\n")
+
+    print(f"📄 Exported {count} {entity} sprites to {filename}")
+
+
 def export_constants(byte_counts, counts):
     """Export the count constants to a C array file"""
     filename = f"{constants.INC_FOLDER}/data_constants.inc"
@@ -203,6 +225,7 @@ def export_constants(byte_counts, counts):
         f.write(f"#define SPRITE_SPELL_BYTES {byte_counts[3]}\n")
         f.write(f"#define SPRITE_ITEM_BYTES {byte_counts[4]}\n")
         f.write(f"#define SPRITE_OBJECT_BYTES {byte_counts[5]}\n")
+        f.write(f"#define SPRITE_TRAINER_BYTES {byte_counts[6]}\n")
         f.write(f"\n")
 
         f.write(f"#define CREATURE_COUNT {counts[0]}\n")
@@ -210,6 +233,7 @@ def export_constants(byte_counts, counts):
         f.write(f"#define SPELL_COUNT {counts[2]}\n")
         f.write(f"#define ITEM_COUNT {counts[3]}\n")
         f.write(f"#define OBJECT_COUNT {counts[4]}\n")
+        f.write(f"#define TRAINER_COUNT {counts[5]}\n")
         f.write(f"\n")
 
         f.write(f"#define CREATURE_TEXT_ARRAY_SIZE {counts[0] + 1}\n")
@@ -217,6 +241,7 @@ def export_constants(byte_counts, counts):
         f.write(f"#define SPELL_TEXT_ARRAY_SIZE {counts[2] + 1}\n")
         f.write(f"#define ITEM_TEXT_ARRAY_SIZE {counts[3] + 1}\n")
         f.write(f"#define OBJECT_TEXT_ARRAY_SIZE {counts[4] + 1}\n")
+        f.write(f"#define TRAINER_TEXT_ARRAY_SIZE {counts[5] + 1}\n")
         f.write(f"\n")
 
         f.write(f"#define NO_CREATURE {counts[0]}\n")
@@ -224,6 +249,7 @@ def export_constants(byte_counts, counts):
         f.write(f"#define NO_SPELL {counts[2]}\n")
         f.write(f"#define NO_ITEM {counts[3]}\n")
         f.write(f"#define NO_OBJECT {counts[4]}\n")
+        f.write(f"#define NO_TRAINER {counts[5]}\n")
 
         f.write(f"\n// All values aligned to 2 bytes\n")
     print(f"📄 Exported to {filename}")
@@ -233,9 +259,11 @@ def export_constants(byte_counts, counts):
     print(f"#define SPRITE_SPELL_BYTES {byte_counts[3]}")
     print(f"#define SPRITE_ITEM_BYTES {byte_counts[4]}")
     print(f"#define SPRITE_OBJECT_BYTES {byte_counts[5]}")
+    print(f"#define SPRITE_TRAINER_BYTES {byte_counts[6]}")
 
     print(f"#define CREATURE_COUNT {counts[0]}\n")
     print(f"#define ABILITY_COUNT {counts[1]}\n")
     print(f"#define SPELL_COUNT {counts[2]}\n")
     print(f"#define ITEM_COUNT {counts[3]}\n")
     print(f"#define OBJECT_COUNT {counts[4]}\n")
+    print(f"#define TRAINER_COUNT {counts[5]}\n")

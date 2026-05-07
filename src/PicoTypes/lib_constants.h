@@ -8,9 +8,19 @@
 #define RES_320x240
 // #define RES_320x320
 
+
 #if defined(RES_320x240)
 #define TFT_W 320
 #define TFT_H 240
+#define SCREEN_W 320
+#define SCREEN_H 240
+#define TILE_W 16
+#define TILE_H 16
+#define TEXT_W 8
+#define TEXT_H 8
+#define VIEW_TW (SCREEN_W / TILE_W)
+#define VIEW_TH (SCREEN_H / TILE_H)
+#define TILE_PIXELS (TILE_W * TILE_H)
 #elif defined(RES_320x320)
 #define TFT_W 320
 #define TFT_H 320

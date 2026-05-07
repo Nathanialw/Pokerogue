@@ -19,6 +19,7 @@ def run():
     export_enums.enum("spell")
     export_enums.enum("item")
     export_enums.enum("object")
+    export_enums.enum("trainer")
 
     # image generation strings
     export_img_prompts.generate_data_from_db('creature')
@@ -26,6 +27,7 @@ def run():
     export_img_prompts.generate_data_from_db('spell')
     export_img_prompts.generate_data_from_db('item')
     export_img_prompts.generate_data_from_db('object')
+    export_img_prompts.generate_data_from_db('trainer')
 
     # type strings
     export_core_data.write_types_inc()
@@ -38,6 +40,7 @@ def run():
     # creature description strings
     export.desc_to_c_array("creature")
     # creature map sprites
+    export.export_map_sprites_char("creature")
     export.export_map_sprites("creature")
     # creature type data
     export_creatures.export_types_to_c_array()
@@ -45,6 +48,7 @@ def run():
     bytes_count.append(export_battlers.export_image_data("creature", "front"))
     # creature battlers back
     bytes_count.append(export_battlers.export_image_data("creature", "back"))
+    # TODO Map sprites
 
     # ABILITIES
     # ability struct data
@@ -66,6 +70,7 @@ def run():
     # ability icons
     # TODO: export images
     bytes_count.append(export_battlers.export_image_data("skill"))
+    # TODO Map sprites
 
     # SPELLS
     # spell struct data
@@ -87,11 +92,13 @@ def run():
     # spell icons
     # TODO: export images
     bytes_count.append(export_battlers.export_image_data("spell"))
+    # TODO Map sprites
 
     # ITEMS
     # item struct data
     export_structs.items("item")
     # item map sprites header
+    export.export_map_sprites_char("item")
     export.export_map_sprites("item")
     # item functions header
     export.func_c_headers("item", "Use", "bool", "EntityId item_id, EntityId e_id, ItemData itemData")
@@ -110,10 +117,12 @@ def run():
     # item icons
     # TODO: export images
     bytes_count.append(export_battlers.export_image_data("item"))
+    # TODO Map sprites
 
     # OBJECTS
     export_structs.objects("object")
     # object map sprites header
+    export.export_map_sprites_char("object")
     export.export_map_sprites("object")
     # object functions header
     export.func_c_headers("object", "Interact", "bool", "EntityId object_id, EntityId e_id, ObjectData objectData")
@@ -126,6 +135,23 @@ def run():
     # object icons
     # TODO: export images
     bytes_count.append(export_battlers.export_image_data("object"))
+    # TODO Map sprites
+
+    # TRAINERS
+    export_structs.creatures_skills("trainer")
+    export_structs.creatures_level_up_skills("trainer")
+    # trainer name strings
+    counts.append(export.name_to_c_array("trainer"))
+    # trainer description strings
+    export.desc_to_c_array("trainer")
+    # trainer map sprites
+    export.export_map_sprites_char("trainer")
+    export.export_map_sprites("trainer")
+    bytes_count.append(export_battlers.export_image_data("trainer"))
+    # TODO Map sprites
+
+    #TILES
+    export.export_map_sprites("tile")
 
     export.export_constants(bytes_count, counts)
 

@@ -8,7 +8,6 @@
 
 #define TOTAL_MUSIC_NOTES 815
 #define MUSIC_COUNT 1
-#define TRAINER_COUNT 255
 
 /**********************************************************************************************************************
 *
@@ -57,8 +56,7 @@ typedef struct
             const SmallStringArray spells[SPELL_TEXT_ARRAY_SIZE];
             const SmallStringArray attacks[ABILITY_TEXT_ARRAY_SIZE];
             const SmallStringArray objects[OBJECT_TEXT_ARRAY_SIZE];
-            const SmallStringArray trainers[OBJECT_TEXT_ARRAY_SIZE];
-
+            const SmallStringArray trainers[TRAINER_TEXT_ARRAY_SIZE];
         } names;
 
         struct
@@ -68,7 +66,7 @@ typedef struct
             const char spells[SPELL_TEXT_ARRAY_SIZE][LARGE_STRINGS];
             const char attacks[ABILITY_TEXT_ARRAY_SIZE][LARGE_STRINGS];
             const char objects[OBJECT_TEXT_ARRAY_SIZE][LARGE_STRINGS];
-            const char trainers[OBJECT_TEXT_ARRAY_SIZE][LARGE_STRINGS];
+            const char trainers[TRAINER_TEXT_ARRAY_SIZE][LARGE_STRINGS];
         } descriptions;
 
         const char types[TYPE_COUNT][SMALL_STRINGS];
@@ -88,6 +86,7 @@ typedef struct
             const uint8_t back[SPRITE_CREATURE_BACK_BYTES];
         } battlers;
 
+
         const SpriteLayout itemLayout[ITEM_COUNT];
         const uint8_t items[SPRITE_ITEM_BYTES];
 
@@ -102,6 +101,20 @@ typedef struct
 
         const SpriteLayout trainerLayout[TRAINER_COUNT];
         const uint8_t trainers[TRAINER_COUNT];
+
+        /**********************************************************************************************************************/
+        /*  20x20 map sprite tiles, may have multiple tiles for idle animations
+        **********************************************************************************************************************/
+        const uint8_t creatureSprites[CREATURE_SPRITE_COUNT];
+        const SpriteFrames creatureSpritesMetaData[CREATURE_COUNT];
+        const uint8_t trainerSprites[TRAINER_SPRITE_COUNT];
+        const SpriteFrames trainerSpritesMetaData[TRAINER_COUNT];
+        const uint8_t objectSprites[OBJECT_SPRITE_COUNT];
+        const SpriteFrames objectSpritesMetaData[OBJECT_COUNT];
+        const uint8_t itemSprites[ITEM_SPRITE_COUNT];
+        const SpriteFrames itemSpritesMetaData[ITEM_COUNT];
+        const uint8_t tileSprites[TILE_SPRITE_COUNT];
+        const SpriteFrames tileSpritesMetaData[TILE_COUNT];
 
         const uint8_t font8x8[CHARACTER_COUNT * 8];
         const uint16_t font16x16[CHARACTER_COUNT * 32];

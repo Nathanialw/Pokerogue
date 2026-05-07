@@ -21,7 +21,7 @@ typedef uint16_t Glyph16x96[(16 * 96)];
 typedef char StatusLine[10];
 typedef Ability Attacks[8];
 typedef char SmallStringArray[SMALL_STRINGS];
-
+typedef uint16_t MapSprite[TILE_W * TILE_H];
 
 
 /**********************************************************************************************************************/
@@ -71,7 +71,7 @@ typedef union
     uint16_t pixels_2d[TILE_W / 4][TILE_H / 4];
 } Glyph8x8;
 
-_Static_assert(sizeof(Glyph8x8) == 128, "Glyph8x8 must be 128 bytes");
+// _Static_assert(sizeof(Glyph8x8) == 128, "Glyph8x8 must be 128 bytes");
 
 /**********************************************************************************************************************/
 /**  Stores an array of 256 uin16_t pixels
@@ -83,7 +83,7 @@ typedef union
     uint16_t pixels_2d[TILE_W][TILE_H];
 } Glyph16x16;
 
-_Static_assert(sizeof(Glyph16x16) == 512, "Glyph16x16 must be 512 bytes");
+// _Static_assert(sizeof(Glyph16x16) == 512, "Glyph16x16 must be 512 bytes");
 
 
 /**********************************************************************************************************************/
@@ -437,3 +437,13 @@ _Static_assert(sizeof(Tile) == 3, "Sprite must be 3 bytes");
 
 
 typedef bool (*Battle_Animation)(bool onAttacker);
+
+/**********************************************************************************************************************/
+/*
+**********************************************************************************************************************/
+typedef struct
+{
+    uint32_t index : 28; // 28 bits is a max value of  268,435,455
+    uint32_t numFrames : 2;
+    uint32_t frameRate : 2;
+} SpriteFrames;

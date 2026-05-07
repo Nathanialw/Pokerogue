@@ -92,10 +92,12 @@ bool UseItem(EntityId item_id, EntityId e_id)
 /**********************************************************************************************************************/
 /*
 **********************************************************************************************************************/
-bool InteractObject(EntityId item_e_id, EntityId e_id)
+bool InteractObject(EntityId object_e_id, EntityId e_id)
 {
-    if (item_e_id == NO_ENTITY) return false;
-    Object itemType = GetObjectType(item_e_id);
-    ItemData itemData = g_gameFlash.gameData.itemData[itemType];
-    return g_gameFlash.funcs.itemFunctions[itemType](item_e_id, e_id, itemData);
+    DEBUG("interacting with object %d", object_e_id);
+    if (object_e_id == NO_ENTITY) return false;
+    Object object_type = GetObjectType(object_e_id);
+    ObjectData object_data = g_gameFlash.gameData.objectData[object_type];
+    DEBUG("%d object type: %d", object_type, object_data.type);
+    return g_gameFlash.funcs.objectFunctions[object_type](object_e_id, e_id, object_data);
 }

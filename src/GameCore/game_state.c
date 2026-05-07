@@ -196,11 +196,12 @@ void UpdateGameRunningState()
         {
             if (GetButtonA())
             {
-                PlayerInteract();
+                PlayerInteractItemInCell();
             }
 
             if (GetButtonB())
             {
+                PlayerInteractObjectInCell();
             }
 
             if (GetButtonX())

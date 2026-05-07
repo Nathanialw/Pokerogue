@@ -6,6 +6,7 @@
 #include "memory_rom.h"
 
 #include "entities.h"
+#include "lib_debugging.h"
 #include "memory_ram.h"
 
 /**********************************************************************************************************************/
@@ -19,6 +20,7 @@
 **********************************************************************************************************************/
 bool InteractAltar(EntityId item_id, EntityId e_id, ObjectData itemData)
 {
+    DEBUG("InteractAltar");
     return false;
 }
 
@@ -28,6 +30,7 @@ bool InteractAltar(EntityId item_id, EntityId e_id, ObjectData itemData)
 **********************************************************************************************************************/
 bool InteractRaft(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractRaft");
     return false;
 }
 
@@ -36,6 +39,7 @@ bool InteractRaft(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractRowBoat(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractRowBoat");
     return false;
 }
 
@@ -44,6 +48,7 @@ bool InteractRowBoat(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractRopeBridge(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractRopeBridge");
     NoEffect();
     return false;
 }
@@ -53,6 +58,7 @@ bool InteractRopeBridge(EntityId object_id, EntityId e_id, ObjectData objectData
 **********************************************************************************************************************/
 bool InteractStoneBridge(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractStoneBridge");
     NoEffect();
     return false;
 }
@@ -62,6 +68,7 @@ bool InteractStoneBridge(EntityId object_id, EntityId e_id, ObjectData objectDat
 **********************************************************************************************************************/
 bool InteractWoodenBridge(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractWoodenBridge");
     NoEffect();
     return false;
 }
@@ -71,6 +78,7 @@ bool InteractWoodenBridge(EntityId object_id, EntityId e_id, ObjectData objectDa
 **********************************************************************************************************************/
 bool InteractBookCase(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractBookCase");
     return false;
 }
 
@@ -79,6 +87,7 @@ bool InteractBookCase(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractJewelleryCase(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractJewelleryCase");
     return false;
 }
 
@@ -87,6 +96,7 @@ bool InteractJewelleryCase(EntityId object_id, EntityId e_id, ObjectData objectD
 **********************************************************************************************************************/
 bool InteractScrollCase(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractScrollCase");
     return false;
 }
 
@@ -95,6 +105,7 @@ bool InteractScrollCase(EntityId object_id, EntityId e_id, ObjectData objectData
 **********************************************************************************************************************/
 bool InteractCauldren(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractCauldren");
     return false;
 }
 
@@ -104,6 +115,7 @@ bool InteractCauldren(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractAcidCloud(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractAcidCloud");
     return false;
 }
 
@@ -112,6 +124,7 @@ bool InteractAcidCloud(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractPoisonGas(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractPoisonGas");
     return false;
 }
 
@@ -120,6 +133,7 @@ bool InteractPoisonGas(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractSmokeCloud(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractSmokeCloud");
     return false;
 }
 
@@ -129,6 +143,7 @@ bool InteractSmokeCloud(EntityId object_id, EntityId e_id, ObjectData objectData
 **********************************************************************************************************************/
 bool InteractCoffin(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractCoffin");
     return false;
 }
 
@@ -138,6 +153,7 @@ bool InteractCoffin(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractSarcophagus(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractSarcophagus");
     return false;
 }
 
@@ -146,6 +162,7 @@ bool InteractSarcophagus(EntityId object_id, EntityId e_id, ObjectData objectDat
 **********************************************************************************************************************/
 bool InteractHangingCorpse(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractHangingCorpse");
     return false;
 }
 
@@ -154,6 +171,7 @@ bool InteractHangingCorpse(EntityId object_id, EntityId e_id, ObjectData objectD
 **********************************************************************************************************************/
 bool InteractLaidCorpse(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractLaidCorpse");
     return false;
 }
 
@@ -164,6 +182,7 @@ bool InteractLaidCorpse(EntityId object_id, EntityId e_id, ObjectData objectData
 **********************************************************************************************************************/
 bool InteractBarredDoor(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractBarredDoor");
     return false;
 }
 
@@ -174,6 +193,7 @@ bool InteractBarredDoor(EntityId object_id, EntityId e_id, ObjectData objectData
 **********************************************************************************************************************/
 bool InteractIronDoor(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractIronDoor");
     return false;
 }
 
@@ -184,6 +204,7 @@ bool InteractIronDoor(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractStoneDoor(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractStoneDoor");
     return false;
 }
 
@@ -194,6 +215,7 @@ bool InteractStoneDoor(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractWickerDoor(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractWickerDoor");
     return false;
 }
 
@@ -204,6 +226,7 @@ bool InteractWickerDoor(EntityId object_id, EntityId e_id, ObjectData objectData
 **********************************************************************************************************************/
 bool InteractWoodDoor(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractWoodDoor");
     return false;
 }
 
@@ -212,6 +235,7 @@ bool InteractWoodDoor(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractLadder(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractLadder");
     MapAscend(g_run.player.id);
     return false;
 }
@@ -221,6 +245,7 @@ bool InteractLadder(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractStairs(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractStairs");
     MapDescend(g_run.player.id);
     return true;
 }
@@ -230,6 +255,7 @@ bool InteractStairs(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractCave(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractCave");
     MapLateral(g_run.player.id);
     return true;
 }
@@ -239,6 +265,7 @@ bool InteractCave(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractBonfire(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractBonfire");
     return false;
 }
 
@@ -247,6 +274,7 @@ bool InteractBonfire(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractBrazier(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractBrazier");
     return false;
 }
 
@@ -255,6 +283,7 @@ bool InteractBrazier(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractCampfire(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractCampfire");
     return false;
 }
 
@@ -263,6 +292,7 @@ bool InteractCampfire(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractStandingTorch(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractStandingTorch");
     return false;
 }
 
@@ -271,6 +301,7 @@ bool InteractStandingTorch(EntityId object_id, EntityId e_id, ObjectData objectD
 **********************************************************************************************************************/
 bool InteractWallTorch(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractWallTorch");
     return false;
 }
 
@@ -280,6 +311,7 @@ bool InteractWallTorch(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractCrumblingFloor(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractCrumblingFloor");
     MapDescend(g_run.player.id);
     return false;
 }
@@ -290,6 +322,7 @@ bool InteractCrumblingFloor(EntityId object_id, EntityId e_id, ObjectData object
 **********************************************************************************************************************/
 bool InteractAcidFountain(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractAcidFountain");
     return false;
 }
 
@@ -298,6 +331,7 @@ bool InteractAcidFountain(EntityId object_id, EntityId e_id, ObjectData objectDa
 **********************************************************************************************************************/
 bool InteractBloodFountain(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractBloodFountain");
     return false;
 }
 
@@ -306,6 +340,7 @@ bool InteractBloodFountain(EntityId object_id, EntityId e_id, ObjectData objectD
 **********************************************************************************************************************/
 bool InteractWaterFountain(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractWaterFountain");
     return false;
 }
 
@@ -315,6 +350,7 @@ bool InteractWaterFountain(EntityId object_id, EntityId e_id, ObjectData objectD
 **********************************************************************************************************************/
 bool InteractHiddenCompartment(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractHiddenCompartment");
     return false;
 }
 
@@ -323,6 +359,7 @@ bool InteractHiddenCompartment(EntityId object_id, EntityId e_id, ObjectData obj
 **********************************************************************************************************************/
 bool InteractAcidPit(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractAcidPit");
     return false;
 }
 
@@ -331,6 +368,7 @@ bool InteractAcidPit(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractLavaPit(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractLavaPit");
     return false;
 }
 
@@ -339,6 +377,7 @@ bool InteractLavaPit(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractNarowPit(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractNarowPit");
     return false;
 }
 
@@ -347,6 +386,7 @@ bool InteractNarowPit(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractShallowPit(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractShallowPit");
     return false;
 }
 
@@ -355,6 +395,7 @@ bool InteractShallowPit(EntityId object_id, EntityId e_id, ObjectData objectData
 **********************************************************************************************************************/
 bool InteractSnakesPit(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractSnakesPit");
     return false;
 }
 
@@ -363,6 +404,7 @@ bool InteractSnakesPit(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractSpkiedPit(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractSpkiedPit");
     return false;
 }
 
@@ -371,6 +413,7 @@ bool InteractSpkiedPit(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractPitStandard(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractPitStandard");
     return false;
 }
 
@@ -379,6 +422,7 @@ bool InteractPitStandard(EntityId object_id, EntityId e_id, ObjectData objectDat
 **********************************************************************************************************************/
 bool InteractWaterPit(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractWaterPit");
     return false;
 }
 
@@ -387,6 +431,7 @@ bool InteractWaterPit(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractWidePit(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractWidePit");
     return false;
 }
 
@@ -395,6 +440,7 @@ bool InteractWidePit(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractArmorRack(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractArmorRack");
     return false;
 }
 
@@ -403,6 +449,7 @@ bool InteractArmorRack(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractWeaponRack(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractWeaponRack");
     return false;
 }
 
@@ -411,6 +458,7 @@ bool InteractWeaponRack(EntityId object_id, EntityId e_id, ObjectData objectData
 **********************************************************************************************************************/
 bool InteractBarrel(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractBarrel");
     return false;
 }
 
@@ -419,6 +467,7 @@ bool InteractBarrel(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractBasket(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractBasket");
     return false;
 }
 
@@ -427,6 +476,7 @@ bool InteractBasket(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractChest(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractChest");
     return false;
 }
 
@@ -435,6 +485,7 @@ bool InteractChest(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractCoffer(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractCoffer");
     return false;
 }
 
@@ -443,6 +494,7 @@ bool InteractCoffer(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractCrate(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractCrate");
     return false;
 }
 
@@ -451,6 +503,7 @@ bool InteractCrate(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractTrunk(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractTrunk");
     return false;
 }
 
@@ -459,6 +512,7 @@ bool InteractTrunk(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractUrn(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractUrn");
     return false;
 }
 
@@ -467,6 +521,7 @@ bool InteractUrn(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractVault(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractVault");
     return false;
 }
 
@@ -476,6 +531,7 @@ bool InteractVault(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractWard(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractWard");
     return false;
 }
 
@@ -484,5 +540,6 @@ bool InteractWard(EntityId object_id, EntityId e_id, ObjectData objectData)
 **********************************************************************************************************************/
 bool InteractWell(EntityId object_id, EntityId e_id, ObjectData objectData)
 {
+    DEBUG("InteractWell");
     return false;
 }

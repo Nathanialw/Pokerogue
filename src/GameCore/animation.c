@@ -73,12 +73,12 @@ void AnimationMovement()
 
     uint8_t max_k = 2;
     if (g_run.player.scroll.x) max_k = 3;
-    uint8_t max_y = SCREEN_TILE_H;
-    if (g_run.player.scroll.y) max_y = SCREEN_TILE_H + 1;
+    uint8_t max_y = VIEW_TH;
+    if (g_run.player.scroll.y) max_y = VIEW_TH + 1;
 
     while (1)
     {
-        for (int16_t j = 0; j < SCREEN_TILE_W; j++)
+        for (int16_t j = 0; j < VIEW_TW; j++)
         {
             ClearBuffer();
             f.x = j * tile_size * 2;

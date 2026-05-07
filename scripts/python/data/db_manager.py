@@ -32,6 +32,24 @@ def init_database():
     ''')
 
     cursor.execute('''
+        CREATE TABLE IF NOT EXISTS trainer_descriptions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            used INTEGER NOT NULL DEFAULT 0,
+            description TEXT NOT NULL,
+            word_count INTEGER,
+            char_count INTEGER,
+            attempt_number INTEGER,
+            timestamp TEXT,
+            validation_matches INTEGER,
+            model_name TEXT,
+            prompt_version TEXT,
+            temperature REAL,
+            UNIQUE(name, used, description, model_name)
+        )
+    ''')
+
+    cursor.execute('''
         CREATE TABLE IF NOT EXISTS item_descriptions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
@@ -106,6 +124,24 @@ def init_database():
     # Image prompts table
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS creature_img_prompts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            prompt TEXT NOT NULL,
+            word_count INTEGER,
+            char_count INTEGER,
+            attempt_number INTEGER,
+            timestamp TEXT,
+            validation_matches INTEGER,
+            model_name TEXT,
+            prompt_version TEXT,
+            temperature REAL,
+            UNIQUE(name, prompt, model_name)
+        )
+    ''')
+
+    # Image prompts table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS trainer_img_prompts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             prompt TEXT NOT NULL,
@@ -208,6 +244,20 @@ def init_database():
             used INTEGER NOT NULL DEFAULT 0,            
             type_0 TEXT,
             type_1 TEXT,
+            sprite_idx TEXT,
+            sprite_color_idx TEXT
+            notes TEXT
+        )
+    ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS trainers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            formatted TEXT NOT NULL,
+            used INTEGER NOT NULL DEFAULT 0,
+            sprite_idx TEXT,
+            sprite_color_idx TEXT            
             notes TEXT
         )
     ''')
@@ -275,6 +325,17 @@ def init_database():
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS creature_skills (
+            creature_name TEXT,
+            skill_name TEXT,
+            learnable BOOLEAN NOT NULL DEFAULT 0,
+            PRIMARY KEY (creature_name, skill_name),
+            FOREIGN KEY (creature_name) REFERENCES creatures(name),
+            FOREIGN KEY (skill_name) REFERENCES skills(name)
+        )
+    ''')
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS trainer_spells (
             creature_name TEXT,
             skill_name TEXT,
             learnable BOOLEAN NOT NULL DEFAULT 0,

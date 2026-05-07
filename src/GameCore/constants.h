@@ -43,6 +43,15 @@ _Static_assert(OBJECT_COUNT <= 256, "max must be 256 - one byte");
 #define PALETTE_COUNT 64
 #define CHARACTER_COUNT 256
 
+#define TILE_COUNT 16
+#define NUM_SPRITE_FRAMES 3
+
+#define CREATURE_SPRITE_COUNT (CREATURE_COUNT * NUM_SPRITE_FRAMES)
+#define TRAINER_SPRITE_COUNT (TRAINER_COUNT * NUM_SPRITE_FRAMES)
+#define OBJECT_SPRITE_COUNT (ITEM_COUNT * NUM_SPRITE_FRAMES)
+#define ITEM_SPRITE_COUNT (OBJECT_COUNT * NUM_SPRITE_FRAMES)
+#define TILE_SPRITE_COUNT (TILE_COUNT * NUM_SPRITE_FRAMES)
+
 /**********************************************************************************************************************/
 /** STRING ARRAYS constants
  *  multiples of 16 for pico cache
@@ -75,10 +84,7 @@ _Static_assert(OBJECT_COUNT <= 256, "max must be 256 - one byte");
 **********************************************************************************************************************/
 #define CAM_OFFSET_X  (((VIEW_TW / 2) - 1))
 #define CAM_OFFSET_Y  ((VIEW_TH / 2))
-#define VIEW_TW 20
-#define VIEW_TH 15
-#define SCREEN_W 320
-#define SCREEN_H 240
+
 
 /**********************************************************************************************************************/
 /** ENTITY constants
@@ -89,10 +95,7 @@ _Static_assert(OBJECT_COUNT <= 256, "max must be 256 - one byte");
 #define ENTITY_ITEM_COUNT 255
 #define ENTITY_COUNT 255
 #define NO_ENTITY 255
-#define SPR_W 16
-#define SPR_H 16
 #define MAX_ABILITIES 6
-#define EMPTY_ID 0
 
 /**********************************************************************************************************************/
 /**BATTLE FRAMES constants
@@ -132,24 +135,16 @@ _Static_assert(DIALOGUE_H + RESOURCE_FRAME_H + BATTLER_AREA_H <= 240, "cannot ex
 #define MONSTER_TYPES (BIOME_MONSTER_TYPES + THEME_MONSTER_TYPES + 1)// + one for player sprite
 #define MAX_MAP_ITEM_TYPES 16
 #define NUM_TILES 16
-#define TILE_PIXELS (16*16)
-#define TILE_W 16
-#define TILE_H 16
-#define TEXT_W 8
-#define TEXT_H 8
 
 /**********************************************************************************************************************/
 /**MENUS constants
 **********************************************************************************************************************/
 #define FONT_OFFSET 32
 
-#define SCREEN_TILE_W 20
-#define SCREEN_TILE_H 15
-
 #define MAIN_MENU_X 11
 #define MAIN_MENU_Y 0
-#define MAIN_MENU_W (SCREEN_TILE_W-11)
-#define MAIN_MENU_H 15
+#define MAIN_MENU_W (VIEW_TW-11)
+#define MAIN_MENU_H (VIEW_TH)
 
 #define BATTLE_MENU_X 0
 #define BATTLE_MENU_Y 22
