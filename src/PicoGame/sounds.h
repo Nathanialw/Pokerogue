@@ -8,3 +8,4 @@ void Pico_AudioInit();
 void Play();
 void BackgroundMusic(MusicData musicData);
 
+AudioInterface SetAudioInterface();

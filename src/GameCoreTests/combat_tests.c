@@ -30,16 +30,16 @@ struct
 } DamageTest;
 
 
-bool RunAbilityDamageTest(Creature attacker, Creature defender, Ability abilityID, uint8_t attackerLevel, uint8_t defenderLevel, uint16_t maxDamage)
+bool RunAbilityDamageTest(HardwareInterface hardware, Creature attacker, Creature defender, Ability abilityID, uint8_t attackerLevel, uint8_t defenderLevel, uint16_t maxDamage)
 {
-    EntityId attackerID = SpawnEntity(CREATURE, attacker, 0, 0, attackerLevel);
-    EntityId defenderID = SpawnEntity(CREATURE, defender, 0, 0, defenderLevel);
+    EntityId attackerID = SpawnEntity(hardware, CREATURE, attacker, 0, 0, attackerLevel);
+    EntityId defenderID = SpawnEntity(hardware, CREATURE, defender, 0, 0, defenderLevel);
     SkillData ability_data = g_gameFlash.gameData.abilityData[abilityID];
     uint16_t base_damage = CalcDamage(attackerID, ability_data.power);
     uint16_t damage = CalcModifier(attackerID, defenderID, ability_data.type, base_damage);
     Stats attackerStats = g_run.creatures.stats[attackerID];
     Stats defenderStats = g_run.creatures.stats[defenderID];
-    ResetEntities(false);
+    ResetEntities(hardware, false);
     DamageTest.damageCount[damage]++;
     if (damage > DamageTest.highestDamage)
         DamageTest.highestDamage = damage;
@@ -65,7 +65,7 @@ bool RunAbilityDamageTest(Creature attacker, Creature defender, Ability abilityI
     return false;
 }
 
-void TestAbilityDamageAll(uint8_t attackerLevel, uint8_t defenderLevel, uint16_t maxDamage, const char* testName)
+void TestAbilityDamageAll(HardwareInterface hardware, uint8_t attackerLevel, uint8_t defenderLevel, uint16_t maxDamage, const char* testName)
 {
     memset(&DamageTest, 0, sizeof(DamageTest));
 
@@ -74,7 +74,7 @@ void TestAbilityDamageAll(uint8_t attackerLevel, uint8_t defenderLevel, uint16_t
         DEBUG_INLINE(".");
         for (uint8_t i = 0; i < CREATURE_COUNT; i++)
             for (uint8_t j = 0; j < CREATURE_COUNT; j++)
-                if (RunAbilityDamageTest(i, j, a, attackerLevel, defenderLevel, maxDamage))
+                if (RunAbilityDamageTest(hardware, i, j, a, attackerLevel, defenderLevel, maxDamage))
                     goto end_early;
     }
 
@@ -101,21 +101,21 @@ end_early:
     // }
 }
 
-void RunCombatTests()
+void RunCombatTests(HardwareInterface hardware)
 {
     // test abilities at low level  do more than 0 damage but not too much damage, 12 for now
     // for (uint8_t i = 0; i < 99; i++)
     // for (uint8_t j = 0; j < 99; j++)
     // TestAbilityDamageAll(i,  j, 999, "Damage exceeded max of 999 or damage == 0");
-    TestAbilityDamageAll(5, 5, 12, "Damage exceeded max of 999 or damage == 0");
-    TestAbilityDamageAll(10, 10, 50, "Damage exceeded max of 999 or damage == 0");
-    TestAbilityDamageAll(20, 20, 100, "Damage exceeded max of 999 or damage == 0");
-    TestAbilityDamageAll(30, 30, 200, "Damage exceeded max of 999 or damage == 0");
-    TestAbilityDamageAll(40, 40, 300, "Damage exceeded max of 999 or damage == 0");
-    TestAbilityDamageAll(50, 50, 400, "Damage exceeded max of 999 or damage == 0");
-    TestAbilityDamageAll(60, 60, 500, "Damage exceeded max of 999 or damage == 0");
-    TestAbilityDamageAll(70, 70, 500, "Damage exceeded max of 999 or damage == 0");
-    TestAbilityDamageAll(80, 80, 500, "Damage exceeded max of 999 or damage == 0");
-    TestAbilityDamageAll(90, 90, 600, "Damage exceeded max of 999 or damage == 0");
-    TestAbilityDamageAll(99, 99, 700, "Damage exceeded max of 999 or damage == 0");
+    TestAbilityDamageAll(hardware, 5, 5, 12, "Damage exceeded max of 999 or damage == 0");
+    TestAbilityDamageAll(hardware, 10, 10, 50, "Damage exceeded max of 999 or damage == 0");
+    TestAbilityDamageAll(hardware, 20, 20, 100, "Damage exceeded max of 999 or damage == 0");
+    TestAbilityDamageAll(hardware, 30, 30, 200, "Damage exceeded max of 999 or damage == 0");
+    TestAbilityDamageAll(hardware, 40, 40, 300, "Damage exceeded max of 999 or damage == 0");
+    TestAbilityDamageAll(hardware, 50, 50, 400, "Damage exceeded max of 999 or damage == 0");
+    TestAbilityDamageAll(hardware, 60, 60, 500, "Damage exceeded max of 999 or damage == 0");
+    TestAbilityDamageAll(hardware, 70, 70, 500, "Damage exceeded max of 999 or damage == 0");
+    TestAbilityDamageAll(hardware, 80, 80, 500, "Damage exceeded max of 999 or damage == 0");
+    TestAbilityDamageAll(hardware, 90, 90, 600, "Damage exceeded max of 999 or damage == 0");
+    TestAbilityDamageAll(hardware, 99, 99, 700, "Damage exceeded max of 999 or damage == 0");
 }

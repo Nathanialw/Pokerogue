@@ -4,18 +4,16 @@
 
 #include "pico/audio_i2s.h"
 #include "hardware/adc.h"
-
 #include <string.h>
+
+#include "lib_types.h"
+#include "lib_enums.h"
+#include "lib_decl.h"
+
 
 #include "sounds.h"
 #include "hardware.h"
-
 #include "pico_constants.h"
-#include "lib_types.h"
-#include "lib_enums.h"
-// #include "memory_rom.h"
-// #include "memory_ram.h"
-// #include "sound.h"
 
 
 #define SAMPLE_RATE 44100
@@ -27,6 +25,20 @@ static audio_format_t audio_format =
     .format = AUDIO_BUFFER_FORMAT_PCM_S16,
     .channel_count = 2
 };
+
+/**********************************************************************************************************************/
+/**  Set Interface
+**********************************************************************************************************************/
+void PlaySoundEffect();
+
+AudioInterface SetAudioInterface()
+{
+    AudioInterface audio_interface = {
+        .PlaySoundEffect = PlaySoundEffect,
+    };
+
+    return audio_interface;
+}
 
 
 /**********************************************************************************************************************/
@@ -628,7 +640,7 @@ void AudioPlayVoices(const MusicData* music_data, const Note* music)
                             continue;
                         }
 
-                        int32_t freq = 0;//g_gameFlash.noteFreqFixed[n.note];
+                        int32_t freq = 0; //g_gameFlash.noteFreqFixed[n.note];
 
                         SynthVoices[v].current_instrument = n.instrument;
                         SynthVoices[v].current_articulation = n.articulation;

@@ -18,23 +18,17 @@ void InitPSram()
 void PSRAM_Reset()
 {
     uint8_t cmd;
-
     gpio_put(ESP_PSRAM64_CS, 0);
 
     cmd = 0x66;
-    spi_write_blocking(SPI0_A, &cmd, 1);
-
+    spi_write_blocking(SPI_A, &cmd, 1);
     gpio_put(ESP_PSRAM64_CS, 1);
-
     sleep_us(10);
-
     gpio_put(ESP_PSRAM64_CS, 0);
 
     cmd = 0x99;
-    spi_write_blocking(SPI0_A, &cmd, 1);
-
+    spi_write_blocking(SPI_A, &cmd, 1);
     gpio_put(ESP_PSRAM64_CS, 1);
-
     sleep_ms(1);
 }
 
@@ -44,9 +38,7 @@ void PSRAM_ReadID()
     uint8_t rx[4] = {0};
 
     gpio_put(ESP_PSRAM64_CS, 0);
-
-    spi_write_read_blocking(SPI0_A, tx, rx, 4);
-
+    spi_write_read_blocking(SPI_A, tx, rx, 4);
     gpio_put(ESP_PSRAM64_CS, 1);
 
     DEBUG("PSRAM ID: %02X %02X %02X",
@@ -66,9 +58,7 @@ void PSRAM_WriteByte(uint32_t addr, uint8_t value)
     tx[4] = value;
 
     gpio_put(ESP_PSRAM64_CS, 0);
-
-    spi_write_blocking(SPI0_A, tx, 5);
-
+    spi_write_blocking(SPI_A, tx, 5);
     gpio_put(ESP_PSRAM64_CS, 1);
 }
 
@@ -85,9 +75,7 @@ uint8_t PSRAM_ReadByte(uint32_t addr)
     tx[4] = 0x00;
 
     gpio_put(ESP_PSRAM64_CS, 0);
-
-    spi_write_read_blocking(SPI0_A, tx, rx, 5);
-
+    spi_write_read_blocking(SPI_A, tx, rx, 5);
     gpio_put(ESP_PSRAM64_CS, 1);
 
     return rx[4];
@@ -107,10 +95,8 @@ void PSRAM_Read(
     header[3] = addr & 0xFF;
 
     gpio_put(ESP_PSRAM64_CS, 0);
-
-    spi_write_blocking(SPI0_A, header, 4);
-    spi_read_blocking(SPI0_A, 0x00, data, len);
-
+    spi_write_blocking(SPI_A, header, 4);
+    spi_read_blocking(SPI_A, 0x00, data, len);
     gpio_put(ESP_PSRAM64_CS, 1);
 }
 
@@ -129,8 +115,8 @@ void PSRAM_Write(
 
     gpio_put(ESP_PSRAM64_CS, 0);
 
-    spi_write_blocking(SPI0_A, header, 4);
-    spi_write_blocking(SPI0_A, data, len);
+    spi_write_blocking(SPI_A, header, 4);
+    spi_write_blocking(SPI_A, data, len);
 
     gpio_put(ESP_PSRAM64_CS, 1);
 }

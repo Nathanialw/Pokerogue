@@ -178,24 +178,6 @@ Delta Pico_InputDeltaDPad()
     return d;
 }
 
-
-void SN74HC165N_Setup(void)
-{
-    // Initialize SPI at 1 khz
-    spi_init(SPI_BUTTONS, 1000 * 1000);
-    spi_set_format(SPI_BUTTONS, 8, SPI_CPOL_0, SPI_CPHA_1, SPI_MSB_FIRST);
-
-    // Assign SPI pins
-    gpio_set_function(SN74HC165N_SCLK, GPIO_FUNC_SPI);
-    gpio_set_function(SN74HC165N_MISO, GPIO_FUNC_SPI);
-
-    // SH/LD as GPIO output, initially high
-    gpio_init(SN74HC165N_SH_LD);
-    gpio_set_dir(SN74HC165N_SH_LD, GPIO_OUT);
-    gpio_put(SN74HC165N_SH_LD, 1);
-    DEBUG("SN74HC165N_Setup");
-}
-
 void SN74HC165N_BitBangInit(void)
 {
     gpio_init(SN74HC165N_SH_LD);
@@ -209,18 +191,6 @@ void SN74HC165N_BitBangInit(void)
     gpio_init(SN74HC165N_MISO);
     gpio_set_dir(SN74HC165N_MISO, GPIO_IN);
     DEBUG("SN74HC165N_BITBANG init");
-}
-
-
-uint8_t SN74HC165N_ReadShiftRegister()
-{
-    uint8_t data = 0;
-    gpio_put(SN74HC165N_SH_LD, 0);
-    busy_wait_us(1);
-    gpio_put(SN74HC165N_SH_LD, 1);
-    busy_wait_us(10); // <-- extra delay for first bt to stabilise
-    spi_read_blocking(SPI_BUTTONS, 0, &data, 1);
-    return data;
 }
 
 

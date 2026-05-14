@@ -14,7 +14,7 @@
 /*16MB is used right now 16777216*/
 MEMORY
 {
-    RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 256K
+    RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 141K
 }
 
 SECTIONS
@@ -29,18 +29,28 @@ SECTIONS
         . = ALIGN(4);
     } > RAM
 
-    .map 0x20000000 : AT(0x040000)
+    .map 0x20000000 : AT(0x020000)
     {
         KEEP(*(.map))
         . = ALIGN(4);
     } > RAM
 
+    .title 0x20000000 : AT(0x040000)
+    {
+        KEEP(*(.title_entry))   /* must come first */
+        KEEP(*(.title))
+        . = ALIGN(4);
+    } > RAM
+
+
     /* Overlay symbols */
     __overlay_start__ = 0x20000000;
     __battle_lma      = LOADADDR(.battle);
     __map_lma         = LOADADDR(.map);
+    __title_lma       = LOADADDR(.title);
     __battle_size     = SIZEOF(.battle);
     __map_size        = SIZEOF(.map);
+    __title_size      = SIZEOF(.title);
 
     /* ========================================== */
     /*     FORCE ABSOLUTE POSITIONS FROM HERE     */

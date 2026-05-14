@@ -22,8 +22,7 @@
 #include "cartridge_save.h"
 #include "cartridge_rom.h"
 #include "memory_psram.h"
-#include "sd_card.h"
-#include "sounds.h"
+#include "cartridge.h"
 #include "pico/multicore.h"
 
 #define PICO
@@ -172,23 +171,23 @@ void Pico_Init(void)
     Pico_ili9341_Init();
     sleep_ms(200);
 
-    DEBUG("----- BEGIN TESTS ---");
-    EEPROM_FullTest();
-    DEBUG("----- EEPROM Test Complete ---");
-    FRAM_FullTest();
-    DEBUG("----- FRAM Test Complete ---");
-    PSRAM_FullTest();
-    DEBUG("----- PSRAM Test Complete ---");
-
+    // DEBUG("----- BEGIN TESTS ---");
+    // EEPROM_FullTest();
+    // DEBUG("----- EEPROM Test Complete ---");
+    // FRAM_FullTest();
+    // DEBUG("----- FRAM Test Complete ---");
+    // PSRAM_FullTest();
+    // DEBUG("----- PSRAM Test Complete ---");
+    //
     uint32_t size = 4 * 1024 * 1024;
-    EEPROM_VerifySize(size);
-    EEPROM_FullMemoryTest(size);
-    EEPROM_RetentionCheck(size);
-
+    // EEPROM_VerifySize(size);
+    // EEPROM_FullMemoryTest(size);
+    // EEPROM_RetentionCheck(size);
+    //
     // EEPROM_Clear(size); // erase whole chip first
     // printf("Erased.\n");
     // EEPROM_Flash();
-
-    EEPROM_Verify(size);
-    EEPROM_Dump(size);
+    // //
+    // EEPROM_Verify(size);
+    // EEPROM_Dump(size);
 }

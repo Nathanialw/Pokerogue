@@ -11,6 +11,7 @@ State SetInputState(InputState state);
 State SetBattleState(BattleState state);
 bool CheckBattleState(BattleState state);
 
-
-void GameLoop(GameInterface spi);
-
+void GameLoopRateDelay(HardwareInterface hardware);
+void SetGameLoopRate(uint16_t time);
+void GameLoop(GameInterface *spi);
+void SetGameLoopRateDefault();

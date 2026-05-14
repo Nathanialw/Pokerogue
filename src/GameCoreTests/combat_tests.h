@@ -4,4 +4,4 @@
 #pragma once
 
 
-void RunCombatTests();
+void RunCombatTests(HardwareInterface hardware);

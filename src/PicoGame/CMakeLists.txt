@@ -7,9 +7,9 @@ add_executable(PicoRogue
         sounds.c
         hardware.c
 
+        cartridge.c
         cartridge_rom.c
         cartridge_save.c
-        sd_card.c
 
         memory_ram.c
         memory_rom.c
@@ -35,18 +35,21 @@ target_link_libraries(PicoRogue
 )
 
 
+
 target_compile_definitions(PicoRogue PRIVATE ENABLE_DEBUG_OUTPUT ENABLE_ASSERTS)
 target_compile_definitions(PicoTypes PRIVATE ENABLE_DEBUG_OUTPUT ENABLE_ASSERTS)
+#target_compile_definitions(GameCore PRIVATE ENABLE_DEBUG_OUTPUT ENABLE_ASSERTS)
+
 
 target_include_directories(PicoRogue PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
-        ../../vendor/fatfs/source
 )
 
 
+pico_set_linker_script(PicoRogue ${CMAKE_CURRENT_LIST_DIR}/memmap_default.ld)
+pico_set_linker_script(PicoRogue ${CMAKE_CURRENT_LIST_DIR}/memmap_default.ld)
 pico_enable_stdio_usb(PicoRogue 1)
 pico_enable_stdio_uart(PicoRogue 0)
-
 
 # And update target_link_options:
 target_link_options(PicoRogue PRIVATE
@@ -54,6 +57,8 @@ target_link_options(PicoRogue PRIVATE
         -Wl,--defsym=__flash_binary_end=0x101A5858
         -Wl,--gc-sections
         -Wl,--strip-all
+#        -T${CMAKE_CURRENT_SOURCE_DIR}/memmap_default.ld
+#        -Wl,-T ${CMAKE_CURRENT_SOURCE_DIR}/custom_memory.ld
 )
 
 

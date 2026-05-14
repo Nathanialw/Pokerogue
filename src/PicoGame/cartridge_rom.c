@@ -62,7 +62,7 @@ void EEPROM_WakeUp(void)
     uint8_t cmd = 0xAB;
     gpio_put(EEPROM_CART_CS, 0);
     sleep_us(20);
-    spi_write_blocking(SPI0_A, &cmd, 1);
+    spi_write_blocking(SPI_A, &cmd, 1);
     gpio_put(EEPROM_CART_CS, 1);
     sleep_ms(20);
 }
@@ -75,8 +75,8 @@ bool EEPROM_IsBusy(void)
     uint8_t status = 0;
 
     gpio_put(EEPROM_CART_CS, 0);
-    spi_write_blocking(SPI0_A, &cmd, 1);
-    spi_read_blocking(SPI0_A, 0x00, &status, 1);
+    spi_write_blocking(SPI_A, &cmd, 1);
+    spi_read_blocking(SPI_A, 0x00, &status, 1);
     gpio_put(EEPROM_CART_CS, 1);
 
     return (status & 0x01); // BUSY bit
@@ -91,7 +91,7 @@ void EEPROM_WriteEnable(void)
 {
     uint8_t cmd = 0x06;
     gpio_put(EEPROM_CART_CS, 0);
-    spi_write_blocking(SPI0_A, &cmd, 1);
+    spi_write_blocking(SPI_A, &cmd, 1);
     gpio_put(EEPROM_CART_CS, 1);
 }
 
@@ -105,8 +105,8 @@ void EEPROM_PageProgram(uint32_t addr, uint8_t* data, uint16_t length)
     uint8_t tx[4] = {0x02, (addr >> 16) & 0xFF, (addr >> 8) & 0xFF, addr & 0xFF};
 
     gpio_put(EEPROM_CART_CS, 0);
-    spi_write_blocking(SPI0_A, tx, 4);
-    spi_write_blocking(SPI0_A, data, length);
+    spi_write_blocking(SPI_A, tx, 4);
+    spi_write_blocking(SPI_A, data, length);
 
     gpio_put(EEPROM_CART_CS, 1);
 
@@ -156,7 +156,7 @@ void EEPROM_EraseSector(uint32_t addr)
     uint8_t tx[4] = {0x20, (addr >> 16) & 0xFF, (addr >> 8) & 0xFF, addr & 0xFF};
 
     gpio_put(EEPROM_CART_CS, 0);
-    spi_write_blocking(SPI0_A, tx, 4);
+    spi_write_blocking(SPI_A, tx, 4);
     gpio_put(EEPROM_CART_CS, 1);
 
     while (EEPROM_IsBusy()) sleep_ms(1);
@@ -183,7 +183,7 @@ void EEPROM_ReadJEDEC(void)
 
     gpio_put(EEPROM_CART_CS, 0);
     sleep_us(30);
-    spi_write_read_blocking(SPI0_A, tx, rx, 4);
+    spi_write_read_blocking(SPI_A, tx, rx, 4);
     gpio_put(EEPROM_CART_CS, 1);
 
     DEBUG("JEDEC: %02X %02X %02X", rx[1], rx[2], rx[3]);
@@ -204,8 +204,8 @@ uint8_t EEPROM_ReadByte(uint32_t addr)
 
     gpio_put(EEPROM_CART_CS, 0);
 
-    spi_write_blocking(SPI0_A, header, 4);
-    spi_read_blocking(SPI0_A, 0x00, &value, 1);
+    spi_write_blocking(SPI_A, header, 4);
+    spi_read_blocking(SPI_A, 0x00, &value, 1);
 
     gpio_put(EEPROM_CART_CS, 1);
 
@@ -225,8 +225,8 @@ void EEPROM_ReadBuffer(uint32_t addr, uint8_t* buffer, uint16_t length)
     gpio_put(EEPROM_CART_CS, 0);
     sleep_us(20); // generous setup time
 
-    spi_write_blocking(SPI0_A, tx, 4);
-    spi_read_blocking(SPI0_A, 0x00, buffer, length);
+    spi_write_blocking(SPI_A, tx, 4);
+    spi_read_blocking(SPI_A, 0x00, buffer, length);
 
     gpio_put(EEPROM_CART_CS, 1);
 }
@@ -248,8 +248,8 @@ void EEPROM_Read(uint32_t addr, uint8_t* data, size_t len)
     cmd[3] = addr & 0xFF;
 
     gpio_put(EEPROM_CART_CS, 0);
-    spi_write_blocking(SPI0_A, cmd, 4);
-    spi_read_blocking(SPI0_A, 0xFF, data, len);
+    spi_write_blocking(SPI_A, cmd, 4);
+    spi_read_blocking(SPI_A, 0xFF, data, len);
     gpio_put(EEPROM_CART_CS, 1);
 }
 
@@ -266,7 +266,7 @@ uint8_t EEPROM_ReadHighAddress(void)
 
     gpio_put(EEPROM_CART_CS, 0);
     sleep_us(10);
-    spi_write_read_blocking(SPI0_A, tx, rx, 5);
+    spi_write_read_blocking(SPI_A, tx, rx, 5);
     sleep_us(10);
     gpio_put(EEPROM_CART_CS, 1);
 
@@ -303,7 +303,7 @@ uint8_t EEPROM_FastReadByte(uint32_t addr)
     gpio_put(EEPROM_CART_CS, 0);
     sleep_us(5);
 
-    spi_write_read_blocking(SPI0_A, tx, rx, 6);
+    spi_write_read_blocking(SPI_A, tx, rx, 6);
 
     gpio_put(EEPROM_CART_CS, 1);
 

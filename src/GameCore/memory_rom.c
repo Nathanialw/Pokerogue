@@ -15,10 +15,10 @@
 #include "inc/decl_animation_items_struck.inc"
 #include "inc/decl_animation_skills_struck.inc"
 #include "inc/decl_animation_spells_struck.inc"
+#include "lib_memory.h"
 
 
-#define SET_MEMORY __attribute__((section(".sprites_objects"), used, aligned(4)))
-SET_MEMORY
+SET_MEMORY(".sprites_objects")
 const GameFlash g_gameFlash =
 {
     /**********************************************************************************************************************/

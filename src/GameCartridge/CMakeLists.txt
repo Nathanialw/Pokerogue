@@ -8,6 +8,9 @@ add_executable(GameCartridge
         main.c
 )
 
+target_compile_definitions(GameCore PRIVATE CARTRIDGE)
+
+
 target_link_options(GameCartridge PRIVATE
         "-nostartfiles"
         "--specs=nosys.specs"
@@ -27,8 +30,5 @@ target_link_libraries(GameCartridge
 # ========================= POST BUILD - Create Cartridge ROM =========================
 # After the normal GameCartridge executable target
 add_custom_command(TARGET GameCartridge POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}"
-        COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_SOURCE_DIR}/../../scripts/python/cartridge/make_cartridge.py" "${CMAKE_CURRENT_BINARY_DIR}/make_cartridge.py"
-        COMMAND python3 make_cartridge.py "$<TARGET_FILE:GameCartridge>" "${CMAKE_CURRENT_BINARY_DIR}/cartridge.bin"
-        COMMENT "Generating cartridge.bin"
+        COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/../../scripts/python/cartridge/make_cartridge.py"
 )

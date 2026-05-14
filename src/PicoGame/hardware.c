@@ -80,8 +80,8 @@ void Pico_BatteryStatus(void)
 
 void SPI0_Init()
 {
-    spi_init(SPI0_A, 40 * 1000 * 1000); // 40 MHz
-    spi_set_format(SPI0_A, 8, SPI_CPOL_0, SPI_CPHA_0, SPI_MSB_FIRST);
+    spi_init(SPI_A, 40 * 1000 * 1000); // 40 MHz
+    spi_set_format(SPI_A, 8, SPI_CPOL_0, SPI_CPHA_0, SPI_MSB_FIRST);
 
     gpio_set_function(SPIA_SCK, GPIO_FUNC_SPI);
     gpio_set_function(SPIA_MOSI, GPIO_FUNC_SPI);
@@ -96,7 +96,7 @@ void SPI1_Init()
 
     gpio_set_function(SPIB_SCK, GPIO_FUNC_SPI);
     gpio_set_function(SPIB_MOSI, GPIO_FUNC_SPI);
-    gpio_set_function(SPIB_MISO, GPIO_FUNC_SPI);
+    // gpio_set_function(SPIB_MISO, GPIO_FUNC_SPI);
 }
 
 /**********************************************************************************************************************/

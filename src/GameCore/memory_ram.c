@@ -3,9 +3,14 @@
 //
 
 #include "memory_ram.h"
+
+#include "lib_memory.h"
+
 #include "constants.h"
 
 GameRunState g_run = {0};
+
+TitleRunState g_title = {0};
 
 void GameRunInit()
 {
@@ -28,4 +33,9 @@ void GameRunInit()
     g_run.menu.menuSleepTime = 200; //200
 
     g_run.music.master_volume = 32768;
+}
+
+
+void TitleRunInit()
+{
 }

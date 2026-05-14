@@ -11,6 +11,9 @@
 #include "lib_debugging.h"
 #include "memory_ram.h"
 #include "utils_tests.h"
+#include <unistd.h>
+#include <stdlib.h>
+
 
 State HandleInput(State state)
 {
@@ -166,16 +169,48 @@ KeyState GetInputKeyState()
     return k;
 }
 
+void sleep_ms(uint32_t t)
+{
+    sleep(t);
+}
+
+uint8_t GetRandom_uint8_t(uint8_t min, uint8_t max)
+{
+    return random() % max + min;
+}
+
+
+GameInterface InitAPI()
+{
+    GameInterface api;
+    api.hardware = (HardwareInterface)
+    {
+        // .HardwareReset = HardwareReset,
+        .SleepMS = sleep_ms,
+        .MemSet = memset,
+        .GetRandom_uint8_t = GetRandom_uint8_t,
+        // .GetRandom_uint8_t = GetRandom_uint8_t,
+        // .StrChr = strchr,
+        // .StrLen = strlen,
+        // .StrCmp = strcmp,
+        // .StrCpy = strcpy,
+        // .StrCat = strcat,
+    };
+    return api;
+}
 
 int main()
 {
-    InitGame();
+    GameInterface api = InitAPI();
+
+
+    InitGame(api.hardware);
     DEBUG("===");
-    MapDescend(g_run.player.id);
+    MapDescend(api.hardware, g_run.player.id);
     DEBUG("---");
 
     // RunCombatTests();
-    CreatureTests();
+    CreatureTests(api.hardware);
     CheckAnimationImplemented();
 
 

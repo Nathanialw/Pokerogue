@@ -19,6 +19,7 @@ abort(); \
 #else
 #define ASSERT(cond, fmt, ...) ((void)0)
 #endif
+
 #ifdef ENABLE_DEBUG_OUTPUT
 #include <stdio.h>
 /**********************************************************************************************************************/
@@ -29,16 +30,13 @@ abort(); \
 do { fprintf(stderr, "[DEBUG] %s:%d: " fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__); fflush(stderr);} while(0)
 #define DEBUG_INLINE(fmt, ...) \
 do { fprintf(stderr, fmt, ##__VA_ARGS__); fflush(stderr);} while(0)
-#else
-#define DEBUG(fmt, ...) do {} while(0) // this should be optimized out by the compiler
-#endif
-
-#ifdef ENABLE_DEBUG_OUTPUT
 #define PRINT(fmt, ...) \
 do { fprintf(stderr, fmt , __FILE__, __LINE__, ##__VA_ARGS__); fflush(stderr);} while(0)
 #define PRINT_INLINE(fmt, ...) \
 do { fprintf(stderr, fmt, ##__VA_ARGS__); fflush(stderr);} while(0)
 #else
+#define DEBUG(fmt, ...) do {} while(0) // this should be optimized out by the compiler
+#define DEBUG_INLINE(fmt, ...) do {} while(0) // this should be optimized out by the compiler
 #define PRINT(fmt, ...) do {} while(0) // this should be optimized out by the compiler
+#define PRINT_INLINE(fmt, ...) do {} while(0) // this should be optimized out by the compiler
 #endif
-

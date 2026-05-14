@@ -9,12 +9,8 @@ import subprocess
 from pathlib import Path
 
 def main():
-    if len(sys.argv) < 3:
-        print("Usage: make_cartridge.py <ELF file> <output bin>")
-        sys.exit(1)
-
-    elf_path = Path(sys.argv[1])
-    output_bin = Path(sys.argv[2])
+    elf_path = Path("../../../build-cartridge/src/GameCartridge/GameCartridge")
+    output_bin = Path("../../../build-cartridge/src/GameCartridge/cartridge.bin")
     # rom_size = 0x1000000  # 16MB
     rom_size = 0x0400000  # 16MB
 
@@ -27,25 +23,32 @@ def main():
 
     # Define sections and their exact addresses
     sections = [
-        (".battle",           0x000000),
-        (".map",              0x040000),
-        (".strings_items",    0x100008),
-        (".strings_creatures",0x100010),
-        (".strings_spells",   0x100020),
-        (".strings_attacks",  0x100030),
-        (".strings_trainers", 0x100040),
-        (".strings_objects",  0x100050),
-        (".sprites_items",    0x100060),
-        (".sprites_creatures",0x100070),
-        (".sprites_spells",   0x100080),
-        (".sprites_attacks",  0x100090),
-        (".sprites_trainers", 0x100100),
-        (".sprites_objects",  0x100200),
+        #code
+        ".title",
+        ".map",
+        ".battle",
+        ".strings_items",
+        ".strings_creatures",
+        ".strings_spells",
+        ".strings_attacks",
+        ".strings_trainers",
+        ".strings_objects",
+        ".sprites_items",
+        ".sprites_creatures",
+        ".sprites_spells",
+        ".sprites_attacks",
+        ".sprites_trainers",
+        ".sprites_objects",
     ]
+    print("Building cartridge...")
 
-    print("Building cartridge with fixed addresses...")
+    p = 0x0
+    rom[p] = len(sections)
+    p = p + 0x1
 
-    for section_name, address in sections:
+    addr = (len(sections) * 8) + 1
+    # build header
+    for section_name in sections:
         tmp_file = Path(f"{section_name}.tmp")
 
         # Extract section from ELF
@@ -57,8 +60,37 @@ def main():
 
         if result.returncode == 0 and tmp_file.exists():
             data = tmp_file.read_bytes()
-            rom[address:address + len(data)] = data
-            print(f"✓ Placed {section_name:<20} at 0x{address:06X}  ({len(data):,} bytes)")
+
+            rom[p:0x4] = addr.to_bytes(4, byteorder='little')
+            p = p + 0x4
+            print(f"{addr} {addr.to_bytes(4, byteorder='little')}")
+
+            l = len(data)
+            print(f"{l} {l.to_bytes(4, byteorder='little')}")
+            rom[p:0x4] = l.to_bytes(4, byteorder='little')
+            p = p + 0x4
+
+            addr = addr + l
+            tmp_file.unlink()
+        else:
+            print(f"  No data for {section_name}")
+
+    # build cartridge
+    for section_name in sections:
+        tmp_file = Path(f"{section_name}.tmp")
+
+        # Extract section from ELF
+        result = subprocess.run([
+            "arm-none-eabi-objcopy",
+            "--dump-section", f"{section_name}={tmp_file}",
+            str(elf_path)
+        ], capture_output=True)
+
+        if result.returncode == 0 and tmp_file.exists():
+            data = tmp_file.read_bytes()
+            rom[p:p + len(data)] = data
+            p = p + len(data)
+            print(f"✓ Placed {section_name:<20} at 0x{p:06X}  ({len(data):,} bytes)")
             tmp_file.unlink()
         else:
             print(f"  No data for {section_name}")

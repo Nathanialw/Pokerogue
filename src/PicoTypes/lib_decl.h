@@ -72,9 +72,15 @@ typedef struct
     uint8_t (*GetRandomUniform)(uint8_t min, uint8_t max);
     bool (*Abs)(int max);
     char* (*StrChr)(const char* n, int c);
-
 } HardwareInterface;
 
+typedef struct
+{
+    void (*GetRom)(void*, uint32_t size); //rom data
+    void (*GetRam)(void*, uint32_t size); //psram
+    void (*SaveToRam)(void*, uint32_t size); //psram
+    void (*SaveGame)(void*, uint32_t size); //fram
+} MemoryInterface;
 
 typedef struct
 {
@@ -83,6 +89,10 @@ typedef struct
     **********************************************************************************************************************/
     GraphicsInterface graphics;
 
+    /**********************************************************************************************************************/
+    /**  MEMORY PLATFORM DEFINED
+    **********************************************************************************************************************/
+    MemoryInterface memory;
 
     /**********************************************************************************************************************/
     /**  INPUT PLATFORM DEFINED

@@ -55,12 +55,6 @@ def send():
                 ser.write(chunk)
                 sent += len(chunk)
 
-                while ser.in_waiting:
-                    line = ser.readline().decode(errors='ignore').strip()
-
-                    if line:
-                        print(f"Pico: {line}")
-
         print("\n\nSending complete!")
 
     except KeyboardInterrupt:

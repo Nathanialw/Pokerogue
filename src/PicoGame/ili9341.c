@@ -188,9 +188,9 @@ static void Pico_SetWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
 void Pico_ili9341_Init(void)
 {
     // init LCD
-    lcd.spi = SPI_DISPLAY;
-    lcd.sck = SCK;
-    lcd.mosi = MOSI;
+    lcd.spi = SPI_B;
+    lcd.sck = SPIB_SCK;
+    lcd.mosi = SPIB_MOSI;
     lcd.cs = CS;
     lcd.dc = DC;
     lcd.rst = RST;

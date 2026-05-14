@@ -7,12 +7,16 @@ if (PICO)
     set(PICOTOOL_FORCE_FETCH_FROM_GIT PICOTOOL_FETCH_FROM_GIT_PATH BOOL "Force fetch picotool from git")
 
     set(PICO_FLASH_SIZE_BYTES 4194304) # 4 * 1024 * 1024
+#    set(PICO_MEMORY_LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/src/PicoGame/custom_memory.ld)
+#    set(PICO_RAM_ORIGIN 0x20020000 CACHE STRING "")
+#    set(PICO_RAM_LENGTH 0x20000 CACHE STRING "")   # 128K in hex
 
     set(PICO_SDK_PATH ${CMAKE_SOURCE_DIR}/vendor/pico-sdk)
     include(${PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 
     set(PICO_EXTRAS_PATH ${CMAKE_SOURCE_DIR}/vendor/pico-extras)
     include(${PICO_EXTRAS_PATH}/pico_sdk_import.cmake)
+
 
     add_compile_definitions(PICO_FLASH_SIZE_BYTES=4194304) # 4 * 1024 * 1024
 elseif (CARTRIDGE)

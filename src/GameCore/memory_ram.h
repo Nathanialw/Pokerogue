@@ -280,7 +280,17 @@ typedef struct
     } music;
 } GameRunState;
 
+
+typedef struct
+{
+    State state;
+} TitleRunState;
+
+
 extern GameRunState g_run; // Declaration only
+
+extern TitleRunState g_title; // Declaration only
+
 void GameRunInit();
 
 

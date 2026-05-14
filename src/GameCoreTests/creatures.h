@@ -3,5 +3,6 @@
 //
 
 #pragma once
+#include "lib_decl.h"
 
-void CreatureTests();
+void CreatureTests(HardwareInterface hardware);

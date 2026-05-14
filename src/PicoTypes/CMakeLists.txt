@@ -4,6 +4,7 @@ add_library(PicoTypes STATIC
         lib_constants.h
         lib_decl.h
         lib_debugging.h
+        lib_memory.h
 )
 
 target_include_directories(PicoTypes PUBLIC
