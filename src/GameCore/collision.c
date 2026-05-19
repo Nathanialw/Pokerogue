@@ -138,4 +138,6 @@ void ObjectCollision(EntityId id)
     g_core.battleMode.enemyMonsterID = id;
 
     g_core.state.overlay = OVERLAY_BATTLE;
+    g_core.state.battleState = BATTLE_INIT;
+
 }

@@ -307,6 +307,7 @@ void ConsumeItem(uint8_t idx, EntityId e_id)
  * ON SUCCESS -
  * ON FAIL -
 **********************************************************************************************************************/
+SET_MEMORY(".battle")
 bool PlayerDefeated(void)
 {
     if (CheckAlive(g_core.battleMode.playerMonsterID))
@@ -353,6 +354,7 @@ void DestroyEnemyCreature(HardwareInterface hardware)
 /**********************************************************************************************************************/
 /*
 **********************************************************************************************************************/
+SET_MEMORY(".battle")
 bool CheckBattleEnd(EntityId attackerID, EntityId defenderID)
 {
     uint8_t hp = Int999GetCurrent(&g_core.creatures.hp[defenderID]);
@@ -376,6 +378,7 @@ bool CheckPlayerAttackOutcome()
 /**********************************************************************************************************************/
 /*
 **********************************************************************************************************************/
+SET_MEMORY(".battle")
 bool CheckEnemyAttackOutcome()
 {
     EntityId player_creature_id = g_core.battleMode.playerMonsterID;

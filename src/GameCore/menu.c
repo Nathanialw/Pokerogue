@@ -41,6 +41,7 @@ bool ListJump(HardwareInterface hardware, InputInterface input, MemoryInterface 
 /**********************************************************************************************************************/
 /*
 **********************************************************************************************************************/
+SET_MEMORY(".core")
 void ClearMenu(void)
 {
     g_core.menu.text[0][0] = '\0';
@@ -49,7 +50,7 @@ void ClearMenu(void)
 /**********************************************************************************************************************/
 /*
 **********************************************************************************************************************/
-SET_MEMORY(".map")
+SET_MEMORY(".core")
 void FillListByEntityID(MemoryInterface memory, uint8_t n, uint8_t type, const uint8_t* e_ids)
 {
     uint8_t typeIDs[n];
@@ -221,7 +222,7 @@ uint8_t GetSelectorY(void)
 **********************************************************************************************************************/
 
 
-SET_MEMORY(".map")
+SET_MEMORY(".core")
 void GetMenuLine(MemoryInterface memory, char* text, uint8_t idx)
 {
     if (idx >= g_core.menu.visibleMenuOptions)

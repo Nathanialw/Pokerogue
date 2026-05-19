@@ -16,7 +16,7 @@
 **********************************************************************************************************************/
 void CombatLogLine(HardwareInterface hardware, char* dest, const char* prefix, const char* suffix, uint16_t value)
 {
-    hardware.MemSet(dest, ' ', 40);
+    memset(dest, ' ', 40);
 
     uint8_t i = 0;
     while (prefix[i])

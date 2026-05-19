@@ -406,7 +406,7 @@ void DestroyCreature(HardwareInterface hardware, EntityId id)
     g_core.creatures.stats[id].defence = 0;
     g_core.creatures.stats[id].magic = 0;
     g_core.creatures.stats[id].speed = 0;
-    hardware.MemSet(g_core.creatures.attacks[id], NO_ABILITY, 8);
+    memset(g_core.creatures.attacks[id], NO_ABILITY, 8);
     Int999SetCurrent(&g_core.creatures.hp[id], 0);
     Int999SetMax(&g_core.creatures.hp[id], 0);
     g_core.creatures.level[id].value = 0;
@@ -458,7 +458,7 @@ void CopyCreature(HardwareInterface hardware, EntityId src_id, EntityId target_i
     g_core.creatures.stats[target_id].speed = g_core.creatures.stats[src_id].speed;
     g_core.creatures.level[target_id].value = g_core.creatures.level[src_id].value;
 
-    hardware.MemSet(g_core.creatures.attacks[target_id], NO_ABILITY, 8);
+    memset(g_core.creatures.attacks[target_id], NO_ABILITY, 8);
     Int999SetCurrent(&g_core.creatures.hp[target_id], 0);
     Int999SetMax(&g_core.creatures.hp[target_id], 0);
 
@@ -588,7 +588,7 @@ void PopulateLevelObjects(HardwareInterface hardware, MemoryInterface memory)
  *  ON SUCCESS - Returns the type ID of the given entity ID
  *  ON FAIL - sets typeIDs to NULL and returns NULL
 **********************************************************************************************************************/
-SET_MEMORY(".map")
+SET_MEMORY(".core")
 void GetEntityTypes(MemoryInterface memory, uint8_t* typeIDs, const uint8_t* e_ids, ObjectsTypes type, uint8_t n, uint8_t offset)
 {
     SmallStringArray text[MAX_MENU_SIZE];
@@ -640,6 +640,7 @@ void GetEntityTypes(MemoryInterface memory, uint8_t* typeIDs, const uint8_t* e_i
 /**********************************************************************************************************************/
 /** Returns the type ID of the given entity ID
 **********************************************************************************************************************/
+SET_MEMORY(".core")
 ItemTypes GetItemType(EntityId id)
 {
     if (id == NO_ENTITY)
@@ -649,7 +650,7 @@ ItemTypes GetItemType(EntityId id)
 }
 
 
-SET_MEMORY(".map")
+SET_MEMORY(".core")
 Object GetObjectType(EntityId id)
 {
     if (id == NO_ENTITY)
@@ -680,6 +681,7 @@ uint8_t* GetActiveObjects(void)
 /**********************************************************************************************************************/
 /**Returns true if the given entity is Alive
 **********************************************************************************************************************/
+SET_MEMORY(".battle")
 bool CheckAlive(EntityId id)
 {
     ASSERT(id != NO_CREATURE, "ID is NO_CREATURE it is invalid!");

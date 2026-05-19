@@ -292,6 +292,9 @@ typedef struct
         ViewEntities viewObjects;
     } view;
 
+    uint8_t meta[TFT_H / BUFFER_H];
+    EntityId units[ENTITY_COUNT];
+
     StatsRange statsCache;
 } MapRunState;
 

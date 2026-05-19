@@ -29,6 +29,7 @@
  ************************************************************************************************************/
 
 
+SET_MEMORY(".battle")
 Rect_16 GetBattlerRect(bool onAttacker)
 {
     Rect_16 r = {0, 0, BATTLER_TILES_W * TILE_W, BATTLER_TILES_H * TILE_H};
@@ -45,6 +46,7 @@ Rect_16 GetBattlerRect(bool onAttacker)
     return r;
 }
 
+SET_MEMORY(".battle")
 const uint8_t* GetBattlerSprite(MemoryInterface memory, bool onAttacker)
 {
     if (onAttacker)
@@ -52,6 +54,7 @@ const uint8_t* GetBattlerSprite(MemoryInterface memory, bool onAttacker)
     return Flash_GetBattlerArray(memory, true);
 }
 
+SET_MEMORY(".battle")
 SpriteLayout GetBattlerLayout(MemoryInterface memory, bool onAttacker)
 {
     if (onAttacker)
@@ -59,6 +62,7 @@ SpriteLayout GetBattlerLayout(MemoryInterface memory, bool onAttacker)
     return Flash_GetBattlerLayout(memory, GetCreatureType(g_core.battleMode.enemyMonsterID), true);
 }
 
+SET_MEMORY(".battle")
 void RefreshBattler(GraphicsInterface graphics, MemoryInterface memory, bool onAttacker, Rect_16 r)
 {
     SpriteLayout layout = GetBattlerLayout(memory, onAttacker);
@@ -66,6 +70,7 @@ void RefreshBattler(GraphicsInterface graphics, MemoryInterface memory, bool onA
 }
 
 
+SET_MEMORY(".battle")
 void ReDrawBattler(GraphicsInterface graphics, MemoryInterface memory, bool onAttacker, Rect_16 r)
 {
     SpriteLayout layout = GetBattlerLayout(memory, onAttacker);
@@ -83,6 +88,7 @@ void BasicAsserts(Rect_16 r)
     ASSERT(r.w > 0 && r.h > 0, "Rectangle dimensions must be positive");
 }
 
+SET_MEMORY(".battle")
 void AnimationsBasicAssert()
 {
 }
@@ -97,6 +103,7 @@ void AnimationsBasicAssert()
  *  Redraws the framebuffer contents from the center to the left d pixels
  *  Updates every frameLength ms
  ************************************************************************************************************/
+SET_MEMORY(".battle")
 void MoveCenterToLeft(GraphicsInterface graphics,  HardwareInterface hardware, Rect_16 r, uint16_t d, uint8_t frameLength)
 {
     BasicAsserts(r);
@@ -118,6 +125,7 @@ void MoveCenterToLeft(GraphicsInterface graphics,  HardwareInterface hardware, R
  *  Redraws the framebuffer contents right from the center - d pixels to the center
  *  Updates every frameLength ms
  ************************************************************************************************************/
+SET_MEMORY(".battle")
 void MoveLeftToCenter(GraphicsInterface graphics,  HardwareInterface hardware, Rect_16 r, uint16_t d, uint8_t frameLength)
 {
     BasicAsserts(r);
@@ -138,6 +146,7 @@ void MoveLeftToCenter(GraphicsInterface graphics,  HardwareInterface hardware, R
  *  Redraws the framebuffer contents from the center to the right d pixels
  *  Updates every frameLength ms
  ************************************************************************************************************/
+SET_MEMORY(".battle")
 void MoveCenterToRight(GraphicsInterface graphics,  HardwareInterface hardware, Rect_16 r, uint16_t d, uint8_t frameLength)
 {
     BasicAsserts(r);
@@ -157,6 +166,7 @@ void MoveCenterToRight(GraphicsInterface graphics,  HardwareInterface hardware, 
  *  Redraws the framebuffer contents left from the center + d pixels to the center
  *  Updates every frameLength ms
  ************************************************************************************************************/
+SET_MEMORY(".battle")
 void MoveRightToCenter(GraphicsInterface graphics,  HardwareInterface hardware, Rect_16 r, uint16_t d, uint8_t frameLength)
 {
     BasicAsserts(r);
@@ -176,6 +186,7 @@ void MoveRightToCenter(GraphicsInterface graphics,  HardwareInterface hardware, 
  *  Redraws the framebuffer contents down from the center to the center + d pixels
  *  Updates every frameLength ms
  ************************************************************************************************************/
+SET_MEMORY(".battle")
 void MoveCenterToDown(GraphicsInterface graphics,  HardwareInterface hardware, Rect_16 r, uint16_t d, uint8_t frameLength)
 {
     BasicAsserts(r);
@@ -197,6 +208,7 @@ void MoveCenterToDown(GraphicsInterface graphics,  HardwareInterface hardware, R
  *  Redraws the framebuffer contents up from the center to the center + d pixels
  *  Updates every frameLength ms
  ************************************************************************************************************/
+SET_MEMORY(".battle")
 void MoveCenterToTop(GraphicsInterface graphics,  HardwareInterface hardware, Rect_16 r, uint16_t d, uint8_t frameLength)
 {
     BasicAsserts(r);
@@ -226,6 +238,7 @@ void MoveCenterToTop(GraphicsInterface graphics,  HardwareInterface hardware, Re
  *  while shifting the sprite upward pixels
  *  Advances source by partial row for distortion
  ************************************************************************************************************/
+SET_MEMORY(".battle")
 void AnimationMirrorImageFloatingUp(GraphicsInterface graphics,  HardwareInterface hardware, Rect_16 r, uint16_t d, uint8_t frameLength)
 {
     BasicAsserts(r);
@@ -248,6 +261,7 @@ void AnimationMirrorImageFloatingUp(GraphicsInterface graphics,  HardwareInterfa
 /************************************************************************************************************
  *
  ************************************************************************************************************/
+SET_MEMORY(".battle")
 void AnimationSpooky(GraphicsInterface graphics,  HardwareInterface hardware, Rect_16 r, uint16_t d, uint8_t frameLength)
 {
     BasicAsserts(r);
@@ -271,6 +285,7 @@ void AnimationSpooky(GraphicsInterface graphics,  HardwareInterface hardware, Re
 /************************************************************************************************************
  *
  ************************************************************************************************************/
+SET_MEMORY(".battle")
 void AnimationSpookyMoveCenterToLeft(GraphicsInterface graphics,  HardwareInterface hardware, Rect_16 r, uint16_t d, uint8_t frameLength)
 {
     BasicAsserts(r);
@@ -294,6 +309,7 @@ void AnimationSpookyMoveCenterToLeft(GraphicsInterface graphics,  HardwareInterf
 /************************************************************************************************************
  *
  ************************************************************************************************************/
+SET_MEMORY(".battle")
 void AnimationSpookyMoveLeftToCenter(GraphicsInterface graphics,  HardwareInterface hardware, Rect_16 r, uint16_t d, uint8_t frameLength)
 {
     BasicAsserts(r);
@@ -318,6 +334,7 @@ void AnimationSpookyMoveLeftToCenter(GraphicsInterface graphics,  HardwareInterf
 /************************************************************************************************************
  *
  ************************************************************************************************************/
+SET_MEMORY(".battle")
 void AnimationMirrorImage2(GraphicsInterface graphics,  HardwareInterface hardware, Rect_16 r, uint16_t d, uint8_t frameLength)
 {
     BasicAsserts(r);
@@ -340,6 +357,7 @@ void AnimationMirrorImage2(GraphicsInterface graphics,  HardwareInterface hardwa
 /************************************************************************************************************
  *  draws an ice shard graphic at a random screen position in the battler draw area
  ************************************************************************************************************/
+SET_MEMORY(".battle")
 void AnimationIceShards(GraphicsInterface graphics,  HardwareInterface hardware, Rect_16 r, uint16_t d, uint8_t frameLength)
 {
     BasicAsserts(r);
@@ -362,6 +380,7 @@ void AnimationIceShards(GraphicsInterface graphics,  HardwareInterface hardware,
 /************************************************************************************************************
  *
  ************************************************************************************************************/
+SET_MEMORY(".battle")
 void AnimationBeam(GraphicsInterface graphics,  HardwareInterface hardware, MemoryInterface memory, Rect_16 r, uint16_t d, uint8_t frameLength, uint8_t palletIndex)
 {
     BasicAsserts(r);
@@ -387,6 +406,7 @@ void AnimationBeam(GraphicsInterface graphics,  HardwareInterface hardware, Memo
 /************************************************************************************************************
  *
  ************************************************************************************************************/
+SET_MEMORY(".battle")
 void AnimationRandomParticles(GraphicsInterface graphics, HardwareInterface hardware, MemoryInterface memory, Rect_16 r, uint16_t d, uint8_t frameLength, uint8_t palletIndex, uint8_t particleCount)
 {
     BasicAsserts(r);
@@ -413,6 +433,7 @@ void AnimationRandomParticles(GraphicsInterface graphics, HardwareInterface hard
 /************************************************************************************************************/
 /*  Draws a line of pixels of the given colour for each long in the battler sprite
 ************************************************************************************************************/
+SET_MEMORY(".battle")
 void AnimationLineEffect(GraphicsInterface graphics, HardwareInterface hardware, MemoryInterface memory, Rect_16 r, uint16_t d, uint8_t frameLength, uint8_t palletIndex)
 {
     BasicAsserts(r);
@@ -446,8 +467,8 @@ void AnimationLineEffect(GraphicsInterface graphics, HardwareInterface hardware,
 /************************************************************************************************************/
 /*  Draws a line of pixels of the given colour for each long in the battler sprite
 ************************************************************************************************************/
+SET_MEMORY(".battle")
 void AnimationRainbowEffects(Rect_16 r, uint16_t d, uint8_t frameLength, uint8_t palletIndex)
 {
     BasicAsserts(r);
-
 }

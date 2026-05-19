@@ -253,7 +253,7 @@ void RenderObjects(GraphicsInterface graphics, HardwareInterface hardware, Memor
     // Animat
     // ionMovement(graphics, hardware, memory);
 
-    hardware.MemSet(g_map.view.dirtyTiles, 0, sizeof(g_map.view.dirtyTiles));
+    memset(g_map.view.dirtyTiles, 0, sizeof(g_map.view.dirtyTiles));
 
     ResetRenders(&g_map.view.viewItems, NO_ITEM);
     ResetRenders(&g_map.view.viewObjects, NO_OBJECT);

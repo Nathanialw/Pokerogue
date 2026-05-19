@@ -319,7 +319,7 @@ void AnimationScreenFade(GraphicsInterface graphics, HardwareInterface hardware)
  *  TODO: NOT IMPLEMENTED YET
  *  CLEAR SCREEN WITH A RANDOM ANIMATION
  ************************************************************************************************************/
-// SET_MEMORY(".core")
+SET_MEMORY(".battle")
 void AnimationScreenClearRandom(GraphicsInterface graphics, HardwareInterface hardware)
 {
     FrameBuffer f = {50, 100, 64, 80, 0xd6fa};

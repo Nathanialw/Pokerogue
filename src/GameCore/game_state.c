@@ -74,6 +74,7 @@ State SetInputState(InputState state)
 /**********************************************************************************************************************/
 /*
 **********************************************************************************************************************/
+SET_MEMORY(".battle")
 State SetBattleState(BattleState state)
 {
     g_core.state.battleState = state;
@@ -83,6 +84,7 @@ State SetBattleState(BattleState state)
 /**********************************************************************************************************************/
 /*
 **********************************************************************************************************************/
+SET_MEMORY(".battle")
 bool CheckBattleState(BattleState state)
 {
     if (g_core.state.battleState == state)
@@ -103,6 +105,7 @@ State SetGameState(GameState state)
 /**********************************************************************************************************************/
 /*  input handling based on game state
 **********************************************************************************************************************/
+SET_MEMORY(".battle")
 void UpdateBattleRunningState(GraphicsInterface graphics, HardwareInterface hardware, InputInterface input, MemoryInterface memory)
 {
     if (g_core.state.inputState == INPUT_BATTLE)
@@ -146,7 +149,6 @@ void UpdateBattleRunningState(GraphicsInterface graphics, HardwareInterface hard
             if (!SetMenuDelta(hardware, input, memory, input.GetInputKeyState().d))
                 UpdateBattleMenu(input);
         }
-        return;
     }
 }
 
@@ -311,49 +313,48 @@ bool UpdateGameTitleState(InputInterface input)
 SET_MEMORY(".battle")
 void HandleBattleState(GameInterface* spi)
 {
-    if (g_core.state.inputState == INPUT_BATTLE)
+    if (CheckBattleState(BATTLE_INIT))
     {
-        if (CheckBattleState(BATTLE_INIT))
+        AnimationScreenClearRandom(spi->graphics, spi->hardware); //ANIMATION - move both creatures into place
+        HandleBattle(spi->graphics, spi->hardware, spi->memory);
+        HandleBattleMenu(spi->graphics, spi->hardware, spi->memory);
+        SetBattleState(BATTLE_MENUS);
+    }
+    else if (CheckBattleState(BATTLE_ATTACK))
+    {
+        BattlerAnimationAttack(spi->graphics, spi->memory, true); //attacking animation
+        BattlerAnimationStruck(spi->graphics, spi->memory, false); //hit animation
+        AnimationUpdateHealth(spi->graphics, spi->hardware, true);
+        if (!CheckPlayerAttackOutcome())
         {
-            AnimationScreenClearRandom(spi->graphics, spi->hardware); //ANIMATION - move both creatures into place
-            HandleBattle(spi->graphics, spi->hardware, spi->memory);
-            HandleBattleMenu(spi->graphics, spi->hardware, spi->memory);
-            SetBattleState(BATTLE_MENUS);
+            AnimationBattlerDie(spi->graphics, spi->hardware, spi->memory, false);
+            DestroyEnemyCreature(spi->hardware);
+            AnimationScreenFade(spi->graphics, spi->hardware); //ANIMATION - enemy creature drops off screen
+            SetInputState(INPUT_MOVING);
+            g_core.state.overlay = OVERLAY_MAP;
+            g_core.state.battleState = BATTLE_INIT;
+            return;
         }
-        else if (CheckBattleState(BATTLE_ATTACK))
-        {
-            BattlerAnimationAttack(spi->graphics, spi->memory, true); //attacking animation
-            BattlerAnimationStruck(spi->graphics, spi->memory, false); //hit animation
-            AnimationUpdateHealth(spi->graphics, spi->hardware, true);
-            if (!CheckPlayerAttackOutcome())
-            {
-                AnimationBattlerDie(spi->graphics, spi->hardware, spi->memory, false);
-                DestroyEnemyCreature(spi->hardware);
-                AnimationScreenFade(spi->graphics, spi->hardware); //ANIMATION - enemy creature drops off screen
-                FullRedraw(spi->graphics, spi->hardware, spi->memory);
-                SetInputState(INPUT_MOVING);
-                return;
-            }
 
-            UseSkill(spi->hardware, spi->memory, false);
-            BattlerAnimationAttack(spi->graphics, spi->memory, false); //attacking animation
-            BattlerAnimationStruck(spi->graphics, spi->memory, true); //hit animation
-            AnimationUpdateHealth(spi->graphics, spi->hardware, false);
-            if (CheckEnemyAttackOutcome())
-            {
-                //ANIMATION - player's creature drops off screen
-                if (false) // if no more creatures left
-                {
-                    // updateState.inputState = TITLE_SCREEN;
-                }
-            }
-            SetBattleState(BATTLE_MENUS);
-        }
-        else if (CheckBattleState(BATTLE_MENUS))
+        UseSkill(spi->hardware, spi->memory, false);
+        BattlerAnimationAttack(spi->graphics, spi->memory, false); //attacking animation
+        BattlerAnimationStruck(spi->graphics, spi->memory, true); //hit animation
+        AnimationUpdateHealth(spi->graphics, spi->hardware, false);
+        if (CheckEnemyAttackOutcome())
         {
-            HandleBattleMenu(spi->graphics, spi->hardware, spi->memory);
-            DrawCursor(spi->graphics, spi->memory);
+            //ANIMATION - player's creature drops off screen
+            if (false) // if no more creatures left
+            {
+                g_core.state.overlay = OVERLAY_TITLE_SCREEN;
+                // updateState.inputState = TITLE_SCREEN;
+            }
         }
+        SetBattleState(BATTLE_MENUS);
+    }
+    else if (CheckBattleState(BATTLE_MENUS))
+    {
+        HandleBattleMenu(spi->graphics, spi->hardware, spi->memory);
+        DrawCursor(spi->graphics, spi->memory);
     }
 }
 
@@ -433,15 +434,14 @@ uint8_t BattleLoopMain(GameInterface* spi)
 {
     InitBattleMenu();
 
-    bool battling = true;
-    while (battling)
+    while (g_core.state.overlay == OVERLAY_BATTLE)
     {
         UpdateBattleRunningState(spi->graphics, spi->hardware, spi->input, spi->memory);;
         HandleBattleState(spi);
-        battling = MainBattleLoop(spi);;
+        MainBattleLoop(spi);;
     }
 
-    return GAME_MAP;
+    return OVERLAY_MAP;
 }
 
 
@@ -473,7 +473,6 @@ uint8_t GameLoopMain(GameInterface* spi)
     SetMapFog(0xFF);
     InitCamera(0, 0, TILE_W * VIEW_TW, TILE_H * VIEW_TH);
     SetCameraPlayer();
-
     FullRedraw(spi->graphics, spi->hardware, spi->memory);
 
     while (g_core.state.overlay == OVERLAY_MAP)
@@ -483,7 +482,7 @@ uint8_t GameLoopMain(GameInterface* spi)
         HandleGameState(spi);
         GameLoopRateDelay(spi->hardware);
     }
-    return g_core.state.gameState;
+    return g_core.state.overlay;
 }
 
 // __attribute__((section(".strings")))

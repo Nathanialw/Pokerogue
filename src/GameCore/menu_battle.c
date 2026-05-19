@@ -24,12 +24,14 @@ typedef enum
     BATTLE_MENU,
 } BattleMenu;
 
+SET_MEMORY(".battle.data")
 BattleMenu battleMenu = ABILITY_MENU;
 
 /**********************************************************************************************************************/
 /** Open list frame
  *  Set menu cursor cache data to defaults for lists
 **********************************************************************************************************************/
+SET_MEMORY(".battle")
 bool EnterMenu(const uint8_t listSize)
 {
     if (g_core.menu.depth == 1)
@@ -50,6 +52,7 @@ bool EnterMenu(const uint8_t listSize)
 /** Set menu cursor cache data to defaults
  *  Close main menu
 **********************************************************************************************************************/
+SET_MEMORY(".battle")
 void ExitMenu(void)
 {
     if (g_core.menu.depth == 1)
@@ -69,6 +72,7 @@ void ExitMenu(void)
 /** Initial invocation updates the string list cache for display, opening the party frame
  *  Subsequent invocation sets the creature at the cursor position as the active battle creature
 **********************************************************************************************************************/
+SET_MEMORY(".battle")
 bool BattleSwap(HardwareInterface hardware, InputInterface input, MemoryInterface memory, bool update)
 {
     if (EnterMenu(MAX_PARTY_SIZE))
@@ -88,6 +92,7 @@ bool BattleSwap(HardwareInterface hardware, InputInterface input, MemoryInterfac
 /** Initial invocation updates the string list cache for display, opening the spellbook list frame
  *  Subsequent invocation runs the spell action for the spell id at the cursor index of the spellbook
 **********************************************************************************************************************/
+SET_MEMORY(".battle")
 bool BattleSpell(HardwareInterface hardware, InputInterface input, MemoryInterface memory, bool update)
 {
     if (EnterMenu(g_core.player.currentSpellbookSize))
@@ -108,6 +113,7 @@ bool BattleSpell(HardwareInterface hardware, InputInterface input, MemoryInterfa
 /** Initial invocation updates the string list cache for display, opening the backpack list frame
  *  Subsequent invocation runs the item action for the item id at the cursor index of the backpack
 **********************************************************************************************************************/
+SET_MEMORY(".battle")
 bool BattleItems(HardwareInterface hardware, InputInterface input, MemoryInterface memory, bool update)
 {
     if (EnterMenu(g_core.player.currentBagSize))
@@ -131,6 +137,7 @@ bool BattleItems(HardwareInterface hardware, InputInterface input, MemoryInterfa
 /** attempts the end the battle and queue a move to an empty adjacent map cell
  *  TODO: NOT YET IMPLEMENTED
 **********************************************************************************************************************/
+SET_MEMORY(".battle")
 bool BattleFlee(HardwareInterface hardware, InputInterface input, MemoryInterface memory, bool update)
 {
     if (EnterMenu(4))
@@ -145,6 +152,7 @@ bool BattleFlee(HardwareInterface hardware, InputInterface input, MemoryInterfac
 /** display a full screen of teh combat lines cache
  *  TODO: NOT YET IMPLEMENTED
 **********************************************************************************************************************/
+SET_MEMORY(".battle")
 bool BattleCombatLog(HardwareInterface hardware, InputInterface input, MemoryInterface memory, bool update)
 {
 
@@ -160,6 +168,7 @@ bool BattleCombatLog(HardwareInterface hardware, InputInterface input, MemoryInt
 /**********************************************************************************************************************/
 /** Function pointer array for battle menu options
 **********************************************************************************************************************/
+SET_MEMORY(".battle.rodata")
 SubMenu battleSubmenus[BATTLE_MENU_SIZE] =
 {
     BattleSwap,
@@ -172,6 +181,7 @@ SubMenu battleSubmenus[BATTLE_MENU_SIZE] =
 /**********************************************************************************************************************/
 /** Returns the number of usable abilities of the player's active battle creature
 **********************************************************************************************************************/
+SET_MEMORY(".battle")
 uint8_t AbilityCount(void)
 {
     uint8_t num_abilities = 0;
@@ -189,6 +199,7 @@ uint8_t AbilityCount(void)
  *  Sets input state to BATTLE
  *  Sets battle state to BATTLE_INIT to trigger drawing the battle screen procedure
 **********************************************************************************************************************/
+SET_MEMORY(".battle")
 void InitBattleMenu(void)
 {
     SetInputState(INPUT_BATTLE);
@@ -209,6 +220,7 @@ void InitBattleMenu(void)
 /**********************************************************************************************************************/
 /** toggles menu cache cursor data between the use ability list and the battle menu list
 **********************************************************************************************************************/
+SET_MEMORY(".battle")
 void UpdateBattleMenu(InputInterface input)
 {
     if (input.GetInputKeyState().d.x == 0) return;
@@ -236,10 +248,10 @@ void UpdateBattleMenu(InputInterface input)
  *  Returns true if Attacking
  *  Returns false if menu
 **********************************************************************************************************************/
+SET_MEMORY(".battle")
 bool BattleMenuCommand(HardwareInterface hardware, InputInterface input, MemoryInterface memory)
 {
     bool b = false;
-    DEBUG("BattleMenuCommand===================================");
 
     if (battleMenu == ABILITY_MENU)
         b = UseSkill(hardware, memory, true);

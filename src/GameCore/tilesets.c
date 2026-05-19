@@ -59,25 +59,11 @@ void CharFromGlyph1bpp(MemoryInterface memory, Glyph buffer, uint16_t* character
 {
     if (fontSize == FONT8x8)
     {
-        // const uint8_t* glyph = &g_gameFlash.spriteData.font8x8[glyph_index * 8];
-
-        // Flash_GetFontChar8x8(memory, g_core.tileCache.spriteCache.bytes, glyph_index);
-
-        // for (int y = 0; y < 8; y++)
-        // {
-        // uint8_t row = g_core.tileCache.spriteCache.glyph[y];
-        // for (int x = 0; x < 8; x++)
-        // {
-        // character[y * 8 + x] = (row & (1 << x)) ? fg : bg;
-        // }
-        // }
-
-        // Flash_GetFontChar8x8(memory, g_core.tileCache.spriteCache.bytes, glyph_index);
         Flash_GetFontChar8x8(memory, buffer.bytes, glyph_index);
 
         for (int y = 0; y < 8; y++)
         {
-            uint8_t row = buffer.glyph[y];
+            uint8_t row = buffer.bytes[y];
 
             for (int x = 0; x < 8; x++)
             {
@@ -88,31 +74,7 @@ void CharFromGlyph1bpp(MemoryInterface memory, Glyph buffer, uint16_t* character
 
     else if (fontSize == FONT16x16)
     {
-        // {
-        //     Flash_GetFontChar16x16(memory, g_core.tileCache.spriteCache.bytes, glyph_index);
-        //
-        //     for (int y = 0; y < 16; y++)
-        //     {
-        // uint16_t row_mask = (g_gameFlash.spriteData.font16x16[glyph_base + y * 2] << 8) | g_gameFlash.spriteData.font16x16[glyph_base + y * 2 + 1];
-        //
-        //         for (int x = 0; x < 16; x++)
-        //         {
-        //             uint16_t bit = 0x8000 >> x;
-        //             character[y * 16 + x] = (g_core.tileCache.spriteCache.glyph & bit) ? fg : bg;
-        //         }
-        //     }
-        // }
-        // Flash_GetFontChar16x16(memory, g_core.tileCache.spriteCache.bytes, glyph_index);
-
-        // for (int y = 0; y < 32; y++)
-            // memory.Print(FullRedraw_starsta, buffer.bytes[y]);
-
-
         Flash_GetFontChar16x16(memory, buffer.bytes, glyph_index);
-        // memory.Print(FullRedraw_starsta, fg);
-
-        // for (int y = 0; y < 32; y++)
-            // memory.Print(FullRedraw_starsta, buffer.bytes[y]);
 
         for (int y = 0; y < 16; y++)
         {
@@ -124,7 +86,6 @@ void CharFromGlyph1bpp(MemoryInterface memory, Glyph buffer, uint16_t* character
                 character[y * 16 + x] = (row & bit) ? fg : bg;
             }
         }
-        // memory.Print(FullRedraw_starstab, glyph_index);
     }
 }
 

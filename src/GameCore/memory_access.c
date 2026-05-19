@@ -539,7 +539,7 @@ void Flash_GetOptionText(MemoryInterface memory, uint8_t* textBuffer, uint8_t in
 #endif
 }
 
-SET_MEMORY(".map")
+SET_MEMORY(".core")
 void Flash_GetMenuText(MemoryInterface memory, uint8_t* textBuffer, uint8_t index)
 {
 #ifdef STANDALONE

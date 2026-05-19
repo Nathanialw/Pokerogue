@@ -152,7 +152,7 @@ IntMax999 GetMP(Creature type, uint8_t level)
 **********************************************************************************************************************/
 void GetStatLine(HardwareInterface hardware, uint16_t cur, uint16_t max, uint8_t max_chars, char* dest, const StatusPrefix prefix)
 {
-    hardware.MemSet(dest, '\0', max_chars);
+    memset(dest, '\0', max_chars);
 
     for (int i = 0; i < 3 && prefix[i]; i++)
     {

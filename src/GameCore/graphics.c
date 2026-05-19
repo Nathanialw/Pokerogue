@@ -240,7 +240,7 @@ void OrderUnitsByBufferLine(GraphicsInterface graphics, EntityId* units, uint8_t
     {
         if (!GetBit(g_core.creatures.onMap, id)) continue;
         Position pos = g_core.creatures.position[id];
-        uint8_t row = pos.y / graphics.GetBufferWidth();
+        uint8_t row = pos.y / BUFFER_W;
 
         uint16_t cursor = 0;
         for (uint8_t i = 0; i <= row; i++)
@@ -266,12 +266,6 @@ void OrderUnitsByBufferLine(GraphicsInterface graphics, EntityId* units, uint8_t
  *  colour coded
  *  draws creature position pixels on top of their tile position
 **********************************************************************************************************************/
-SET_MEMORY(".core.data")
-static const char DrawMiniMap1[] = "DrawMiniMap 1";
-
-SET_MEMORY(".core.data")
-static const char DrawMiniMap2[] = "0x%2x,";
-
 SET_MEMORY(".map.rodata")
 static const uint8_t colors[16] =
 {
@@ -297,30 +291,20 @@ static const uint8_t colors[16] =
 SET_MEMORY(".map")
 void DrawMiniMap(GraphicsInterface graphics, HardwareInterface hardware, MemoryInterface memory)
 {
-    hardware.Print(DrawMiniMap1);
-    const uint16_t screen_w = TFT_H;
-    const uint8_t buffer_lines = TFT_H / graphics.GetBufferHeight();
-    const uint8_t centerOffset = 32;
+    uint16_t screen_w = TFT_H;
+    uint8_t buffer_lines = TFT_H / BUFFER_H;
+    uint8_t centerOffset = 32;
 
-    hardware.Print(DrawMiniMap1);
-
-    uint8_t meta[buffer_lines];
-    hardware.MemSet(meta, 0, sizeof(meta));
-    EntityId units[ENTITY_COUNT];
-    hardware.MemSet(units, NO_ENTITY, sizeof(units));
-    OrderUnitsByBufferLine(graphics, units, meta);
-
-
-    hardware.Print(DrawMiniMap1);
+    OrderUnitsByBufferLine(graphics, g_map.units, g_map.meta);
 
     uint16_t cursor = 0;
     uint16_t transparency = Flash_GetColor(memory, PAL_KEY);
-    for (uint16_t y = 0; y < MAP_H; y += graphics.GetBufferHeight())
+    for (uint16_t y = 0; y < MAP_H; y += BUFFER_H)
     {
         graphics.SetFrameBuffer(Flash_GetColor(memory, PAL_OFF_WHITE_GRAY));
-        // hardware.MemSet(graphics.GetFrameBuffer2bytes(), Flash_GetColor(memory, PAL_DARK_GRN_BLACK), sizeof(*graphics.GetFrameBuffer2bytes()));
+        // memset(graphics.GetFrameBuffer2bytes(), Flash_GetColor(memory, PAL_DARK_GRN_BLACK), sizeof(*graphics.GetFrameBuffer2bytes()));
         cursor = (screen_w - MAP_W) / 2; //reset position
-        for (uint16_t row = 0; row < graphics.GetBufferHeight(); row++)
+        for (uint16_t row = 0; row < BUFFER_H; row++)
         {
             uint16_t cy = y + row;
             if (cy >= MAP_H) break;
@@ -333,31 +317,23 @@ void DrawMiniMap(GraphicsInterface graphics, HardwareInterface hardware, MemoryI
             cursor += (screen_w - MAP_W);
         }
 
-        hardware.Print(DrawMiniMap1);
-
         uint16_t c = 0;
-        for (uint8_t i = 0; i < y / graphics.GetBufferHeight(); i++) c += meta[i];
+        for (uint8_t i = 0; i < y / BUFFER_H; i++) c += g_map.meta[i];
 
-        hardware.Print(DrawMiniMap1);
-
-        uint8_t buffer_line = y / graphics.GetBufferHeight();
-        uint8_t n = meta[buffer_line];
+        uint8_t buffer_line = y / BUFFER_H;
+        uint8_t n = g_map.meta[buffer_line];
         for (uint16_t j = c; j < c + n; j++)
         {
             uint16_t color = Flash_GetColor(memory, PAL_BRIGHT_RED);
-            Position pos = g_core.creatures.position[units[j]];
+            Position pos = g_core.creatures.position[g_map.units[j]];
             uint8_t row = pos.y - y;
-            if (GetPlayerID() == units[j])
+            if (GetPlayerID() == g_map.units[j])
                 color = Flash_GetColor(memory, PAL_DEEP_BLUE);
 
             graphics.GetFrameBuffer2bytes()[centerOffset + (row * (centerOffset * 2)) + (row * MAP_W) + pos.x] = color;
         }
 
-        hardware.Print(DrawMiniMap1);
-
-        graphics.Draw(0, y, screen_w, graphics.GetBufferWidth(), graphics.GetFrameBuffer1byte());
-
-        hardware.Print(DrawMiniMap1);
+        graphics.Draw(0, y, screen_w, BUFFER_H, graphics.GetFrameBuffer1byte());
     }
 }
 
@@ -383,7 +359,7 @@ void DrawParty(GraphicsInterface graphics, HardwareInterface hardware, MemoryInt
     const uint8_t max_chars = (((MAIN_MENU_W) * font_size) - indent) + 1;
 
     char border[max_chars + 1];
-    hardware.MemSet(border, '-', max_chars);
+    memset(border, '-', max_chars);
     border[max_chars] = '\0';
 
     y += PrintLineStr(graphics, memory, x, y, font_size, max_chars, border, false);
@@ -515,7 +491,7 @@ void DrawList(GraphicsInterface graphics, HardwareInterface hardware, MemoryInte
     const uint8_t max_chars = (((MAIN_MENU_W) * font_size) - indent) + 1;
 
     char border[max_chars + 1];
-    hardware.MemSet(border, '-', max_chars);
+    memset(border, '-', max_chars);
     border[max_chars] = '\0';
 
     y += PrintLineStr(graphics, memory, x, y, font_size, max_chars, border, false);
@@ -567,6 +543,7 @@ void HandleMenu(GraphicsInterface graphics, HardwareInterface hardware, MemoryIn
 /**********************************************************************************************************************/
 /**  Draws battle mode menu list - ie bag items, party, spells
 **********************************************************************************************************************/
+SET_MEMORY(".battle")
 void HandleBattleLists(GraphicsInterface graphics, MemoryInterface memory)
 {
     // use screen area of player battler and down to the bottom of the skill list
@@ -638,7 +615,7 @@ void HandleBattleMenu(GraphicsInterface graphics, HardwareInterface hardware, Me
     const uint8_t max_lines = (MAIN_MENU_H * font_size);
 
     char border[max_chars + 1];
-    hardware.MemSet(border, '-', max_chars);
+    memset(border, '-', max_chars);
     border[max_chars] = '\0';
 
     HandleBattleLists(graphics, memory);
@@ -783,7 +760,7 @@ void HandleGameMenuBorders(GraphicsInterface graphics, HardwareInterface hardwar
     const uint8_t max_chars = (((VIEW_TW) * font_size)) + 1;
 
     char border[max_chars + 1];
-    hardware.MemSet(border, '-', max_chars);
+    memset(border, '-', max_chars);
     border[max_chars] = '\0';
     PrintLineStr(graphics, memory, x, y, font_size, max_chars, border, false);
     uint16_t numSpaces = (max_lines - 1) * size;
@@ -839,7 +816,7 @@ void HandleGameMenuDescription(GraphicsInterface graphics, HardwareInterface har
         if (done) break;
 
         char line[LINE_LEN + 2]; // +2 for possible hyphen and null
-        hardware.MemSet(line, ' ', LINE_LEN);
+        memset(line, ' ', LINE_LEN);
         line[LINE_LEN] = '\0';
         line[LINE_LEN + 1] = '\0';
 
@@ -1072,6 +1049,7 @@ void CreatureStats(GraphicsInterface graphics, HardwareInterface hardware, Memor
  *      -battle menu list for actuve creature abilities
  *      -battle menu list for player actions ie swap, use item, use spell etx
 **********************************************************************************************************************/
+SET_MEMORY(".battle")
 void HandleBattle(GraphicsInterface graphics, HardwareInterface hardware, MemoryInterface memory)
 {
     DEBUG("HandleBattle");

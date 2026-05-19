@@ -125,7 +125,7 @@ _Static_assert(DIALOGUE_H + RESOURCE_FRAME_H + BATTLER_AREA_H <= TFT_H, "cannot 
 /**MAP constants
 **********************************************************************************************************************/
 #define MAP_W 128
-#define MAP_H 120
+#define MAP_H 128
 #define MAP_TILE_BITS 6
 #define MAP_SIZE_CELLS MAP_W * MAP_H
 #define MAP_SIZE_BITS (MAP_SIZE_CELLS * MAP_TILE_BITS)
