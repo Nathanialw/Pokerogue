@@ -8,8 +8,8 @@
 
 #define TOTAL_MUSIC_NOTES 815
 #define MUSIC_COUNT 1
-// #define STANDALONE 1
 
+// #define STANDALONE 1
 /**********************************************************************************************************************
 *
 *   ROM layout struct
@@ -338,7 +338,9 @@ typedef struct
 } Colors;
 
 
-
+/**********************************************************************************************************************/
+/*
+**********************************************************************************************************************/
 extern const Battle_Animation itemsAttack[ITEM_COUNT];
 extern const Battle_Animation itemsStruck[ITEM_COUNT];
 extern const Battle_Animation spellsAttack[SPELL_COUNT];

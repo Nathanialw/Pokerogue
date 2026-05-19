@@ -7,6 +7,6 @@
 
 Camera InitCamera(uint8_t x, uint8_t y, uint16_t w, uint16_t h);
 Camera SetCamera(uint8_t x, uint8_t y);
-Camera SetCameraPlayer(void);
+void SetCameraPlayer(void);
 Camera GetCamera(void);
 bool CameraContains(uint8_t x, uint8_t y);

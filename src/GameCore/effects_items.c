@@ -510,7 +510,7 @@ bool UseAbilityBook(HardwareInterface hardware, MemoryInterface memory, EntityId
 bool UseHealthPotion(HardwareInterface hardware, MemoryInterface memory, EntityId item_id, EntityId e_id, ItemData itemData)
 {
     if (e_id == NO_ENTITY) return false;
-    uint8_t value = g_run.creatures.metaData[item_id].value;
+    uint8_t value = g_core.creatures.metaData[item_id].value;
     return HealTarget(e_id, value);
 }
 
@@ -520,7 +520,7 @@ bool UseHealthPotion(HardwareInterface hardware, MemoryInterface memory, EntityI
 bool UseManaPotion(HardwareInterface hardware, MemoryInterface memory, EntityId item_id, EntityId e_id, ItemData itemData)
 {
     if (e_id == NO_ENTITY) return false;
-    uint8_t value = g_run.creatures.metaData[item_id].value;
+    uint8_t value = g_core.creatures.metaData[item_id].value;
     return RestoreMana(e_id, value);
 }
 
@@ -529,7 +529,7 @@ bool UseManaPotion(HardwareInterface hardware, MemoryInterface memory, EntityId 
 **********************************************************************************************************************/
 bool UseSpellBook(HardwareInterface hardware, MemoryInterface memory, EntityId item_id, EntityId e_id, ItemData itemData)
 {
-    uint8_t spell_id = g_run.creatures.metaData[item_id].SpellId;
+    uint8_t spell_id = g_core.creatures.metaData[item_id].SpellId;
     return LearnSpell(e_id);
 }
 
@@ -541,8 +541,8 @@ bool UseSpellBook(HardwareInterface hardware, MemoryInterface memory, EntityId i
 **********************************************************************************************************************/
 bool UseScroll(HardwareInterface hardware, MemoryInterface memory, EntityId item_id, EntityId e_id, ItemData itemData)
 {
-    uint8_t spell_id = g_run.creatures.metaData[item_id].SpellId;
-    return CastSpell(memory, spell_id, e_id, e_id);
+    uint8_t spell_id = g_core.creatures.metaData[item_id].SpellId;
+    return CastSpell(hardware, memory, spell_id, e_id, e_id);
 }
 
 /**********************************************************************************************************************/

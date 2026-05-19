@@ -1,0 +1,5 @@
+  "Swap\0",
+  "Spell\0",
+  "Item\0",
+  "Combat Log\0",
+  "Flee\0",

@@ -37,8 +37,8 @@ bool RunAbilityDamageTest(HardwareInterface hardware, MemoryInterface memory, Cr
     SkillData ability_data = g_gameFlash.gameData.abilityData[abilityID];
     uint16_t base_damage = CalcDamage(attackerID, ability_data.power);
     uint16_t damage = CalcModifier(attackerID, defenderID, ability_data.type, base_damage);
-    Stats attackerStats = g_run.creatures.stats[attackerID];
-    Stats defenderStats = g_run.creatures.stats[defenderID];
+    Stats attackerStats = g_core.creatures.stats[attackerID];
+    Stats defenderStats = g_core.creatures.stats[defenderID];
     ResetEntities(hardware, false);
     DamageTest.damageCount[damage]++;
     if (damage > DamageTest.highestDamage)

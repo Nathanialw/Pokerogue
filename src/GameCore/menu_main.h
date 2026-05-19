@@ -6,4 +6,4 @@
 
 
 void InitMainMenu(void);
-bool OpenSubMenu(InputInterface input, MemoryInterface memory);
+bool OpenSubMenu(HardwareInterface hardware, InputInterface input, MemoryInterface memory);

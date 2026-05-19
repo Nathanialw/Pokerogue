@@ -5,11 +5,13 @@
 #include "cartridge.h"
 #include <stdint.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include "cartridge_rom.h"
 #include "lib_debugging.h"
 #include "lib_decl.h"
 #include "pico/time.h"
+
 
 // Load an overlay by name, returns true on success
 bool LoadOverlay(uint32_t lma, uint32_t ram_addr, size_t size)
@@ -26,7 +28,7 @@ bool LoadOverlay(uint32_t lma, uint32_t ram_addr, size_t size)
 
 typedef uint8_t (*overlay_entry_t)(GameInterface*);
 
-uint8_t RunOverlay(GameInterface *spi, uint32_t lma, uint32_t ram_addr, size_t size)
+uint8_t RunOverlay(GameInterface* spi, uint32_t lma, uint32_t ram_addr, size_t size)
 {
     // 1. Copy from EEPROM (offset 0x080000) to RAM OVERLAY_VMA
     // load_overlay(TITLE_LMA, OVERLAY_VMA, TITLE_SIZE);
@@ -37,6 +39,48 @@ uint8_t RunOverlay(GameInterface *spi, uint32_t lma, uint32_t ram_addr, size_t s
     DEBUG("Running overlay at 0x%08X", (uint32_t)entry);
     return entry(spi);
 }
+
+
 void EnterBootloader()
 {
+}
+
+
+void GetRom(uint32_t addr, uint8_t* buf, uint32_t size);
+void Print(const char* fmt, ...);
+
+
+MemoryInterface GetMemoryInterface()
+{
+    MemoryInterface memory =
+    {
+        .GetRom = GetRom,
+        .Print = Print,
+        .PrintVar = PrintVar,
+    };
+
+    return memory;
+}
+
+
+void GetRom(uint32_t addr, uint8_t* buf, uint32_t size)
+{
+    EEPROM_Read(addr, buf, size);
+}
+
+
+void Print(const char* fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    vprintf(fmt, args); // Print formatted message
+    va_end(args);
+    // sleep_ms(10);
+}
+
+
+void PrintVar(const char* fmt, ...)
+{
+    DEBUG("CART - %s", fmt);
+    // sleep_ms(10);
 }

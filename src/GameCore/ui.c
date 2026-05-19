@@ -65,8 +65,10 @@ void PrintCombatLog(HardwareInterface hardware, MemoryInterface memory, EntityId
     const char suffix[] = " Frst Dmg";
     const char a[] = " hit ";
     const char b[] = " ";
-    const char* attacker = Flash_GetCreatureName(memory, GetCreatureType(creatureID));
-    const char* target = Flash_GetCreatureName(memory, GetCreatureType(creatureID));
+    char attacker[SMALL_STRINGS];
+    Flash_GetCreatureName(memory, attacker, GetCreatureType(creatureID));
+    char target[SMALL_STRINGS];
+    Flash_GetCreatureName(memory, target, GetCreatureType(creatureID));
     char prefix[40];
 
     uint8_t cursor = 0;
@@ -103,8 +105,8 @@ void PrintCombatLog(HardwareInterface hardware, MemoryInterface memory, EntityId
     }
 
 
-    if (g_run.battleMode.combatLog[0][0] == '\0')
-        CombatLogLine(hardware, g_run.battleMode.combatLog[0], prefix, suffix, damage);
+    if (g_core.battleMode.combatLog[0][0] == '\0')
+        CombatLogLine(hardware, g_core.battleMode.combatLog[0], prefix, suffix, damage);
     else
-        CombatLogLine(hardware, g_run.battleMode.combatLog[1], prefix, suffix, damage);
+        CombatLogLine(hardware, g_core.battleMode.combatLog[1], prefix, suffix, damage);
 }

@@ -206,7 +206,7 @@ int main()
 
     InitGame(api.hardware);
     DEBUG("===");
-    MapDescend(api.hardware, g_run.player.id);
+    MapDescend(api.hardware, g_core.player.id);
     DEBUG("---");
 
     // RunCombatTests();

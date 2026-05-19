@@ -24,6 +24,15 @@ typedef char SmallStringArray[SMALL_STRINGS];
 typedef uint16_t MapSprite[TILE_W * TILE_H];
 
 
+typedef union
+{
+    uint16_t glyph [16];
+    uint8_t bytes[32];
+} Glyph;
+
+_Static_assert(sizeof(Glyph) == 32, "SkillLearnLevel must be 32 bytes");
+
+
 /**********************************************************************************************************************/
 /**Bitfield types
 **********************************************************************************************************************/
@@ -43,6 +52,7 @@ typedef struct
     uint8_t newSprites[VIEW_TH][VIEW_TW];
 } ViewEntities;
 
+
 /**********************************************************************************************************************
 *   Creature skills
 **********************************************************************************************************************/
@@ -52,12 +62,18 @@ typedef struct
     uint8_t level;
 } SkillLearnLevel;
 
-typedef SkillLearnLevel CreatureSkillLearnLevels[16];
+typedef union
+{
+    SkillLearnLevel c[16];
+    uint8_t bytes[32];
+} CreatureSkillLearnLevels;
+
+_Static_assert(sizeof(CreatureSkillLearnLevels) == 32, "SkillLearnLevel must be 32 bytes");
 
 /**********************************************************************************************************************
 *   MENUS
 **********************************************************************************************************************/
-typedef bool (*SubMenu)(InputInterface input, MemoryInterface memory, bool update);
+typedef bool (*SubMenu)(HardwareInterface hardware, InputInterface input, MemoryInterface memory, bool update);
 typedef uint16_t MainMenuPtr[MAIN_MENU_W];
 
 
@@ -89,61 +105,83 @@ typedef union
 /**********************************************************************************************************************/
 /**  stores entity action data imported from the DB
 **********************************************************************************************************************/
-typedef struct
+typedef union
 {
-    uint8_t power;
-    uint8_t pp;
-    uint8_t type : 4;
-    //TODO: bits unused
-    uint8_t _pad : 4;
+    struct
+    {
+        uint8_t power;
+        uint8_t pp;
+        uint8_t type : 4;
+        //TODO: bits unused
+        uint8_t _pad : 4;
+    };
+
+    uint8_t bytes[3];
 } SpellData;
 
 _Static_assert(sizeof(SpellData) == 3, "SpellData must be 3 bytes");
 
-typedef struct
+typedef union
 {
-    uint8_t power;
-    uint8_t manaCost;
-    uint8_t type : 4;
-    //TODO: bits unused
-    uint8_t _pad : 4;
-    //hit chance?
-    //crit chance?
+    struct
+    {
+        uint8_t power;
+        uint8_t manaCost;
+        uint8_t type : 4;
+        //TODO: bits unused
+        uint8_t _pad : 4;
+        //hit chance?
+        //crit chance?
+    };
+
+    uint8_t bytes[3];
 } SkillData;
 
 _Static_assert(sizeof(SkillData) == 3, "SkillData must be 3 bytes");
 
-typedef struct
+typedef union
 {
-    union
+    struct
     {
-        uint8_t chance;
-        uint8_t power;
+        union
+        {
+            uint8_t chance;
+            uint8_t power;
+        };
+
+        uint8_t type : 4;
+        uint8_t level : 4;
     };
 
-    uint8_t type : 4;
-    uint8_t level : 4;
+    uint8_t bytes[2];
 } ItemData;
 
-typedef struct
+_Static_assert(sizeof(ItemData) == 2, "ItemData must be 2 bytes");
+
+typedef union
 {
-    union
+    struct
     {
-        uint8_t chance;
-        uint8_t power;
+        union
+        {
+            uint8_t chance;
+            uint8_t power;
+        };
+
+        uint8_t type : 4;
+        uint8_t level : 4;
     };
 
-    uint8_t type : 4;
-    uint8_t level : 4;
+    uint8_t bytes[2];
 } ObjectData;
 
-_Static_assert(sizeof(ItemData) == 2, "ItemData must be 2 bytes");
+_Static_assert(sizeof(ObjectData) == 2, "ObjectData must be 2 bytes");
 
 
 typedef bool (*SkillEffect)(EntityId attackerID, EntityId defenderID, SkillData skillData);
 typedef bool (*ItemEffect)(EntityId item_id, EntityId e_id, ItemData itemData);
-typedef bool (*SpellEffect)(EntityId partyID, EntityId enemyID, SpellData spellData);
-typedef bool (*ObjectEffect)(EntityId partyID, EntityId enemyID, ObjectData spellData);
+typedef bool (*SpellEffect)(HardwareInterface hardware, MemoryInterface memory, EntityId partyID, EntityId enemyID, SpellData spellData);
+typedef bool (*ObjectEffect)(HardwareInterface hardware, EntityId partyID, EntityId enemyID, ObjectData spellData);
 
 
 /**********************************************************************************************************************/
@@ -249,10 +287,15 @@ _Static_assert(sizeof(Int64) == 1, "Int64 must be 1 byte");
 *   the bottom bit holds a flag
 *   max 99 value while using the remaining bit as a flag
 **********************************************************************************************************************/
-typedef struct
+typedef union
 {
-    uint8_t value : 7; // max 127
-    uint8_t greater : 1;
+    struct
+    {
+        uint8_t value : 7; // max 127
+        uint8_t greater : 1;
+    };
+
+    uint8_t byte;
 } Int99;
 
 _Static_assert(sizeof(Int99) == 1, "Int99 must be 1 byte");
@@ -260,11 +303,16 @@ _Static_assert(sizeof(Int99) == 1, "Int99 must be 1 byte");
 /**********************************************************************************************************************/
 /** holds the metadata of each object in the sprite arrays
 **********************************************************************************************************************/
-typedef struct
+typedef union
 {
-    uint32_t idx;
-    uint16_t palette[16];
-    uint8_t emptyIndexes[7];
+    struct
+    {
+        uint32_t idx;
+        uint16_t palette[16];
+        uint8_t emptyIndexes[7];
+    };
+
+    uint8_t bytes[44];
 } SpriteLayout;
 
 _Static_assert(sizeof(SpriteLayout) == 44, "SpriteLayout must be 44 bytes");
@@ -367,12 +415,17 @@ _Static_assert(sizeof(Senses) == 1, "Senses must be 1 byte");
  *  Grows with levels and can be modified by items/spells/skill
  *  each value is 1 byte - max <256
 **********************************************************************************************************************/
-typedef struct Stats
+typedef union Stats
 {
-    uint8_t attack;
-    uint8_t defence;
-    uint8_t speed;
-    uint8_t magic;
+    struct
+    {
+        uint8_t attack;
+        uint8_t defence;
+        uint8_t speed;
+        uint8_t magic;
+    };
+
+    uint8_t bytes[4];
 } Stats;
 
 _Static_assert(sizeof(Stats) == 4, "Stats must be 4 bytes");
@@ -381,11 +434,16 @@ _Static_assert(sizeof(Stats) == 4, "Stats must be 4 bytes");
 /** Min and max values of stats
 /** Growth per level data for a creature
 **********************************************************************************************************************/
-typedef struct StatsRange
+typedef union
 {
-    Stats min;
-    Stats max;
-    uint16_t growth;
+    struct
+    {
+        Stats min;
+        Stats max;
+        uint16_t growth;
+    };
+
+    uint8_t bytes[10];
 } StatsRange;
 
 _Static_assert(sizeof(StatsRange) == 10, "StatsRange must be 10 bytes");
@@ -424,14 +482,20 @@ _Static_assert(sizeof(Sprite) == 2, "Sprite must be 2 bytes");
  *  color value of the background
  *  color value of the glyph
 **********************************************************************************************************************/
-typedef struct
+typedef union
 {
-    uint8_t glyph_index;
-    uint16_t bg : 6;
-    uint16_t fg : 6;
-    //TODO: bits unused - possibly palette data
-    uint16_t _pad : 4;
-} __attribute__((packed)) Tile;
+    struct
+    {
+        uint8_t glyph_index;
+        uint8_t bg : 6;
+        uint8_t _pad0 : 2;
+        uint8_t fg : 6;
+        uint8_t pad1 : 2;
+        //TODO: bits unused - possibly palette data
+    };
+
+    uint8_t bytes[3];
+} Tile;
 
 _Static_assert(sizeof(Tile) == 3, "Sprite must be 3 bytes");
 

@@ -105,8 +105,6 @@ typedef struct
     uint cs, dc, rst;
 } ili9341_t;
 
-#define TFT_WIDTH  320
-#define TFT_HEIGHT 240
 
 ili9341_t lcd;
 
@@ -230,11 +228,11 @@ void Pico_ili9341_Init(void)
 
     Pico_WriteCmd(0x36);
     uint8_t madctl =
-        (1 << 7) | //  Row order
-        (0 << 6) | // Column order
-        (1 << 5) | // Row/column exchange (set landscape)
+        (0 << 7) | //  Row order
+        (1 << 6) | // Column order
+        (0 << 5) | // Row/column exchange (set landscape)
         (0 << 4) | //  vertical refresh order
-        (0 << 3) | // BGR: BGR order
+        (1 << 3) | // BGR: BGR order
         (0 << 2); // horizontal refresh order
 
     Pico_WriteData(&madctl, 1);
@@ -531,8 +529,8 @@ void TestAnimation(FrameBuffer f, Rect_16 r, Color color1)
 **********************************************************************************************************************/
 void Pico_TestColors()
 {
-    uint16_t width = 40;
-    FrameBuffer f = {.x = 0, .y = 0, .w = width, .h = 320};
+    uint16_t width = SCREEN_H / 8;
+    FrameBuffer f = {.x = 0, .y = 0, .w = width, .h = SCREEN_H};
 
     uint16_t colors[8] =
     {
@@ -550,8 +548,7 @@ void Pico_TestColors()
     for (uint8_t i = 0; i < 8; i++)
     {
         Color c = {.color = colors[i]};
-        SetFrameBufferColor(c);
-        DrawBuffer(f);
+        FillRectColor(f.x, f.y, f.w, f.h, c);
         f.x += width;
     }
 }
@@ -561,8 +558,8 @@ void Pico_TestColors()
 **********************************************************************************************************************/
 void Pico_TestText()
 {
-    uint16_t width = 40;
-    FrameBuffer f = {.x = 0, .y = 0, .w = width, .h = 320};
+    uint16_t width = SCREEN_H / 8;
+    FrameBuffer f = {.x = 0, .y = 0, .w = width, .h = SCREEN_H};
 
     uint16_t colors[8] =
     {

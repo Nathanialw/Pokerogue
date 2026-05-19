@@ -9,14 +9,16 @@
 **********************************************************************************************************************/
 typedef enum
 {
-    TITLE_SCREEN = 0,
-    GAME_RUNNING = 1,
-    NEW_MAP = 2,
-    SHUTDOWN = 3,
-    GAME_STATE_SIZE,
+    OVERLAY_TITLE_SCREEN = 0,
+    OVERLAY_BATTLE_ENTRY = 1,
+    OVERLAY_BATTLE = 2,
+    OVERLAY_GEN_MAP = 3,
+    OVERLAY_MAP = 4,
+    OVERLAY_SHUTDOWN = 5,
+    OVERLAY_GAME_STATE_SIZE,
 } GameState;
 
-_Static_assert((GAME_STATE_SIZE == 4), "update State struct to reflect new size");
+_Static_assert((OVERLAY_GAME_STATE_SIZE == 6), "update State struct to reflect new size");
 
 /**********************************************************************************************************************/
 /** Sets the logic path for the game in the main loop
@@ -31,21 +33,6 @@ typedef enum
 } BattleState;
 
 _Static_assert((BATTLE_INPUT_STATE_SIZE == 4), "update State struct to reflect new size");
-
-/**********************************************************************************************************************/
-/** Sets input logic path for game state branching
-**********************************************************************************************************************/
-typedef enum
-{
-    // IDLE,
-    MOVING,
-    MENU,
-    ENTER_BATTLE,
-    BATTLE,
-    INPUT_STATE_SIZE,
-} InputState;
-
-_Static_assert((INPUT_STATE_SIZE == 4), "update State struct to reflect new size");
 
 /**********************************************************************************************************************/
 /** Options menu list in the main menu
@@ -213,9 +200,8 @@ typedef enum
 typedef enum
 {
     CREATURE,
-    ITEM,
     OBJECT,
-    TOTAL_SPAWNABLE_OBJECT_TYPES,
+    ITEM,
     SPELL,
     SKILL,
     NO_OBJECT_TYPE,
@@ -536,28 +522,6 @@ typedef enum
 **********************************************************************************************************************/
 
 /**********************************************************************************************************************/
-/** Instrument types
-**********************************************************************************************************************/
-typedef enum
-{
-    VIOLIN = 0,
-    PIANO = 1,
-    FLUTE = 2,
-    DRUM = 3,
-} Instruments;
-
-/**********************************************************************************************************************/
-/** Articulation types for notes
-**********************************************************************************************************************/
-typedef enum
-{
-    ARTICULATION_NONE = 0,
-    ARTICULATION_STACCATO = 1,
-    ARTICULATION_LEGATO = 2,
-    ARTICULATION_SIZE = 3,
-} Articulation;
-
-/**********************************************************************************************************************/
 /** Indexes into the note palette array as the name of the notes
 **********************************************************************************************************************/
 typedef enum
@@ -744,6 +708,8 @@ typedef enum
     GAME_MAP,
     GAME_MAP_GEN,
     GAME_BATTLE,
+
+
     GAME_START,
     GAME_LOAD,
 } OverlayState;

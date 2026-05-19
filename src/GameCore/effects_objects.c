@@ -18,7 +18,7 @@
 /**********************************************************************************************************************/
 /*  TODO run the effect stored as the index in the metadata field
 **********************************************************************************************************************/
-bool InteractAltar(EntityId item_id, EntityId e_id, ObjectData itemData)
+bool InteractAltar(HardwareInterface hardware, EntityId item_id, EntityId e_id, ObjectData itemData)
 {
     DEBUG("InteractAltar");
     return false;
@@ -236,7 +236,7 @@ bool InteractWoodDoor(HardwareInterface hardware, MemoryInterface memory,EntityI
 bool InteractLadder(HardwareInterface hardware, MemoryInterface memory,EntityId object_id, EntityId e_id, ObjectData objectData)
 {
     DEBUG("InteractLadder");
-    MapAscend(hardware, memory, g_run.player.id);
+    MapAscend(hardware, memory, g_core.player.id);
     return false;
 }
 
@@ -246,7 +246,7 @@ bool InteractLadder(HardwareInterface hardware, MemoryInterface memory,EntityId 
 bool InteractStairs(HardwareInterface hardware, MemoryInterface memory,EntityId object_id, EntityId e_id, ObjectData objectData)
 {
     DEBUG("InteractStairs");
-    MapDescend(hardware, memory, g_run.player.id);
+    MapDescend(hardware, memory, g_core.player.id);
     return true;
 }
 
@@ -256,7 +256,7 @@ bool InteractStairs(HardwareInterface hardware, MemoryInterface memory,EntityId 
 bool InteractCave(HardwareInterface hardware, MemoryInterface memory,EntityId object_id, EntityId e_id, ObjectData objectData)
 {
     DEBUG("InteractCave");
-    MapLateral(hardware, memory, g_run.player.id);
+    MapLateral(hardware, memory, g_core.player.id);
     return true;
 }
 
@@ -312,7 +312,7 @@ bool InteractWallTorch(HardwareInterface hardware, MemoryInterface memory,Entity
 bool InteractCrumblingFloor(HardwareInterface hardware, MemoryInterface memory,EntityId object_id, EntityId e_id, ObjectData objectData)
 {
     DEBUG("InteractCrumblingFloor");
-    MapDescend(hardware, memory, g_run.player.id);
+    MapDescend(hardware, memory, g_core.player.id);
     return false;
 }
 

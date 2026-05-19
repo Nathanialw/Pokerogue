@@ -3,6 +3,8 @@
 //
 #pragma once
 #include "lib_decl.h"
+#include "lib_enums.h"
+
 #include "types.h"
 
 State UpdateGameState(State state);

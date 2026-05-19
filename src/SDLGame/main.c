@@ -14,7 +14,7 @@ int main(void)
 {
   InitGame();
 
-  while (g_run.state.gameState == GAME_RUNNING)
+  while (g_core.state.gameState == GAME_RUNNING)
   {
 
 

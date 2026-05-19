@@ -3,14 +3,16 @@
 Creates a fixed-layout cartridge binary from the ELF file.
 Respects all absolute addresses defined in the linker script.
 """
-
 import sys
 import subprocess
 from pathlib import Path
 
+from python.config import constants
+
+
 def main():
-    elf_path = Path("../../../build-cartridge/src/GameCartridge/GameCartridge")
-    output_bin = Path("../../../build-cartridge/src/GameCartridge/cartridge.bin")
+    elf_path = Path("../build-cartridge/src/GameCartridge/GameCartridge")
+    output_bin = Path("../build-cartridge/src/GameCartridge/cartridge.bin")
     # rom_size = 0x1000000  # 16MB
     rom_size = 0x0400000  # 4MB
 
@@ -19,9 +21,11 @@ def main():
         sys.exit(1)
 
     # Create blank ROM filled with 0xFF (standard for flash cartridges)
-    rom = bytearray(b'\xFF' * rom_size)
 
     # Define sections and their exact addresses
+    defines_pos = []
+    defines_size = []
+
     sections = [
         #code
         ".core",
@@ -91,14 +95,6 @@ def main():
         ".font_8x8",
         ".font_16x16",
 
-        # sounds
-        ".sounds_music_data",
-        ".sounds_music_notes",
-        ".sounds_creatures",
-        ".sounds_spells",
-        ".sounds_skills",
-        ".sounds_menus",
-        ".sounds_notes",
 
         # game_data
         ".game_data_type_effects",
@@ -110,20 +106,30 @@ def main():
         ".game_data_spell",
         ".game_data_item",
         ".game_data_object",
-        ".game_data_object",
-        ".game_data_object",
 
         # colors
         ".colors_16",
         ".colors_256",
+
+        # sounds
+        ".sounds_music_data",
+        ".sounds_music_notes",
+        ".sounds_creatures",
+        ".sounds_spells",
+        ".sounds_skills",
+        ".sounds_menus",
+        ".sounds_notes",
     ]
     print("Building cartridge...")
+
+    header_size = (len(sections) * 8) + 1
+    rom = bytearray(b'\xFF' * (rom_size - (header_size - 4)))
 
     p = 0x0
     rom[p] = len(sections)
     p = p + 0x1
 
-    addr = (len(sections) * 8) + 1
+    addr = header_size
     # build header
     for section_name in sections:
         tmp_file = Path(f"{section_name}.tmp")
@@ -140,10 +146,10 @@ def main():
 
             rom[p:0x4] = addr.to_bytes(4, byteorder='little')
             p = p + 0x4
-            print(f"{addr} {addr.to_bytes(4, byteorder='little')}")
+            defines_pos.append(addr)
 
             l = len(data)
-            print(f"{l} {l.to_bytes(4, byteorder='little')}")
+            defines_size.append(l)
             rom[p:0x4] = l.to_bytes(4, byteorder='little')
             p = p + 0x4
 
@@ -151,6 +157,11 @@ def main():
             tmp_file.unlink()
         else:
             print(f"  No data for {section_name}")
+
+
+    # Generate .ld file
+
+
 
     # build cartridge
     for section_name in sections:
@@ -174,8 +185,25 @@ def main():
 
     # Write final binary
     output_bin.write_bytes(rom)
-    print(f"\nSuccess! Created {output_bin.name} ({rom_size//1024//1024} MB)")
-    print(f"   sprites_objects should be at offset 0x550000")
+
+    print(f"\nSuccess! Created {output_bin.name} ({rom_size//1024//1024} MB) ({rom_size//1024} KB) ({rom_size} B)")
+
+    # write defines
+    filename = f"{constants.INC_FOLDER}/memory_constants.inc"
+
+    with open(filename, 'w', encoding='utf-8') as f:
+        f.write(f"#pragma once\n\n")
+        f.write(f"//  Defines the layout of data in rom\n")
+        f.write(f"///   {len(defines_pos)} entries MAX 255\n\n\n")
+        for i in range(len(defines_pos)):
+            f.write(f"#define {sections[i].upper().lstrip('.')}_POSITION {defines_pos[i]:#x} \n")
+            f.write(f"#define {sections[i].upper().lstrip('.')}_SIZE {defines_size[i]:#x} \n")
+
+        f.write("\n\n\n")
+        f.write(f"///   {len(defines_pos)} entries MAX 255\n")
+        f.write("\n")
+
+
 
 if __name__ == "__main__":
     main()

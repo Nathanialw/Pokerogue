@@ -17,54 +17,60 @@
 **********************************************************************************************************************/
 SET_MEMORY(".map")
 static inline uint8_t GrowthAttack(uint16_t g) { return (g >> 12) & 0xF; }
+
 SET_MEMORY(".map")
 static inline uint8_t GrowthDefence(uint16_t g) { return (g >> 8) & 0xF; }
+
 SET_MEMORY(".map")
 static inline uint8_t GrowthMagic(uint16_t g) { return (g >> 4) & 0xF; }
+
 SET_MEMORY(".map")
 static inline uint8_t GrowthSpeed(uint16_t g) { return g & 0xF; }
 
 
+SET_MEMORY(".map.rodata")
 static const uint8_t growth_table[8] = {1, 2, 3, 4, 5, 6, 7, 8};
 
-/**********************************************************************************************************************/
-/** Returns a random int between given min and max
-**********************************************************************************************************************/
-SET_MEMORY(".map")
-uint8_t GetRandomStat(HardwareInterface hardware, uint8_t min, uint8_t max)
-{
-    return hardware.GetRandom_uint8_t(min, max);
-}
+
+SET_MEMORY(".map.rodata")
+static const char str_spawn_creature_type[] = "1";
+SET_MEMORY(".map.rodata")
+static const char str_spawn_creature_skills[] = "2";
+SET_MEMORY(".map.rodata")
+static const char str_spawn_creature_done[] = "3";
 
 /**********************************************************************************************************************/
 /** Returns the stats of a given creature type and level
 **********************************************************************************************************************/
 SET_MEMORY(".map")
-Stats GetStats(HardwareInterface hardware, MemoryInterface memory, Creature type, uint8_t level)
+void GetStats(HardwareInterface hardware, MemoryInterface memory, Stats *stats, Creature type, uint8_t level)
 {
-    StatsRange stas_range = Flash_GetCreatureStatsRange(memory, type);
-    Stats minStats = stas_range.min;
-    Stats maxStats = stas_range.max;
+    memory.Print(str_spawn_creature_type);
 
+    Flash_GetCreatureStatsRange(memory, &g_map.statsCache, type);
+    Stats minStats = g_map.statsCache.min;
+    Stats maxStats = g_map.statsCache.max;
+    memory.Print(str_spawn_creature_skills);
 
     uint8_t growth = Flash_GetStatGrowth(memory, type);
+
+    memory.Print(str_spawn_creature_done);
     uint8_t a = growth_table[GrowthAttack(growth)];
     uint8_t d = growth_table[GrowthDefence(growth)];
     uint8_t m = growth_table[GrowthMagic(growth)];
     uint8_t s = growth_table[GrowthSpeed(growth)];
 
-    Stats stats;
-    stats.attack = GetRandomStat(hardware, minStats.attack, maxStats.attack);
-    stats.defence = GetRandomStat(hardware, minStats.defence, maxStats.defence);
-    stats.magic = GetRandomStat(hardware, minStats.magic, maxStats.magic);
-    stats.speed = GetRandomStat(hardware, minStats.speed, maxStats.speed);
+    memory.Print(str_spawn_creature_type);
 
-    stats.attack += a * (level / 4);
-    stats.defence += d * (level / 4);
-    stats.magic += m * (level / 4);
-    stats.speed += s * (level / 4);
+    stats->attack = hardware.GetRandom_uint8_t(minStats.attack, maxStats.attack);
+    stats->defence = hardware.GetRandom_uint8_t(minStats.defence, maxStats.defence);
+    stats->magic = hardware.GetRandom_uint8_t(minStats.magic, maxStats.magic);
+    stats->speed = hardware.GetRandom_uint8_t(minStats.speed, maxStats.speed);
 
-    return stats;
+    stats->attack += a * (level / 4);
+    stats->defence += d * (level / 4);
+    stats->magic += m * (level / 4);
+    stats->speed += s * (level / 4);
 }
 
 /**********************************************************************************************************************/
@@ -74,16 +80,14 @@ Stats GetStats(HardwareInterface hardware, MemoryInterface memory, Creature type
  *  Sets current x to 0
 **********************************************************************************************************************/
 SET_MEMORY(".map")
-IntMax999 SetXPToLevel(EntityId id)
+void SetXPToLevel(EntityId id, IntMax999 xp)
 {
-    Stats stats = g_run.creatures.stats[id];
-    Int99 level = g_run.creatures.level[id];
-    uint16_t total_stats = stats.magic + stats.attack + stats.defence + stats.speed + (50 * level.value);
+    const Stats stats = g_core.creatures.stats[id];
+    const Int99 level = g_core.creatures.level[id];
+    const uint16_t total_stats = stats.magic + stats.attack + stats.defence + stats.speed + (50 * level.value);
 
-    IntMax999 xp;
     Int999SetCurrent(&xp, 0);
     Int999SetMax(&xp, total_stats / 10);
-    return xp;
 }
 
 /**********************************************************************************************************************/
@@ -93,30 +97,28 @@ IntMax999 SetXPToLevel(EntityId id)
 SET_MEMORY(".core")
 void GainXP(EntityId id, EntityId dead_id)
 {
-    Stats stats = g_run.creatures.stats[dead_id];
-    uint8_t level = g_run.creatures.level[dead_id].value;
+    Stats stats = g_core.creatures.stats[dead_id];
+    uint8_t level = g_core.creatures.level[dead_id].value;
     uint16_t total_stats = stats.magic + stats.attack + stats.defence + stats.speed + (50 * level);
     uint16_t xp_value = total_stats / 20;
 
-    IntMax999 xp = g_run.creatures.xp[id];
+    IntMax999 xp = g_core.creatures.xp[id];
     uint16_t cur = Int999GetCurrent(&xp);
     uint16_t max = Int999GetMax(&xp);
     uint16_t new_xp = (cur + xp_value);
     if (new_xp < max)
     {
         Int999SetCurrent(&xp, (cur + xp_value));
-        DEBUG("gained xp to level %d %d", Int999GetCurrent(&xp), Int999GetMax(&xp));
     }
     else
     {
-        g_run.creatures.level[id].value++;
+        g_core.creatures.level[id].value++;
         new_xp = new_xp - max;
-        xp = SetXPToLevel(id);
+        SetXPToLevel(id, xp);
         Int999SetCurrent(&xp, new_xp);
-        DEBUG("leveled up");
     }
 
-    g_run.creatures.xp[id] = xp;
+    g_core.creatures.xp[id] = xp;
 }
 
 /**********************************************************************************************************************/

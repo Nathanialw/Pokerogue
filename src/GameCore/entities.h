@@ -37,7 +37,7 @@ uint8_t* GetEntitiesOnMap(ObjectsTypes type);
 BitFieldUint8* GetCreaturesAlive(void);
 uint8_t* GetActiveObjects(void);
 
-const SmallStringArray* GetEntityTypes(MemoryInterface memory, uint8_t* typeIDs, const uint8_t* e_ids, ObjectsTypes type, uint8_t n);
+void GetEntityTypes(MemoryInterface memory, uint8_t* typeIDs, const uint8_t* e_ids, ObjectsTypes type, uint8_t n, uint8_t offset);
 ItemTypes GetItemType(EntityId id);
 Object GetObjectType(EntityId id);
 Creature GetCreatureType(EntityId id);

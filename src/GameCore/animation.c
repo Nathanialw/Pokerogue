@@ -52,8 +52,8 @@
 SET_MEMORY(".map")
 void AnimationMovement(GraphicsInterface graphics, HardwareInterface hardware, MemoryInterface memory)
 {
-    DEBUG("Pico_AnimationMovement() scroll : %d %d", g_run.player.scroll.x, g_run.player.scroll.y);
-    if (g_run.player.scroll.x == 0 && g_run.player.scroll.y == 0) return;
+    DEBUG("Pico_AnimationMovement() scroll : %d %d", g_core.player.scroll.x, g_core.player.scroll.y);
+    if (g_core.player.scroll.x == 0 && g_core.player.scroll.y == 0) return;
 
 
     Glyph16x16 glyph[4];
@@ -75,9 +75,9 @@ void AnimationMovement(GraphicsInterface graphics, HardwareInterface hardware, M
     int16_t tile_offset_y = 0;
 
     uint8_t max_k = 2;
-    if (g_run.player.scroll.x) max_k = 3;
+    if (g_core.player.scroll.x) max_k = 3;
     uint8_t max_y = VIEW_TH;
-    if (g_run.player.scroll.y) max_y = VIEW_TH + 1;
+    if (g_core.player.scroll.y) max_y = VIEW_TH + 1;
 
     while (1)
     {
@@ -114,8 +114,9 @@ void AnimationMovement(GraphicsInterface graphics, HardwareInterface hardware, M
                             if (tile_cache[idx] == 255)
                             {
                                 tile_cache[idx] = partial_tile_id0;
-                                const Tile t = Flash_GetBiomeTile(memory, g_run.biome, partial_tile_id0);
-                                CharFromGlyph1bpp(memory, glyph[idx].pixels, t.glyph_index, FONT16x16, Flash_GetColor(memory, t.fg), Flash_GetColor(memory, t.bg));
+                                Tile t;
+                                Flash_GetBiomeTile(memory, &t, g_core.biome, partial_tile_id0);
+                                CharFromGlyph1bpp(memory, g_map.tileCache.spriteCache, glyph[idx].pixels, t.glyph_index, FONT16x16, Flash_GetColor(memory, t.fg), Flash_GetColor(memory, t.bg));
                                 glyph_ptr = &glyph[idx];
                                 break;
                             }
@@ -124,8 +125,9 @@ void AnimationMovement(GraphicsInterface graphics, HardwareInterface hardware, M
                         {
                             uint8_t fallback_idx = 3;
                             tile_cache[fallback_idx] = partial_tile_id0;
-                            const Tile t = Flash_GetBiomeTile(memory, g_run.biome, partial_tile_id0);
-                            CharFromGlyph1bpp(memory, glyph[fallback_idx].pixels, t.glyph_index, FONT16x16, Flash_GetColor(memory, t.fg), Flash_GetColor(memory, t.bg));
+                            Tile t;
+                            Flash_GetBiomeTile(memory, &t, g_core.biome, partial_tile_id0);
+                            CharFromGlyph1bpp(memory, g_map.tileCache.spriteCache, glyph[fallback_idx].pixels, t.glyph_index, FONT16x16, Flash_GetColor(memory, t.fg), Flash_GetColor(memory, t.bg));
                             glyph_ptr = &glyph[fallback_idx];
                         }
                     }
@@ -162,16 +164,16 @@ void AnimationMovement(GraphicsInterface graphics, HardwareInterface hardware, M
 
         // sleep_ms(16);
 
-        if (g_run.player.scroll.x != 0)
+        if (g_core.player.scroll.x != 0)
         {
-            movement += (speed * g_run.player.scroll.x) * -1;
+            movement += (speed * g_core.player.scroll.x) * -1;
             if (hardware.Abs(movement) > tile_size)
                 break;
             x_offset = movement;
         }
-        else if (g_run.player.scroll.y != 0)
+        else if (g_core.player.scroll.y != 0)
         {
-            movement += (speed * g_run.player.scroll.y) * -1;
+            movement += (speed * g_core.player.scroll.y) * -1;
             if (hardware.Abs(movement) > tile_size)
                 break;
             y_offset = movement;
@@ -182,8 +184,8 @@ void AnimationMovement(GraphicsInterface graphics, HardwareInterface hardware, M
         }
     }
 
-    g_run.player.scroll.y = 0;
-    g_run.player.scroll.x = 0;
+    g_core.player.scroll.y = 0;
+    g_core.player.scroll.x = 0;
 }
 
 
@@ -207,16 +209,16 @@ void AnimationUpdateHealth(GraphicsInterface graphics, HardwareInterface hardwar
     if (attackersTurn)
     {
         r = ENEMY_RESOURCE_FRAME;
-        EntityId e_id = g_run.battleMode.enemyMonsterID;
-        cur_hp = Int999GetCurrent(&g_run.creatures.hp[e_id]);
-        max_hp = Int999GetMax(&g_run.creatures.hp[e_id]);
+        EntityId e_id = g_core.battleMode.enemyMonsterID;
+        cur_hp = Int999GetCurrent(&g_core.creatures.hp[e_id]);
+        max_hp = Int999GetMax(&g_core.creatures.hp[e_id]);
     }
     else
     {
         r = PLAYER_RESOURCE_FRAME;
-        EntityId p_id = g_run.battleMode.playerMonsterID;
-        cur_hp = Int999GetCurrent(&g_run.creatures.hp[p_id]);
-        max_hp = Int999GetMax(&g_run.creatures.hp[p_id]);
+        EntityId p_id = g_core.battleMode.playerMonsterID;
+        cur_hp = Int999GetCurrent(&g_core.creatures.hp[p_id]);
+        max_hp = Int999GetMax(&g_core.creatures.hp[p_id]);
     }
 
 
@@ -294,7 +296,7 @@ void AnimationUpdateXP(GraphicsInterface graphics, HardwareInterface hardware)
  *  TODO: NOT IMPLEMENTED YET
  *  FADE - APPLY A MERGE SHADER THAT REACHES 100% INPUT COLOUR AT END
  ************************************************************************************************************/
-SET_MEMORY(".core")
+SET_MEMORY(".map")
 void AnimationScreenFade(GraphicsInterface graphics, HardwareInterface hardware)
 {
     FrameBuffer f = {50, 100, 64, 80, 0xd6fa};
@@ -391,33 +393,32 @@ void AnimationBattlerDie(GraphicsInterface graphics, HardwareInterface hardware,
  *  Handles all battler animations for spells, items and skills
  ************************************************************************************************************/
 SET_MEMORY(".battle")
-void BattlerAnimationAttack(GraphicsInterface graphics, bool player)
+void BattlerAnimationAttack(GraphicsInterface graphics, MemoryInterface memory, bool player)
 {
-    const ObjectsTypes move_type = g_run.battleMode.moveType;
+    const ObjectsTypes move_type = g_core.battleMode.moveType;
 
-    const ObjectType move_id = g_run.battleMode.moveID;
+    const ObjectType move_id = g_core.battleMode.moveID;
 
     if (move_type == ITEM)
-        Flash_BattlerAttackAnimation(move_id.ItemId, ITEM, player);
+        Flash_BattlerAttackAnimation(memory, move_id.ItemId, ITEM, player);
     else if (SKILL)
-        Flash_BattlerAttackAnimation(move_id.AbilityId, SKILL, player);
+        Flash_BattlerAttackAnimation(memory, move_id.AbilityId, SKILL, player);
     else if (SPELL)
-        Flash_BattlerAttackAnimation(move_id.SpellId, SPELL, player);
+        Flash_BattlerAttackAnimation(memory, move_id.SpellId, SPELL, player);
 }
 
 
 SET_MEMORY(".battle")
-void BattlerAnimationStruck(GraphicsInterface graphics, bool player)
+void BattlerAnimationStruck(GraphicsInterface graphics, MemoryInterface memory, bool player)
 {
-    const ObjectsTypes move_type = g_run.battleMode.moveType;
+    const ObjectsTypes move_type = g_core.battleMode.moveType;
 
-    const ObjectType move_id = g_run.battleMode.moveID;
+    const ObjectType move_id = g_core.battleMode.moveID;
 
     if (move_type == ITEM)
-        Flash_BattlerStruckAnimation(move_id.ItemId, ITEM, player);
+        Flash_BattlerStruckAnimation(memory, move_id.ItemId, ITEM, player);
     else if (SKILL)
-        Flash_BattlerStruckAnimation(move_id.AbilityId, SKILL, player);
+        Flash_BattlerStruckAnimation(memory, move_id.AbilityId, SKILL, player);
     else if (SPELL)
-        Flash_BattlerStruckAnimation(move_id.SpellId, SPELL, player);
-
+        Flash_BattlerStruckAnimation(memory, move_id.SpellId, SPELL, player);
 }

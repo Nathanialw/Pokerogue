@@ -5,6 +5,7 @@
 #include "collision.h"
 
 #include "lib_debugging.h"
+#include "lib_enums.h"
 #include "memory_ram.h"
 #include "menu_battle.h"
 
@@ -23,7 +24,7 @@ bool Water(EntityId id, uint8_t x, uint8_t y);
 bool Lava(EntityId id, uint8_t x, uint8_t y);
 bool Acid(EntityId id, uint8_t x, uint8_t y);
 
-
+SET_MEMORY(".map.rodata")
 const Interaction TileCollision[NUM_TILES] =
 {
     NoInteraction,
@@ -47,6 +48,7 @@ const Interaction TileCollision[NUM_TILES] =
 /**********************************************************************************************************************/
 /** Space is empty, free to move into
 **********************************************************************************************************************/
+SET_MEMORY(".map")
 bool NoInteraction(EntityId id, uint8_t x, uint8_t y)
 {
     return true;
@@ -55,14 +57,15 @@ bool NoInteraction(EntityId id, uint8_t x, uint8_t y)
 /**********************************************************************************************************************/
 /** Space is blocked, no movement
 **********************************************************************************************************************/
+SET_MEMORY(".map")
 bool Wall(EntityId id, uint8_t x, uint8_t y)
 {
     // check current tile, cancel movement
 
-    if (id == g_run.player.id)
+    if (id == g_core.player.id)
     {
-        g_run.player.scroll.x = 0;
-        g_run.player.scroll.y = 0;
+        g_core.player.scroll.x = 0;
+        g_core.player.scroll.y = 0;
     }
 
 
@@ -72,6 +75,7 @@ bool Wall(EntityId id, uint8_t x, uint8_t y)
 /**********************************************************************************************************************/
 /** Space is blocked, no movement
 **********************************************************************************************************************/
+SET_MEMORY(".map")
 bool Foliage(EntityId id, uint8_t x, uint8_t y)
 {
     // slow move speed, move speed not implemented yet
@@ -83,6 +87,7 @@ bool Foliage(EntityId id, uint8_t x, uint8_t y)
  *  TODO: add drift mechanics
  *  TODO: add drowning mechanics
 **********************************************************************************************************************/
+SET_MEMORY(".map")
 bool Water(EntityId id, uint8_t x, uint8_t y)
 {
     // check for damage and position drift
@@ -94,6 +99,7 @@ bool Water(EntityId id, uint8_t x, uint8_t y)
  *  TODO: add drift mechanics
  *  TODO: add flame damage mechanics
 **********************************************************************************************************************/
+SET_MEMORY(".map")
 bool Lava(EntityId id, uint8_t x, uint8_t y)
 {
     // check for damage and position drift
@@ -106,6 +112,7 @@ bool Lava(EntityId id, uint8_t x, uint8_t y)
  *  TODO: add Toxic damage mechanics
  *  TODO: add item melting mechanics
 **********************************************************************************************************************/
+SET_MEMORY(".map")
 bool Acid(EntityId id, uint8_t x, uint8_t y)
 {
     // check for damage, item melting and position drift
@@ -115,6 +122,7 @@ bool Acid(EntityId id, uint8_t x, uint8_t y)
 /**********************************************************************************************************************/
 /** Main tile interaction entry point
 **********************************************************************************************************************/
+SET_MEMORY(".map")
 bool CheckInteraction(uint8_t tile, EntityId id, uint8_t x, uint8_t y)
 {
     return TileCollision[tile](id, x, y);
@@ -123,11 +131,11 @@ bool CheckInteraction(uint8_t tile, EntityId id, uint8_t x, uint8_t y)
 /**********************************************************************************************************************/
 /** Triggers the battle state
 **********************************************************************************************************************/
+SET_MEMORY(".map")
 void ObjectCollision(EntityId id)
 {
-    g_run.battleMode.playerMonsterID = g_run.player.partyID[0];
-    g_run.battleMode.enemyMonsterID = id;
+    g_core.battleMode.playerMonsterID = g_core.player.partyID[0];
+    g_core.battleMode.enemyMonsterID = id;
 
-    InitBattleMenu();
-    DEBUG("IN BATTLE");
+    g_core.state.overlay = OVERLAY_BATTLE;
 }

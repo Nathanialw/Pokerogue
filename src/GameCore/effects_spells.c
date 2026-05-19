@@ -22,7 +22,7 @@ bool CastNoAttack_PLACEHOLDER(HardwareInterface hardware, MemoryInterface memory
 /**********************************************************************************************************************/
 /*
 **********************************************************************************************************************/
-bool PlaceholderSpell(HardwareInterface hardware, MemoryInterface memory,EntityId partyID, EntityId enemyID, SpellData spellData)
+bool PlaceholderSpell(HardwareInterface hardware, MemoryInterface memory, EntityId partyID, EntityId enemyID, SpellData spellData)
 {
     DEBUG("PlaceholderSpell()");
     return true;

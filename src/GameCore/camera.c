@@ -10,9 +10,10 @@
 /**********************************************************************************************************************/
 /** Returns the rect of the camera which holds the map position and dimensions of the camera
 **********************************************************************************************************************/
+SET_MEMORY(".map")
 Camera GetCamera(void)
 {
-    return g_run.camera;
+    return g_core.camera;
 }
 
 /**********************************************************************************************************************/
@@ -21,12 +22,12 @@ Camera GetCamera(void)
 SET_MEMORY(".map")
 Camera InitCamera(uint8_t x, uint8_t y, uint16_t w, uint16_t h)
 {
-    g_run.camera.x = x;
-    g_run.camera.y = y;
-    g_run.camera.w = w;
-    g_run.camera.h = h;
+    g_core.camera.x = x;
+    g_core.camera.y = y;
+    g_core.camera.w = w;
+    g_core.camera.h = h;
 
-    return g_run.camera;
+    return g_core.camera;
 }
 
 /**********************************************************************************************************************/
@@ -36,24 +37,24 @@ Camera InitCamera(uint8_t x, uint8_t y, uint16_t w, uint16_t h)
 **********************************************************************************************************************/
 Camera SetCamera(uint8_t x, uint8_t y)
 {
-    g_run.camera.x = x - CAM_OFFSET_X;
-    g_run.camera.y = y - CAM_OFFSET_Y;
-    return g_run.camera;
+    g_core.camera.x = x - CAM_OFFSET_X;
+    g_core.camera.y = y - CAM_OFFSET_Y;
+    return g_core.camera;
 }
 
 /**********************************************************************************************************************/
 /** Sets camera position to the player position offset by the default camera size
  *  Sets camera dimensions to the default camera dimensions
 **********************************************************************************************************************/
-Camera SetCameraPlayer(void)
+SET_MEMORY(".map")
+void SetCameraPlayer(void)
 {
     Position pos = GetPlayerPosition();
     uint8_t px = pos.x;
     uint8_t py = pos.y;
 
-    g_run.camera.x = px - CAM_OFFSET_X;
-    g_run.camera.y = py - CAM_OFFSET_Y;
-    return g_run.camera;
+    g_core.camera.x = px - CAM_OFFSET_X;
+    g_core.camera.y = py - CAM_OFFSET_Y;
 }
 
 /**********************************************************************************************************************/
@@ -61,9 +62,10 @@ Camera SetCameraPlayer(void)
  *  ON SUCCESS - returns true
  *  ON FAIL - returns false
 **********************************************************************************************************************/
+SET_MEMORY(".map")
 bool CameraContains(uint8_t x, uint8_t y)
 {
-    if (x >= g_run.camera.x && x < (g_run.camera.x + VIEW_TW) && y >= g_run.camera.y && y < (g_run.camera.y + VIEW_TH))
+    if (x >= g_core.camera.x && x < (g_core.camera.x + VIEW_TW) && y >= g_core.camera.y && y < (g_core.camera.y + VIEW_TH))
         return true;
     return false;
 }

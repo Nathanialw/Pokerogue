@@ -19,10 +19,27 @@
 /**********************************************************************************************************************/
 /**  Redraws all map tiles and entities ion the camera view to the screen
 **********************************************************************************************************************/
-void FullRedraw(GraphicsInterface graphics, MemoryInterface memory)
+SET_MEMORY(".map.rodata")
+static const char FullRedraw_start[] = "FullRedraw_start";
+SET_MEMORY(".map.rodata")
+static const char FullRedraw_tiles[] = "FullRedraw_tiles";
+SET_MEMORY(".map.rodata")
+static const char FullRedraw_items[] = "FullRedraw_items";
+SET_MEMORY(".map.rodata")
+static const char FullRedraw_objects[] = "FullRedraw_objects";
+SET_MEMORY(".map.rodata")
+static const char FullRedraw_creaturee[] = "FullRedraw_creature";
+SET_MEMORY(".map.rodata")
+static const char FullRedraw_DONE[] = "FullRedraw_DONE";
+
+SET_MEMORY(".map")
+void FullRedraw(GraphicsInterface graphics, HardwareInterface hardware, MemoryInterface memory)
 {
+    hardware.Print(FullRedraw_start);
+
     Camera cam = GetCamera();
 
+    hardware.Print(FullRedraw_tiles);
     for (uint16_t sy = 0; sy < VIEW_TH; sy++)
     {
         uint16_t my = cam.y + sy;
@@ -31,55 +48,60 @@ void FullRedraw(GraphicsInterface graphics, MemoryInterface memory)
             uint16_t mx = cam.x + sx;
             uint16_t id = GetMapTile(mx, my);
             DrawTile(graphics, memory, sx, sy, id);
-            g_run.view.viewTiles[sy][sx] = id;
+            g_map.view.viewTiles[sy][sx] = id;
         }
     }
 
-    for (uint8_t i = 0; i < g_run.items.total; ++i)
+    hardware.Print(FullRedraw_items);
+    for (uint8_t i = 0; i < g_core.items.total; ++i)
     {
-        if (g_run.items.types[i] == NO_ITEM) continue;
+        if (g_core.items.types[i] == NO_ITEM) continue;
 
-        uint8_t x = g_run.items.position[i].x;
-        uint8_t y = g_run.items.position[i].y;
-        if (GetBit(g_run.items.onMap, i) && CameraContains(x, y))
+        uint8_t x = g_core.items.position[i].x;
+        uint8_t y = g_core.items.position[i].y;
+        if (GetBit(g_core.items.onMap, i) && CameraContains(x, y))
         {
             uint8_t rx = (x - cam.x);
             uint8_t ry = (y - cam.y);
-            DrawSprite(graphics, memory, rx, ry, g_run.items.types[i], ITEM);
-            g_run.view.viewItems.viewEntities[ry][rx] = g_run.items.types[i];
+            DrawSprite(graphics, memory, rx, ry, g_core.items.types[i], ITEM);
+            g_map.view.viewItems.viewEntities[ry][rx] = g_core.items.types[i];
         }
     }
 
-    for (uint8_t i = 0; i < g_run.objects.total; ++i)
+    hardware.Print(FullRedraw_objects);
+    for (uint8_t i = 0; i < g_core.objects.total; ++i)
     {
-        if (g_run.objects.types[i] == NO_OBJECT) continue;
+        if (g_core.objects.types[i] == NO_OBJECT) continue;
 
-        uint8_t x = g_run.objects.position[i].x;
-        uint8_t y = g_run.objects.position[i].y;
-        if (GetBit(g_run.objects.onMap, i) && CameraContains(x, y))
+        uint8_t x = g_core.objects.position[i].x;
+        uint8_t y = g_core.objects.position[i].y;
+        if (GetBit(g_core.objects.onMap, i) && CameraContains(x, y))
         {
             uint8_t rx = (x - cam.x);
             uint8_t ry = (y - cam.y);
-            DrawSprite(graphics, memory, rx, ry, g_run.objects.types[i], OBJECT);
-            g_run.view.viewObjects.viewEntities[ry][rx] = g_run.objects.types[i];
+            DrawSprite(graphics, memory, rx, ry, g_core.objects.types[i], OBJECT);
+            g_map.view.viewObjects.viewEntities[ry][rx] = g_core.objects.types[i];
         }
     }
 
-    for (uint8_t i = 0; i < g_run.creatures.total; ++i)
+    hardware.Print(FullRedraw_creaturee);
+    for (uint8_t i = 0; i < g_core.creatures.total; ++i)
     {
-        if (g_run.creatures.types[i] == NO_CREATURE) continue;
+        if (g_core.creatures.types[i] == NO_CREATURE) continue;
 
-        uint8_t x = g_run.creatures.position[i].x;
-        uint8_t y = g_run.creatures.position[i].y;
-        if (GetBit(g_run.creatures.onMap, i) && CameraContains(x, y))
+        uint8_t x = g_core.creatures.position[i].x;
+        uint8_t y = g_core.creatures.position[i].y;
+        if (GetBit(g_core.creatures.onMap, i) && CameraContains(x, y))
         {
             uint8_t rx = (x - cam.x);
             uint8_t ry = (y - cam.y);
 
-            DrawSprite(graphics, memory, rx, ry, g_run.creatures.types[i], CREATURE);
-            g_run.view.viewCreatures.viewEntities[ry][rx] = g_run.creatures.types[i];
+            DrawSprite(graphics, memory, rx, ry, g_core.creatures.types[i], CREATURE);
+            g_map.view.viewCreatures.viewEntities[ry][rx] = g_core.creatures.types[i];
         }
     }
+
+    hardware.Print(FullRedraw_DONE);
 }
 
 
@@ -87,6 +109,7 @@ void FullRedraw(GraphicsInterface graphics, MemoryInterface memory)
 /** Clears the dirtyTiles array to false
  * Clears the newSprites array to NO_CREATURE
 **********************************************************************************************************************/
+SET_MEMORY(".map")
 void ResetRenders(ViewEntities* view, uint8_t count)
 {
     for (uint16_t sy = 0; sy < VIEW_TH; sy++)
@@ -98,6 +121,7 @@ void ResetRenders(ViewEntities* view, uint8_t count)
 /** Checks whether the tiles on the newTiles array has changed
  * Save changes as dirty bool in the dirtyTiles array
 **********************************************************************************************************************/
+SET_MEMORY(".map")
 void CheckForTileChanges(Camera cam)
 {
     for (uint16_t sy = 0; sy < VIEW_TH; sy++)
@@ -107,10 +131,10 @@ void CheckForTileChanges(Camera cam)
         {
             uint16_t mx = cam.x + sx;
             uint8_t tile = GetMapTile(mx, my);
-            if (g_run.view.viewTiles[sy][sx] != tile)
-                SetBit(g_run.view.dirtyTiles, (sy * VIEW_TH) + sx, true);
+            if (g_map.view.viewTiles[sy][sx] != tile)
+                SetBit(g_map.view.dirtyTiles, (sy * VIEW_TH) + sx, true);
 
-            g_run.view.viewTiles[sy][sx] = tile; //cache
+            g_map.view.viewTiles[sy][sx] = tile; //cache
         }
     }
 }
@@ -119,6 +143,7 @@ void CheckForTileChanges(Camera cam)
 /**  Retrieves all entities in the camera view
  *  Saves their types into newSprites array at the reletive tile position
 **********************************************************************************************************************/
+SET_MEMORY(".map")
 void GetEntitiesInView(Camera cam, BitFieldUint8* onMap, ViewEntities* view, Position* pos, const uint8_t* types, uint8_t count)
 {
     uint8_t id = 0;
@@ -145,6 +170,7 @@ void GetEntitiesInView(Camera cam, BitFieldUint8* onMap, ViewEntities* view, Pos
 /** Checks whether the sprites in the viewObjects array has changed
  * Save changes as dirty bool in the dirtyTiles array
 **********************************************************************************************************************/
+SET_MEMORY(".map")
 void SetDirty(ViewEntities* view)
 {
     for (uint8_t sy = 0; sy < VIEW_TH; sy++)
@@ -152,7 +178,7 @@ void SetDirty(ViewEntities* view)
         for (uint8_t sx = 0; sx < VIEW_TW; sx++)
         {
             if (view->viewEntities[sy][sx] != view->newSprites[sy][sx])
-                SetBit(g_run.view.dirtyTiles, (sy * VIEW_TH) + sx, true);
+                SetBit(g_map.view.dirtyTiles, (sy * VIEW_TH) + sx, true);
 
             view->viewEntities[sy][sx] = view->newSprites[sy][sx]; //cache
         }
@@ -162,6 +188,7 @@ void SetDirty(ViewEntities* view)
 /**********************************************************************************************************************/
 /**  Redraws only the dirty map tiles to the screen
 **********************************************************************************************************************/
+SET_MEMORY(".map")
 void ReDrawTiles(GraphicsInterface graphics, MemoryInterface memory, Camera cam)
 {
     for (uint16_t sy = 0; sy < VIEW_TH; sy++)
@@ -169,7 +196,7 @@ void ReDrawTiles(GraphicsInterface graphics, MemoryInterface memory, Camera cam)
         uint16_t my = cam.y + sy;
         for (uint16_t sx = 0; sx < VIEW_TW; sx++)
         {
-            if (!GetBit(g_run.view.dirtyTiles, (sy * VIEW_TH) + sx))
+            if (!GetBit(g_map.view.dirtyTiles, (sy * VIEW_TH) + sx))
                 continue;
 
             uint16_t mx = cam.x + sx;
@@ -183,30 +210,31 @@ void ReDrawTiles(GraphicsInterface graphics, MemoryInterface memory, Camera cam)
 /**     Redraws only the dirty map sprites to the screen
  *      Objects then Items then Creatures
 **********************************************************************************************************************/
+SET_MEMORY(".map")
 void ReDrawSprites(GraphicsInterface graphics, MemoryInterface memory)
 {
     for (uint16_t sy = 0; sy < VIEW_TH; sy++)
     {
         for (uint16_t sx = 0; sx < VIEW_TW; sx++)
         {
-            if (!GetBit(g_run.view.dirtyTiles, (sy * VIEW_TH) + sx))
+            if (!GetBit(g_map.view.dirtyTiles, (sy * VIEW_TH) + sx))
                 continue;
 
-            if (g_run.view.viewItems.viewEntities[sy][sx] != NO_ITEM)
+            if (g_map.view.viewItems.viewEntities[sy][sx] != NO_ITEM)
             {
-                uint8_t item_type = g_run.view.viewItems.viewEntities[sy][sx];
+                uint8_t item_type = g_map.view.viewItems.viewEntities[sy][sx];
                 DrawSpriteCached(graphics, memory, sx, sy, item_type, ITEM);
             }
 
-            if (g_run.view.viewObjects.viewEntities[sy][sx] != NO_OBJECT)
+            if (g_map.view.viewObjects.viewEntities[sy][sx] != NO_OBJECT)
             {
-                uint8_t object_type = g_run.view.viewObjects.viewEntities[sy][sx];
+                uint8_t object_type = g_map.view.viewObjects.viewEntities[sy][sx];
                 DrawSpriteCached(graphics, memory, sx, sy, object_type, OBJECT);
             }
 
-            if (g_run.view.viewCreatures.viewEntities[sy][sx] != NO_CREATURE)
+            if (g_map.view.viewCreatures.viewEntities[sy][sx] != NO_CREATURE)
             {
-                uint8_t creature_type = g_run.view.viewCreatures.viewEntities[sy][sx];
+                uint8_t creature_type = g_map.view.viewCreatures.viewEntities[sy][sx];
                 DrawSpriteCached(graphics, memory, sx, sy, creature_type, CREATURE);
             }
         }
@@ -218,34 +246,39 @@ void ReDrawSprites(GraphicsInterface graphics, MemoryInterface memory)
 /**  Routine that runs the dirty tile update
  *  Handles the alternate smooth scrolling animation mode as well
 **********************************************************************************************************************/
+SET_MEMORY(".map")
 void RenderObjects(GraphicsInterface graphics, HardwareInterface hardware, MemoryInterface memory)
 {
-    if (g_run.btns.gameSpeed < 5)
-        AnimationMovement(graphics, hardware, memory);
+    // if (g_core.btns.gameSpeed < 5)
+    // Animat
+    // ionMovement(graphics, hardware, memory);
 
-    hardware.MemSet(g_run.view.dirtyTiles, 0, sizeof(g_run.view.dirtyTiles));
+    hardware.MemSet(g_map.view.dirtyTiles, 0, sizeof(g_map.view.dirtyTiles));
 
-    ResetRenders(&g_run.view.viewItems, NO_ITEM);
-    ResetRenders(&g_run.view.viewObjects, NO_OBJECT);
-    ResetRenders(&g_run.view.viewCreatures, NO_CREATURE);
+    ResetRenders(&g_map.view.viewItems, NO_ITEM);
+    ResetRenders(&g_map.view.viewObjects, NO_OBJECT);
+    ResetRenders(&g_map.view.viewCreatures, NO_CREATURE);
+
 
     Camera cam = GetCamera();
-    if (g_run.btns.gameSpeed >= 5)
+    if (g_core.btns.gameSpeed >= 5)
         CheckForTileChanges(cam);
 
-    GetEntitiesInView(cam, &g_run.items.onMap, &g_run.view.viewItems, g_run.items.position, g_run.items.types, g_run.items.total);
-    GetEntitiesInView(cam, &g_run.objects.onMap, &g_run.view.viewObjects, g_run.objects.position, g_run.objects.types, g_run.objects.total);
-    GetEntitiesInView(cam, &g_run.creatures.onMap, &g_run.view.viewCreatures, g_run.creatures.position, g_run.creatures.types, g_run.creatures.total);
+    GetEntitiesInView(cam, &g_core.items.onMap, &g_map.view.viewItems, g_core.items.position, g_core.items.types, g_core.items.total);
+    GetEntitiesInView(cam, &g_core.objects.onMap, &g_map.view.viewObjects, g_core.objects.position, g_core.objects.types, g_core.objects.total);
+    GetEntitiesInView(cam, &g_core.creatures.onMap, &g_map.view.viewCreatures, g_core.creatures.position, g_core.creatures.types, g_core.creatures.total);
 
-    SetDirty(&g_run.view.viewItems);
-    SetDirty(&g_run.view.viewObjects);
-    SetDirty(&g_run.view.viewCreatures);
+    SetDirty(&g_map.view.viewItems);
+    SetDirty(&g_map.view.viewObjects);
+    SetDirty(&g_map.view.viewCreatures);
 
-    if (g_run.btns.gameSpeed >= 5)
+    if (g_core.btns.gameSpeed >= 5)
         ReDrawTiles(graphics, memory, cam);
+
 
     ReDrawSprites(graphics, memory);
 
-    if (g_run.btns.gameSpeed >= 5)
-        hardware.SleepMS(1000 / g_run.btns.gameSpeed);
+
+    // if (g_core.btns.gameSpeed >= 5)
+    // hardware.SleepMS(1000 / g_core.btns.gameSpeed);
 }

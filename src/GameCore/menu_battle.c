@@ -32,16 +32,16 @@ BattleMenu battleMenu = ABILITY_MENU;
 **********************************************************************************************************************/
 bool EnterMenu(const uint8_t listSize)
 {
-    if (g_run.menu.depth == 1)
+    if (g_core.menu.depth == 1)
     {
         return true;
     }
-    g_run.menu.depth++;
-    g_run.menu.visibleMenuOptions = listSize;
-    g_run.menu.menuScrollOffset[g_run.menu.depth].y = 0;
-    g_run.menu.sel[g_run.menu.depth].y = 0;
-    g_run.menu.x = 0;
-    g_run.menu.y = 9;
+    g_core.menu.depth++;
+    g_core.menu.visibleMenuOptions = listSize;
+    g_core.menu.menuScrollOffset[g_core.menu.depth].y = 0;
+    g_core.menu.sel[g_core.menu.depth].y = 0;
+    g_core.menu.x = 0;
+    g_core.menu.y = 9;
 
     return false;
 }
@@ -52,16 +52,16 @@ bool EnterMenu(const uint8_t listSize)
 **********************************************************************************************************************/
 void ExitMenu(void)
 {
-    if (g_run.menu.depth == 1)
+    if (g_core.menu.depth == 1)
     {
         ClearMenu();
-        g_run.menu.sel[g_run.menu.depth].y = 0;
-        g_run.menu.menuScrollOffset[g_run.menu.depth].y = 0;
-        g_run.menu.visibleMenuOptions = BATTLE_MENU_SIZE;
-        g_run.menu.x = 10;
-        g_run.menu.y = BATTLE_MENU_Y;
-        g_run.menu.depth--;
-        g_run.menu.lineHeight = 0;
+        g_core.menu.sel[g_core.menu.depth].y = 0;
+        g_core.menu.menuScrollOffset[g_core.menu.depth].y = 0;
+        g_core.menu.visibleMenuOptions = BATTLE_MENU_SIZE;
+        g_core.menu.x = 10;
+        g_core.menu.y = BATTLE_MENU_Y;
+        g_core.menu.depth--;
+        g_core.menu.lineHeight = 0;
     }
 }
 
@@ -69,19 +69,16 @@ void ExitMenu(void)
 /** Initial invocation updates the string list cache for display, opening the party frame
  *  Subsequent invocation sets the creature at the cursor position as the active battle creature
 **********************************************************************************************************************/
-bool BattleSwap(InputInterface input, MemoryInterface memory, bool update)
+bool BattleSwap(HardwareInterface hardware, InputInterface input, MemoryInterface memory, bool update)
 {
-    DEBUG("BattleSwap");
     if (EnterMenu(MAX_PARTY_SIZE))
     {
-        uint8_t sel = g_run.menu.sel[g_run.menu.depth].y;
-        DEBUG("Select new monster %d %d", g_run.battleMode.playerMonsterID, sel);
-        if (GetCreatureType(g_run.player.partyID[sel]) == NO_CREATURE) return true;
-        g_run.battleMode.playerMonsterID = g_run.player.partyID[sel];
+        uint8_t sel = g_core.menu.sel[g_core.menu.depth].y;
+        if (GetCreatureType(g_core.player.partyID[sel]) == NO_CREATURE) return true;
+        g_core.battleMode.playerMonsterID = g_core.player.partyID[sel];
         return true;
     }
 
-    DEBUG("Drawing BattleSwap List");
 
     FillListByEntityID(memory, MAX_PARTY_SIZE, CREATURE, GetPlayerMonsterIDs());
     return true;
@@ -91,21 +88,18 @@ bool BattleSwap(InputInterface input, MemoryInterface memory, bool update)
 /** Initial invocation updates the string list cache for display, opening the spellbook list frame
  *  Subsequent invocation runs the spell action for the spell id at the cursor index of the spellbook
 **********************************************************************************************************************/
-bool BattleSpell(InputInterface input, MemoryInterface memory, bool update)
+bool BattleSpell(HardwareInterface hardware, InputInterface input, MemoryInterface memory, bool update)
 {
-    DEBUG("BattleSpell");
-    if (EnterMenu(g_run.player.currentSpellbookSize))
+    if (EnterMenu(g_core.player.currentSpellbookSize))
     {
-        uint8_t sel = g_run.menu.sel[g_run.menu.depth].y;
-        SpellId spell_id = g_run.player.spellID[sel];
-        DEBUG("Casting Spell");
-        CastSpell(memory, spell_id, g_run.battleMode.playerMonsterID, g_run.battleMode.enemyMonsterID);
+        uint8_t sel = g_core.menu.sel[g_core.menu.depth].y;
+        SpellId spell_id = g_core.player.spellID[sel];
+        CastSpell(hardware, memory, spell_id, g_core.battleMode.playerMonsterID, g_core.battleMode.enemyMonsterID);
         return true;
     }
 
-    DEBUG("Drawing BattleSpell List");
 
-    FillListByTypeID(g_run.player.currentSpellbookSize, g_run.player.spellID);
+    FillListByTypeID(memory, g_core.player.currentSpellbookSize, g_core.player.spellID);
     return true;
 }
 
@@ -114,24 +108,22 @@ bool BattleSpell(InputInterface input, MemoryInterface memory, bool update)
 /** Initial invocation updates the string list cache for display, opening the backpack list frame
  *  Subsequent invocation runs the item action for the item id at the cursor index of the backpack
 **********************************************************************************************************************/
-bool BattleItems(InputInterface input, MemoryInterface memory, bool update)
+bool BattleItems(HardwareInterface hardware, InputInterface input, MemoryInterface memory, bool update)
 {
-    DEBUG("BattleItems");
-    if (EnterMenu(g_run.player.currentBagSize))
+    if (EnterMenu(g_core.player.currentBagSize))
     {
-        uint8_t idx = g_run.menu.sel[g_run.menu.depth].y + g_run.menu.menuScrollOffset[g_run.menu.depth].y;
-        EntityId item_id = g_run.player.itemID[idx];
-        EntityId entity_id = g_run.battleMode.playerMonsterID;
-        DEBUG("using battle item %d %d %d", idx, item_id, entity_id);
+        uint8_t idx = g_core.menu.sel[g_core.menu.depth].y + g_core.menu.menuScrollOffset[g_core.menu.depth].y;
+        EntityId item_id = g_core.player.itemID[idx];
+        EntityId entity_id = g_core.battleMode.playerMonsterID;
         if (UseItem(memory, item_id, entity_id))
         {
             ConsumeItem(idx, item_id);
-            FillListByEntityID(memory, g_run.player.currentBagSize, ITEM, g_run.player.itemID);
+            FillListByEntityID(memory, g_core.player.currentBagSize, ITEM, g_core.player.itemID);
         }
         return true;
     }
 
-    FillListByEntityID(memory, g_run.player.currentBagSize, ITEM, g_run.player.itemID);
+    FillListByEntityID(memory, g_core.player.currentBagSize, ITEM, g_core.player.itemID);
     return true;
 }
 
@@ -139,10 +131,8 @@ bool BattleItems(InputInterface input, MemoryInterface memory, bool update)
 /** attempts the end the battle and queue a move to an empty adjacent map cell
  *  TODO: NOT YET IMPLEMENTED
 **********************************************************************************************************************/
-bool BattleFlee(InputInterface input, MemoryInterface memory, bool update)
+bool BattleFlee(HardwareInterface hardware, InputInterface input, MemoryInterface memory, bool update)
 {
-    DEBUG("BattleFlee");
-
     if (EnterMenu(4))
     {
         return true;
@@ -155,9 +145,8 @@ bool BattleFlee(InputInterface input, MemoryInterface memory, bool update)
 /** display a full screen of teh combat lines cache
  *  TODO: NOT YET IMPLEMENTED
 **********************************************************************************************************************/
-bool BattleCombatLog(InputInterface input, MemoryInterface memory, bool update)
+bool BattleCombatLog(HardwareInterface hardware, InputInterface input, MemoryInterface memory, bool update)
 {
-    DEBUG("BattleCombatLog");
 
     // fire on initial entry
     if (EnterMenu(4))
@@ -188,7 +177,7 @@ uint8_t AbilityCount(void)
     uint8_t num_abilities = 0;
     while (num_abilities < MAX_ABILITIES)
     {
-        if (g_run.creatures.attacks[g_run.battleMode.playerMonsterID][num_abilities] == NO_ABILITY) break;
+        if (g_core.creatures.attacks[g_core.battleMode.playerMonsterID][num_abilities] == NO_ABILITY) break;
         num_abilities++;
     }
 
@@ -202,20 +191,19 @@ uint8_t AbilityCount(void)
 **********************************************************************************************************************/
 void InitBattleMenu(void)
 {
-    DEBUG("INIT BATTLE MENU");
-    SetInputState(BATTLE);
+    SetInputState(INPUT_BATTLE);
     SetBattleState(BATTLE_INIT);
-    g_run.menu.x = BATTLE_MENU_X;
-    g_run.menu.y = BATTLE_MENU_Y;
-    g_run.menu.h = MAX_ABILITIES;
+    g_core.menu.x = BATTLE_MENU_X;
+    g_core.menu.y = BATTLE_MENU_Y;
+    g_core.menu.h = MAX_ABILITIES;
 
-    g_run.menu.subMenus = battleSubmenus;
-    g_run.menu.visibleMenuOptions = AbilityCount();
+    g_core.menu.subMenus = battleSubmenus;
+    g_core.menu.visibleMenuOptions = AbilityCount();
 
-    g_run.menu.depth = 0;
-    g_run.menu.sel[g_run.menu.depth].x = 0;
-    g_run.menu.sel[g_run.menu.depth].y = 0;
-    g_run.menu.selectedMenu = BATTLE_MENU;
+    g_core.menu.depth = 0;
+    g_core.menu.sel[g_core.menu.depth].x = 0;
+    g_core.menu.sel[g_core.menu.depth].y = 0;
+    g_core.menu.selectedMenu = BATTLE_MENU;
 }
 
 /**********************************************************************************************************************/
@@ -225,19 +213,19 @@ void UpdateBattleMenu(InputInterface input)
 {
     if (input.GetInputKeyState().d.x == 0) return;
 
-    if (g_run.menu.x == BATTLE_MENU_X)
+    if (g_core.menu.x == BATTLE_MENU_X)
     {
         battleMenu = BATTLE_MENU;
-        g_run.menu.x = 10;
-        g_run.menu.sel[g_run.menu.depth].y = 0;
-        g_run.menu.visibleMenuOptions = BATTLE_MENU_SIZE;
+        g_core.menu.x = 10;
+        g_core.menu.sel[g_core.menu.depth].y = 0;
+        g_core.menu.visibleMenuOptions = BATTLE_MENU_SIZE;
     }
     else
     {
         battleMenu = ABILITY_MENU;
-        g_run.menu.x = BATTLE_MENU_X;
-        g_run.menu.sel[g_run.menu.depth].y = 0;
-        g_run.menu.visibleMenuOptions = AbilityCount();
+        g_core.menu.x = BATTLE_MENU_X;
+        g_core.menu.sel[g_core.menu.depth].y = 0;
+        g_core.menu.visibleMenuOptions = AbilityCount();
     }
 }
 
@@ -256,7 +244,7 @@ bool BattleMenuCommand(HardwareInterface hardware, InputInterface input, MemoryI
     if (battleMenu == ABILITY_MENU)
         b = UseSkill(hardware, memory, true);
     if (battleMenu == BATTLE_MENU)
-        battleSubmenus[g_run.menu.sel[0].y](input, memory, true); //0 to enter the menu base entry point
+        battleSubmenus[g_core.menu.sel[0].y](hardware, input, memory, true); //0 to enter the menu base entry point
 
     return b;
 }

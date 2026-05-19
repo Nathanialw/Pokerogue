@@ -93,9 +93,10 @@ _Static_assert(OBJECT_COUNT <= 256, "max must be 256 - one byte");
 #define MAX_ENTITY_OBJECT_COUNT 255
 #define MAX_ENTITY_CREATURE_COUNT 255
 #define ENTITY_ITEM_COUNT 255
-#define ENTITY_COUNT 255
+#define ENTITY_COUNT 64
 #define NO_ENTITY 255
 #define MAX_ABILITIES 6
+#define TOTAL_SPAWNABLE_OBJECT_TYPES 3
 
 /**********************************************************************************************************************/
 /**BATTLE FRAMES constants
@@ -149,7 +150,7 @@ _Static_assert(DIALOGUE_H + RESOURCE_FRAME_H + BATTLER_AREA_H <= TFT_H, "cannot 
 
 #define MAIN_MENU_X 11
 #define MAIN_MENU_Y 0
-#define MAIN_MENU_W (VIEW_TW-11)
+#define MAIN_MENU_W (VIEW_TW-MAIN_MENU_X)
 #define MAIN_MENU_H (VIEW_TH)
 
 #define BATTLE_MENU_X 0

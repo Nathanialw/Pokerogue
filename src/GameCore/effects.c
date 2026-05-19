@@ -26,11 +26,11 @@
 **********************************************************************************************************************/
 uint16_t CalcDamage(EntityId creatureID, uint16_t abilityPower)
 {
-    uint8_t level = g_run.creatures.level[creatureID].value;
+    uint8_t level = g_core.creatures.level[creatureID].value;
     uint16_t ratio = 100 / level;
-    uint16_t base = (g_run.creatures.stats[creatureID].attack / ratio);
+    uint16_t base = (g_core.creatures.stats[creatureID].attack / ratio);
     uint16_t skill = (abilityPower / ratio);
-    uint16_t mod = GetNibble(g_run.creatures.stat.strength, creatureID);
+    uint16_t mod = GetNibble(g_core.creatures.stat.strength, creatureID);
 
     uint16_t damage = base + skill + mod;
     if (damage == 0) damage = 1;
@@ -42,7 +42,7 @@ uint16_t CalcDamage(EntityId creatureID, uint16_t abilityPower)
 **********************************************************************************************************************/
 uint16_t CalcHeal(EntityId creatureID, uint16_t abilityPower)
 {
-    uint16_t damage = g_run.creatures.stats[creatureID].magic + abilityPower;
+    uint16_t damage = g_core.creatures.stats[creatureID].magic + abilityPower;
     if (damage == 0) damage = 1;
     return damage;
 }
@@ -53,10 +53,10 @@ uint16_t CalcHeal(EntityId creatureID, uint16_t abilityPower)
 /********************************************************************************************************************************************************************************************************************************************/
 void DoDamage(HardwareInterface hardware, MemoryInterface memory, EntityId creatureID, uint16_t damage)
 {
-    uint16_t hp = Int999GetCurrent(&g_run.creatures.hp[creatureID]);
+    uint16_t hp = Int999GetCurrent(&g_core.creatures.hp[creatureID]);
     hp = (hp > damage) ? hp - damage : 0;
     PrintCombatLog(hardware, memory, creatureID, damage);
-    Int999SetCurrent(&g_run.creatures.hp[creatureID], hp);
+    Int999SetCurrent(&g_core.creatures.hp[creatureID], hp);
 }
 
 /**********************************************************************************************************************/
@@ -67,13 +67,13 @@ bool HealTarget(EntityId e_id, uint16_t value)
     uint16_t heal = CalcHeal(e_id, value);
 
     if (e_id == NO_CREATURE) return false;
-    IntMax999 hp = g_run.creatures.hp[e_id];
+    IntMax999 hp = g_core.creatures.hp[e_id];
     uint16_t cur = Int999GetCurrent(&hp);
     uint16_t max = Int999GetMax(&hp);
     if (cur == max) return false;
     cur = (cur + heal > max) ? max : cur + heal;
     Int999SetCurrent(&hp, cur);
-    g_run.creatures.hp[e_id] = hp;
+    g_core.creatures.hp[e_id] = hp;
 
     return true;
 }
@@ -94,8 +94,8 @@ uint16_t CalcModifier(MemoryInterface memory, EntityId attackerID, EntityId defe
         damage = (float)damage * 1.25f;
 
     Creature creature_type2 = GetCreatureType(defenderID);
-    uint16_t base = (g_run.creatures.stats[defenderID].defence / 15);
-    uint16_t mod = GetNibble(g_run.creatures.stat.defence, defenderID);
+    uint16_t base = (g_core.creatures.stats[defenderID].defence / 15);
+    uint16_t mod = GetNibble(g_core.creatures.stat.defence, defenderID);
 
     MonsterType m_type2 = Flash_GetType(memory, creature_type1);
     Type typeC = m_type2.typeA;
@@ -126,7 +126,6 @@ uint16_t CalcModifier(MemoryInterface memory, EntityId attackerID, EntityId defe
 **********************************************************************************************************************/
 bool NoEffect()
 {
-    DEBUG("No EFFECT");
     return false;
 }
 
@@ -181,7 +180,6 @@ bool Parry(EntityId attackerID, EntityId defenderID, SkillData abilityData)
 **********************************************************************************************************************/
 bool Revive(EntityId e_id)
 {
-    DEBUG("No USE EFFECT");
     return false;
 }
 
@@ -190,7 +188,6 @@ bool Revive(EntityId e_id)
 **********************************************************************************************************************/
 bool MakeInvulnerable(EntityId e_id)
 {
-    DEBUG("MakeInvulnerable()");
     return false;
 }
 
@@ -199,7 +196,6 @@ bool MakeInvulnerable(EntityId e_id)
 **********************************************************************************************************************/
 bool Reposition(EntityId e_id, Position pos)
 {
-    DEBUG("No USE EFFECT");
     return false;
 }
 
@@ -208,7 +204,6 @@ bool Reposition(EntityId e_id, Position pos)
 **********************************************************************************************************************/
 bool RestoreMana(EntityId e_id, uint8_t value)
 {
-    DEBUG("draining mana %d", value);
     return true;
 }
 
@@ -217,7 +212,6 @@ bool RestoreMana(EntityId e_id, uint8_t value)
 **********************************************************************************************************************/
 bool DrainMana(EntityId e_id, uint8_t value)
 {
-    DEBUG("restoring mana %d", value);
     return true;
 }
 
@@ -227,7 +221,6 @@ bool DrainMana(EntityId e_id, uint8_t value)
 **********************************************************************************************************************/
 bool RestorePP(EntityId e_id, uint8_t value)
 {
-    DEBUG("restoring mana %d", value);
     return true;
 }
 
@@ -236,7 +229,7 @@ bool RestorePP(EntityId e_id, uint8_t value)
 **********************************************************************************************************************/
 bool Repel(EntityId e_id, uint8_t duration)
 {
-    g_run.creatures.status.repel[e_id] = duration;
+    g_core.creatures.status.repel[e_id] = duration;
     return true;
 }
 
@@ -245,7 +238,7 @@ bool Repel(EntityId e_id, uint8_t duration)
 **********************************************************************************************************************/
 bool Levitate(EntityId e_id, uint8_t duration)
 {
-    g_run.creatures.status.hovering[e_id] = duration;
+    g_core.creatures.status.hovering[e_id] = duration;
     return true;
 }
 
@@ -254,7 +247,7 @@ bool Levitate(EntityId e_id, uint8_t duration)
 **********************************************************************************************************************/
 bool WaterBreathing(EntityId e_id, uint8_t duration)
 {
-    g_run.creatures.status.waterBreathing[e_id] = duration;
+    g_core.creatures.status.waterBreathing[e_id] = duration;
     return true;
 }
 
@@ -263,7 +256,7 @@ bool WaterBreathing(EntityId e_id, uint8_t duration)
 **********************************************************************************************************************/
 bool XRayVision(EntityId e_id, uint8_t duration)
 {
-    g_run.creatures.status.lineOfSight[e_id] = duration;
+    g_core.creatures.status.lineOfSight[e_id] = duration;
     return true;
 }
 
@@ -272,7 +265,7 @@ bool XRayVision(EntityId e_id, uint8_t duration)
 **********************************************************************************************************************/
 bool WaterWalking(EntityId e_id, uint8_t duration)
 {
-    g_run.creatures.status.waterWalk[e_id] = duration;
+    g_core.creatures.status.waterWalk[e_id] = duration;
     return true;
 }
 
@@ -281,7 +274,7 @@ bool WaterWalking(EntityId e_id, uint8_t duration)
 **********************************************************************************************************************/
 bool WallWalking(EntityId e_id, uint8_t duration)
 {
-    g_run.creatures.status.wallWalking[e_id] = duration;
+    g_core.creatures.status.wallWalking[e_id] = duration;
     return true;
 }
 
@@ -290,7 +283,7 @@ bool WallWalking(EntityId e_id, uint8_t duration)
 **********************************************************************************************************************/
 bool Invisibility(EntityId e_id, uint8_t duration)
 {
-    g_run.creatures.status.invisibility[e_id] = duration;
+    g_core.creatures.status.invisibility[e_id] = duration;
     return true;
 }
 
@@ -299,7 +292,6 @@ bool Invisibility(EntityId e_id, uint8_t duration)
 **********************************************************************************************************************/
 bool Summon(CreatureID creature)
 {
-    DEBUG("Summon() - summon a creature - NOT YET IMPLEMENTED");
     return true;
 }
 
@@ -308,7 +300,6 @@ bool Summon(CreatureID creature)
 **********************************************************************************************************************/
 void SacrificeHeal(HardwareInterface hardware, MemoryInterface memory, EntityId attackerID, EntityId defenderID, SkillData abilityData)
 {
-    DEBUG("SacrificeHeal() - kill team member to heal self - NOT YET IMPLEMENTED");
     Attack(hardware, memory, attackerID, defenderID, abilityData);
 }
 
@@ -317,7 +308,6 @@ void SacrificeHeal(HardwareInterface hardware, MemoryInterface memory, EntityId 
 **********************************************************************************************************************/
 void DestroyPlayerItem(EntityId item_id)
 {
-    DEBUG("DestroyPlayerItem() - destroy a player item - NOT YET IMPLEMENTED");
 }
 
 /**********************************************************************************************************************/
@@ -325,7 +315,6 @@ void DestroyPlayerItem(EntityId item_id)
 **********************************************************************************************************************/
 void DestroyRandomPlayerItem()
 {
-    DEBUG("DestroyPlayerItem() - destroy a player item - NOT YET IMPLEMENTED");
 }
 
 /********************************************************************************************************************************************************************************************************************************************/
@@ -341,7 +330,6 @@ void DestroyRandomPlayerItem()
 **********************************************************************************************************************/
 bool Capture(EntityId target_id, uint8_t successChance)
 {
-    DEBUG("RaiseMagicResistance()");
     return true;
 }
 
@@ -350,7 +338,7 @@ bool Capture(EntityId target_id, uint8_t successChance)
 **********************************************************************************************************************/
 bool DiscoverCreature(EntityId e_id)
 {
-    SetBit(g_run.player.knownCreatures, GetCreatureType(e_id), 1);
+    SetBit(g_core.player.knownCreatures, GetCreatureType(e_id), 1);
     return true;
 }
 
@@ -359,7 +347,7 @@ bool DiscoverCreature(EntityId e_id)
 **********************************************************************************************************************/
 bool DiscoverItem(EntityId e_id)
 {
-    SetBit(g_run.player.knownItems, GetItemType(e_id), 1);
+    SetBit(g_core.player.knownItems, GetItemType(e_id), 1);
     return true;
 }
 
@@ -368,7 +356,7 @@ bool DiscoverItem(EntityId e_id)
 **********************************************************************************************************************/
 bool DiscoverSkill(Ability ability_id)
 {
-    SetBit(g_run.player.knownAbilities, ability_id, 1);
+    SetBit(g_core.player.knownAbilities, ability_id, 1);
     return true;
 }
 
@@ -377,7 +365,7 @@ bool DiscoverSkill(Ability ability_id)
 **********************************************************************************************************************/
 bool DiscoverSpell(Spell spell_id)
 {
-    SetBit(g_run.player.knownSpells, spell_id, 1);
+    SetBit(g_core.player.knownSpells, spell_id, 1);
     return true;
 }
 
@@ -386,7 +374,7 @@ bool DiscoverSpell(Spell spell_id)
 **********************************************************************************************************************/
 bool DiscoverObject(EntityId e_id)
 {
-    SetBit(g_run.player.knownObjects, GetItemType(e_id), 1);
+    SetBit(g_core.player.knownObjects, GetItemType(e_id), 1);
     return true;
 }
 
@@ -397,7 +385,6 @@ bool DiscoverObject(EntityId e_id)
 **********************************************************************************************************************/
 bool LearnSkill(EntityId e_id)
 {
-    DEBUG("removing Poison");
     return true;
 }
 
@@ -408,7 +395,6 @@ bool LearnSkill(EntityId e_id)
 **********************************************************************************************************************/
 bool LearnSpell(EntityId e_id)
 {
-    DEBUG("LearnSpell");
     return true;
 }
 
@@ -417,7 +403,6 @@ bool LearnSpell(EntityId e_id)
 **********************************************************************************************************************/
 bool AbandonTeam(EntityId e_id)
 {
-    DEBUG("AbandonTeam");
     return true;
 }
 
@@ -426,7 +411,6 @@ bool AbandonTeam(EntityId e_id)
 **********************************************************************************************************************/
 bool Flee()
 {
-    DEBUG("Flee() - end combat and move to an adjacent tile");
     return true;
 }
 
@@ -443,8 +427,8 @@ bool Flee()
 **********************************************************************************************************************/
 bool ApplyPoison(EntityId e_id, uint8_t duration)
 {
-    if (g_run.creatures.status.poison[e_id] < 8)
-        g_run.creatures.status.poison[e_id]++;
+    if (g_core.creatures.status.poison[e_id] < 8)
+        g_core.creatures.status.poison[e_id]++;
     return true;
 }
 
@@ -453,8 +437,8 @@ bool ApplyPoison(EntityId e_id, uint8_t duration)
 **********************************************************************************************************************/
 bool ApplyCurse(EntityId e_id, uint8_t duration)
 {
-    if (g_run.creatures.status.curse[e_id] < 8)
-        g_run.creatures.status.curse[e_id]++;
+    if (g_core.creatures.status.curse[e_id] < 8)
+        g_core.creatures.status.curse[e_id]++;
     return true;
 }
 
@@ -463,8 +447,8 @@ bool ApplyCurse(EntityId e_id, uint8_t duration)
 **********************************************************************************************************************/
 bool ApplyParalyze(EntityId e_id, uint8_t duration)
 {
-    if (g_run.creatures.status.paralyzed[e_id] < 8)
-        g_run.creatures.status.paralyzed[e_id]++;
+    if (g_core.creatures.status.paralyzed[e_id] < 8)
+        g_core.creatures.status.paralyzed[e_id]++;
     return true;
 }
 
@@ -473,8 +457,8 @@ bool ApplyParalyze(EntityId e_id, uint8_t duration)
 **********************************************************************************************************************/
 bool ApplyDisease(EntityId e_id, uint8_t duration)
 {
-    if (g_run.creatures.status.disease[e_id] < 8)
-        g_run.creatures.status.disease[e_id]++;
+    if (g_core.creatures.status.disease[e_id] < 8)
+        g_core.creatures.status.disease[e_id]++;
     return true;
 }
 
@@ -483,8 +467,8 @@ bool ApplyDisease(EntityId e_id, uint8_t duration)
 **********************************************************************************************************************/
 bool ApplySleep(EntityId e_id, uint8_t duration)
 {
-    if (g_run.creatures.status.sleep[e_id] < 8)
-        g_run.creatures.status.sleep[e_id]++;
+    if (g_core.creatures.status.sleep[e_id] < 8)
+        g_core.creatures.status.sleep[e_id]++;
     return true;
 }
 
@@ -493,8 +477,8 @@ bool ApplySleep(EntityId e_id, uint8_t duration)
 **********************************************************************************************************************/
 bool ApplyFear(EntityId e_id, uint8_t duration)
 {
-    if (g_run.creatures.status.fear[e_id] < 8)
-        g_run.creatures.status.fear[e_id]++;
+    if (g_core.creatures.status.fear[e_id] < 8)
+        g_core.creatures.status.fear[e_id]++;
     return true;
 }
 
@@ -503,8 +487,8 @@ bool ApplyFear(EntityId e_id, uint8_t duration)
 **********************************************************************************************************************/
 bool ApplyFrozen(EntityId e_id, uint8_t duration)
 {
-    if (g_run.creatures.status.frozen[e_id] < 8)
-        g_run.creatures.status.frozen[e_id]++;
+    if (g_core.creatures.status.frozen[e_id] < 8)
+        g_core.creatures.status.frozen[e_id]++;
     return true;
 }
 
@@ -513,8 +497,8 @@ bool ApplyFrozen(EntityId e_id, uint8_t duration)
 **********************************************************************************************************************/
 bool ApplyBurn(EntityId e_id, uint8_t duration)
 {
-    if (g_run.creatures.status.burned[e_id] < 8)
-        g_run.creatures.status.burned[e_id]++;
+    if (g_core.creatures.status.burned[e_id] < 8)
+        g_core.creatures.status.burned[e_id]++;
     return true;
 }
 
@@ -523,8 +507,8 @@ bool ApplyBurn(EntityId e_id, uint8_t duration)
 **********************************************************************************************************************/
 bool ApplyHaste(EntityId e_id, uint8_t duration)
 {
-    if (g_run.creatures.status.hasted[e_id] < 8)
-        g_run.creatures.status.hasted[e_id]++;
+    if (g_core.creatures.status.hasted[e_id] < 8)
+        g_core.creatures.status.hasted[e_id]++;
     return true;
 }
 
@@ -533,8 +517,8 @@ bool ApplyHaste(EntityId e_id, uint8_t duration)
 **********************************************************************************************************************/
 bool ApplySlow(EntityId e_id, uint8_t duration)
 {
-    if (g_run.creatures.status.slowed[e_id] < 8)
-        g_run.creatures.status.slowed[e_id]++;
+    if (g_core.creatures.status.slowed[e_id] < 8)
+        g_core.creatures.status.slowed[e_id]++;
     return true;
 }
 
@@ -559,8 +543,8 @@ bool StatusGreaterBlind(EntityId e_id, uint8_t duration)
 **********************************************************************************************************************/
 bool RemovePoison(EntityId e_id)
 {
-    if (g_run.creatures.status.poison[e_id] > 0)
-        g_run.creatures.status.poison[e_id]--;
+    if (g_core.creatures.status.poison[e_id] > 0)
+        g_core.creatures.status.poison[e_id]--;
     return true;
 }
 
@@ -569,8 +553,8 @@ bool RemovePoison(EntityId e_id)
 **********************************************************************************************************************/
 bool RemoveCurse(EntityId e_id)
 {
-    if (g_run.creatures.status.curse[e_id] > 0)
-        g_run.creatures.status.curse[e_id]--;
+    if (g_core.creatures.status.curse[e_id] > 0)
+        g_core.creatures.status.curse[e_id]--;
     return true;
 }
 
@@ -579,8 +563,8 @@ bool RemoveCurse(EntityId e_id)
 **********************************************************************************************************************/
 bool RemoveParalyze(EntityId e_id)
 {
-    if (g_run.creatures.status.paralyzed[e_id] > 0)
-        g_run.creatures.status.paralyzed[e_id]--;
+    if (g_core.creatures.status.paralyzed[e_id] > 0)
+        g_core.creatures.status.paralyzed[e_id]--;
     return true;
 }
 
@@ -589,8 +573,8 @@ bool RemoveParalyze(EntityId e_id)
 **********************************************************************************************************************/
 bool RemoveDisease(EntityId e_id)
 {
-    if (g_run.creatures.status.disease[e_id] > 0)
-        g_run.creatures.status.disease[e_id]--;
+    if (g_core.creatures.status.disease[e_id] > 0)
+        g_core.creatures.status.disease[e_id]--;
     return true;
 }
 
@@ -599,8 +583,8 @@ bool RemoveDisease(EntityId e_id)
 **********************************************************************************************************************/
 bool RemoveSleep(EntityId e_id)
 {
-    if (g_run.creatures.status.sleep[e_id] > 0)
-        g_run.creatures.status.sleep[e_id]--;
+    if (g_core.creatures.status.sleep[e_id] > 0)
+        g_core.creatures.status.sleep[e_id]--;
     return true;
 }
 
@@ -609,8 +593,8 @@ bool RemoveSleep(EntityId e_id)
 **********************************************************************************************************************/
 bool RemoveFear(EntityId e_id)
 {
-    if (g_run.creatures.status.fear[e_id] > 0)
-        g_run.creatures.status.fear[e_id]--;
+    if (g_core.creatures.status.fear[e_id] > 0)
+        g_core.creatures.status.fear[e_id]--;
     return true;
 }
 
@@ -619,8 +603,8 @@ bool RemoveFear(EntityId e_id)
 **********************************************************************************************************************/
 bool RemoveFrozen(EntityId e_id)
 {
-    if (g_run.creatures.status.frozen[e_id] > 0)
-        g_run.creatures.status.frozen[e_id]--;
+    if (g_core.creatures.status.frozen[e_id] > 0)
+        g_core.creatures.status.frozen[e_id]--;
     return true;
 }
 
@@ -629,8 +613,8 @@ bool RemoveFrozen(EntityId e_id)
 **********************************************************************************************************************/
 bool RemoveBurn(EntityId e_id)
 {
-    if (g_run.creatures.status.burned[e_id] > 0)
-        g_run.creatures.status.burned[e_id]--;
+    if (g_core.creatures.status.burned[e_id] > 0)
+        g_core.creatures.status.burned[e_id]--;
     return true;
 }
 
@@ -639,8 +623,8 @@ bool RemoveBurn(EntityId e_id)
 **********************************************************************************************************************/
 bool RemoveHaste(EntityId e_id)
 {
-    if (g_run.creatures.status.hasted[e_id] > 0)
-        g_run.creatures.status.hasted[e_id]--;
+    if (g_core.creatures.status.hasted[e_id] > 0)
+        g_core.creatures.status.hasted[e_id]--;
     return true;
 }
 
@@ -649,8 +633,8 @@ bool RemoveHaste(EntityId e_id)
 **********************************************************************************************************************/
 bool RemoveSlow(EntityId e_id)
 {
-    if (g_run.creatures.status.slowed[e_id] > 0)
-        g_run.creatures.status.slowed[e_id]--;
+    if (g_core.creatures.status.slowed[e_id] > 0)
+        g_core.creatures.status.slowed[e_id]--;
     return true;
 }
 
@@ -659,8 +643,8 @@ bool RemoveSlow(EntityId e_id)
 **********************************************************************************************************************/
 bool StatusLesserLight(EntityId e_id, uint8_t duration)
 {
-    if (g_run.creatures.status.light[e_id] < 8)
-        g_run.creatures.status.light[e_id]++;
+    if (g_core.creatures.status.light[e_id] < 8)
+        g_core.creatures.status.light[e_id]++;
     return true;
 }
 
@@ -669,8 +653,8 @@ bool StatusLesserLight(EntityId e_id, uint8_t duration)
 **********************************************************************************************************************/
 bool StatusGreaterLight(EntityId e_id, uint8_t duration)
 {
-    if (g_run.creatures.status.light[e_id] < 8)
-        g_run.creatures.status.light[e_id]++;
+    if (g_core.creatures.status.light[e_id] < 8)
+        g_core.creatures.status.light[e_id]++;
     return true;
 }
 
@@ -679,7 +663,6 @@ bool StatusGreaterLight(EntityId e_id, uint8_t duration)
 **********************************************************************************************************************/
 void NextAttackFreezes()
 {
-    DEBUG("NextAttackFreezes()");
 }
 
 /**********************************************************************************************************************/
@@ -687,8 +670,8 @@ void NextAttackFreezes()
 **********************************************************************************************************************/
 bool FreezeAttackers(EntityId e_id, uint8_t duration)
 {
-    if (g_run.creatures.status.light[e_id] < 8)
-        g_run.creatures.status.light[e_id]++;
+    if (g_core.creatures.status.light[e_id] < 8)
+        g_core.creatures.status.light[e_id]++;
     return true;
 }
 
@@ -708,7 +691,6 @@ bool PersistentPoisonCloud(uint8_t duration)
 **********************************************************************************************************************/
 bool RaiseAcidResistance(EntityId e_id)
 {
-    DEBUG("RaiseAcidResistance()");
     return true;
 }
 
@@ -718,7 +700,6 @@ bool RaiseAcidResistance(EntityId e_id)
 **********************************************************************************************************************/
 bool RaiseFireResistance(EntityId e_id)
 {
-    DEBUG("RaiseFireResistance()");
     return true;
 }
 
@@ -727,7 +708,6 @@ bool RaiseFireResistance(EntityId e_id)
 **********************************************************************************************************************/
 bool RaiseWaterResistance(EntityId e_id)
 {
-    DEBUG("RaiseWaterResistance()");
     return true;
 }
 
@@ -736,7 +716,6 @@ bool RaiseWaterResistance(EntityId e_id)
 **********************************************************************************************************************/
 bool RaiseIceResistance(EntityId e_id)
 {
-    DEBUG("RaiseIceResistance()");
     return true;
 }
 
@@ -745,7 +724,6 @@ bool RaiseIceResistance(EntityId e_id)
 **********************************************************************************************************************/
 bool RaiseMagicResistance(EntityId e_id)
 {
-    DEBUG("RaiseMagicResistance()");
     return true;
 }
 
@@ -754,7 +732,6 @@ bool RaiseMagicResistance(EntityId e_id)
 **********************************************************************************************************************/
 bool RaiseAllResistance(EntityId e_id)
 {
-    DEBUG("RaiseMagicResistance()");
     return true;
 }
 
@@ -763,7 +740,6 @@ bool RaiseAllResistance(EntityId e_id)
 **********************************************************************************************************************/
 bool LowerAcidResistance(EntityId e_id)
 {
-    DEBUG("RaiseMagicResistance()");
     return true;
 }
 
@@ -772,7 +748,6 @@ bool LowerAcidResistance(EntityId e_id)
 **********************************************************************************************************************/
 bool LowerFireResistance(EntityId e_id)
 {
-    DEBUG("RaiseMagicResistance()");
     return true;
 }
 
@@ -781,7 +756,6 @@ bool LowerFireResistance(EntityId e_id)
 **********************************************************************************************************************/
 bool LowerWaterResistance(EntityId e_id)
 {
-    DEBUG("RaiseMagicResistance()");
     return true;
 }
 
@@ -790,7 +764,6 @@ bool LowerWaterResistance(EntityId e_id)
 **********************************************************************************************************************/
 bool LowerIceResistance(EntityId e_id)
 {
-    DEBUG("RaiseMagicResistance()");
     return true;
 }
 
@@ -799,7 +772,6 @@ bool LowerIceResistance(EntityId e_id)
 **********************************************************************************************************************/
 bool LowerMagicResistance(EntityId e_id)
 {
-    DEBUG("RaiseMagicResistance()");
     return true;
 }
 
@@ -808,7 +780,6 @@ bool LowerMagicResistance(EntityId e_id)
 **********************************************************************************************************************/
 bool LowerAllResistance(EntityId e_id)
 {
-    DEBUG("RaiseMagicResistance()");
     return true;
 }
 
@@ -817,7 +788,6 @@ bool LowerAllResistance(EntityId e_id)
 **********************************************************************************************************************/
 bool FireEating(EntityId e_id)
 {
-    DEBUG("FireEating()");
     return true;
 }
 
@@ -826,7 +796,6 @@ bool FireEating(EntityId e_id)
 **********************************************************************************************************************/
 bool WaterEating(EntityId e_id)
 {
-    DEBUG("WaterEating()");
     return true;
 }
 
@@ -835,7 +804,6 @@ bool WaterEating(EntityId e_id)
 **********************************************************************************************************************/
 bool IceEating(EntityId e_id)
 {
-    DEBUG("IceEating()");
     return true;
 }
 
@@ -844,7 +812,6 @@ bool IceEating(EntityId e_id)
 **********************************************************************************************************************/
 bool AcidEating(EntityId e_id)
 {
-    DEBUG("PoisonEating()");
     return true;
 }
 
@@ -853,7 +820,6 @@ bool AcidEating(EntityId e_id)
 **********************************************************************************************************************/
 bool LavaEating(EntityId e_id)
 {
-    DEBUG("SleepEating()");
     return true;
 }
 
@@ -872,7 +838,6 @@ bool LavaEating(EntityId e_id)
 **********************************************************************************************************************/
 bool RaiseStrength(EntityId e_id)
 {
-    DEBUG("RaiseMagicResistance()");
     return true;
 }
 
@@ -881,7 +846,6 @@ bool RaiseStrength(EntityId e_id)
 **********************************************************************************************************************/
 bool RaiseDefence(EntityId e_id)
 {
-    DEBUG("RaiseMagicResistance()");
     return true;
 }
 
@@ -890,7 +854,6 @@ bool RaiseDefence(EntityId e_id)
 **********************************************************************************************************************/
 bool RaiseMagic(EntityId e_id)
 {
-    DEBUG("RaiseMagicResistance()");
     return true;
 }
 
@@ -899,7 +862,6 @@ bool RaiseMagic(EntityId e_id)
 **********************************************************************************************************************/
 bool RaiseSpeed(EntityId e_id)
 {
-    DEBUG("RaiseMagicResistance()");
     return true;
 }
 
@@ -908,7 +870,6 @@ bool RaiseSpeed(EntityId e_id)
 **********************************************************************************************************************/
 bool RaiseAccuracy(EntityId e_id)
 {
-    DEBUG("RaiseMagicResistance()");
     return true;
 }
 
@@ -917,7 +878,6 @@ bool RaiseAccuracy(EntityId e_id)
 **********************************************************************************************************************/
 bool LowerStrength(EntityId e_id)
 {
-    DEBUG("RaiseMagicResistance()");
     return true;
 }
 
@@ -926,7 +886,6 @@ bool LowerStrength(EntityId e_id)
 **********************************************************************************************************************/
 bool LowerDefence(EntityId e_id)
 {
-    DEBUG("RaiseMagicResistance()");
     return true;
 }
 
@@ -935,7 +894,6 @@ bool LowerDefence(EntityId e_id)
 **********************************************************************************************************************/
 bool LowerMagic(EntityId e_id)
 {
-    DEBUG("RaiseMagicResistance()");
     return true;
 }
 
@@ -944,7 +902,6 @@ bool LowerMagic(EntityId e_id)
 **********************************************************************************************************************/
 bool LowerSpeed(EntityId e_id)
 {
-    DEBUG("RaiseMagicResistance()");
     return true;
 }
 
@@ -953,7 +910,6 @@ bool LowerSpeed(EntityId e_id)
 **********************************************************************************************************************/
 bool LowerAccuracy(EntityId e_id)
 {
-    DEBUG("RaiseMagicResistance()");
     return true;
 }
 
@@ -1027,7 +983,6 @@ bool LowerBaseStrength(EntityId e_id)
 **********************************************************************************************************************/
 bool DrainXP(EntityId e_id)
 {
-    DEBUG("DrainXP()");
     return true;
 }
 
@@ -1083,7 +1038,6 @@ bool RevealMap()
 **********************************************************************************************************************/
 bool CreateItem(ItemTypes item)
 {
-    DEBUG("CreateItem() - create an item - NOT YET IMPLEMENTED");
     return true;
 }
 
@@ -1096,7 +1050,6 @@ bool CreateItemFood()
     // TODO: Get random food type
     uint8_t food_type = 0;
     CreateItem(food_type);
-    DEBUG("CreateItemFood() - create an item - NOT YET IMPLEMENTED");
     return true;
 }
 
@@ -1109,7 +1062,6 @@ bool CreateItemCommon()
     // TODO: Get random common type item
     uint8_t common_type = 0;
     CreateItem(common_type);
-    DEBUG("CreateItemCommon() - create an item - NOT YET IMPLEMENTED");
     return true;
 }
 
@@ -1121,7 +1073,6 @@ bool CreateItemMagic()
     // TODO: Get random common type item
     uint8_t magic_type = 0;
     CreateItem(magic_type);
-    DEBUG("CreateItemMagic() - create an item - NOT YET IMPLEMENTED");
     return true;
 }
 

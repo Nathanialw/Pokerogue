@@ -14,6 +14,7 @@ target_compile_definitions(GameCore PRIVATE CARTRIDGE)
 target_link_options(GameCartridge PRIVATE
         "-nostartfiles"
         "--specs=nosys.specs"
+        "-fno-merge-constants"
         "-Wl,--gc-sections"
         "-Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/output.map"
         "-T${CMAKE_CURRENT_SOURCE_DIR}/ram.ld"
@@ -26,9 +27,3 @@ target_link_libraries(GameCartridge
         "-Wl,--no-whole-archive"
 )
 
-
-# ========================= POST BUILD - Create Cartridge ROM =========================
-# After the normal GameCartridge executable target
-add_custom_command(TARGET GameCartridge POST_BUILD
-        COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/../../scripts/python/cartridge/make_cartridge.py"
-)

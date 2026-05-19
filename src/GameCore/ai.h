@@ -7,3 +7,4 @@
 
 
 void CreatureAI(HardwareInterface hardware, EntityId id);
+void Humanoid(HardwareInterface hardware, EntityId id);

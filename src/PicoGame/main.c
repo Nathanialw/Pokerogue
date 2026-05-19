@@ -1,5 +1,5 @@
 #ifdef STANDALONE
-// #include "game_state.h"
+#include "game_state.h"
 #endif
 #include "cartridge.h"
 #include "cartridge_rom.h"
@@ -18,6 +18,7 @@
 
 #define CORE_VMA    0x20000000
 #define OVERLAY_VMA 0x20010000
+#define END_VMA     0x20020000
 
 int main()
 {
@@ -31,6 +32,26 @@ int main()
     api.input = GetInputInterface();
     api.graphics = GetGraphicsInterface();
     api.audio = SetAudioInterface();
+    api.memory = GetMemoryInterface();
+
+    Pico_TestColors();
+
+    while (1)
+    {
+        api.input.HandleInput();
+        if (api.input.GetButtonB())
+        {
+            uint32_t size = 4 * 1024 * 1024;
+            EEPROM_Clear(size); // erase whole chip first
+            printf("Erased.\n");
+            EEPROM_Flash();
+            break;
+        }
+        if (api.input.GetButtonA())
+        {
+            break;
+        }
+    }
 
     // load overlay table - save it into ram
     // on return jump to new overlay table
@@ -49,23 +70,27 @@ int main()
         DEBUG("addr: %lu size: %lu", (g_pico_ram.overlays.overlay[i].addr), (g_pico_ram.overlays.overlay[i].size));
     }
 
-    uint8_t overlay_table_addr = 0;
-    LoadOverlay(g_pico_ram.overlays.overlay[overlay_table_addr].addr, CORE_VMA, g_pico_ram.overlays.overlay[overlay_table_addr].size);
+    uint8_t overlay_idx = 0;
+    LoadOverlay(g_pico_ram.overlays.overlay[overlay_idx].addr, CORE_VMA, g_pico_ram.overlays.overlay[overlay_idx].size);
+    DEBUG("Reserved Core    RAM size: %d bytes - Used: %d bytes", OVERLAY_VMA - CORE_VMA, g_pico_ram.overlays.overlay[overlay_idx].size);
+    if (g_pico_ram.overlays.overlay[overlay_idx].size >= OVERLAY_VMA - CORE_VMA) DEBUG("ERROR CORE EXCEEDS RESERVED SPACE");
 
-    overlay_table_addr = 1;
+    // uint32_t overlay_table_addr = 0x20000000 + g_pico_ram.overlays.overlay[overlay_idx].size;
+    overlay_idx = 1;
     while (1)
     {
-        overlay_table_addr = RunOverlay(&api, g_pico_ram.overlays.overlay[overlay_table_addr].addr, OVERLAY_VMA, g_pico_ram.overlays.overlay[overlay_table_addr].size);
-        if (overlay_table_addr == 0)
+        DEBUG("Reserved Overlay RAM size: %d bytes - Used: %d bytes", END_VMA - OVERLAY_VMA, g_pico_ram.overlays.overlay[overlay_idx].size);
+        overlay_idx = RunOverlay(&api, g_pico_ram.overlays.overlay[overlay_idx].addr, OVERLAY_VMA, g_pico_ram.overlays.overlay[overlay_idx].size);
+        if (overlay_idx == 0)
         {
-            DEBUG("OVERLAY RESERVED FOR CORE CODE, %d", overlay_table_addr);
+            DEBUG("OVERLAY RESERVED FOR CORE CODE, %d", overlay_idx);
             break;
         }
     }
 
     DEBUG("Program Done!~");
 
-    #ifdef STANDALONE
+#ifdef STANDALONE
     // multicore_launch_core1(ThreadTwo, api.hardware);
     GameLoop(&api);
 #endif

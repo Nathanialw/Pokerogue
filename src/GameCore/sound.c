@@ -3,6 +3,7 @@
 //
 
 #include "sound.h"
+#include "lib_enums.h"
 
 #include <stdlib.h>
 
@@ -44,6 +45,7 @@
 #define RHYTHM_PATTERNS 6
 #define MAX_PATTERN_LEN 4
 
+SET_MEMORY(".core")
 static const uint8_t RhythmPatterns[RHYTHM_PATTERNS][MAX_PATTERN_LEN] =
 {
     {3, 3, 3, 3}, // slow quarters
@@ -58,6 +60,7 @@ static const uint8_t RhythmPatterns[RHYTHM_PATTERNS][MAX_PATTERN_LEN] =
 /**********************************************************************************************************************/
 /*  Minor scale (relative offsets)
 **********************************************************************************************************************/
+SET_MEMORY(".core")
 static const int8_t Scale[SCALE_LENGTH] = {
     0, 2, 3, 5, 7, 8, 10
 };

@@ -78,36 +78,6 @@ typedef struct
     uint8_t fog[(MAP_H * MAP_W) / 8]; // TODO: not yet implemented
     // Node pathing[(MAP_H * MAP_W) / 2]; // TODO: not yet implemented
 
-    /**********************************************************************************************************************
-    *   Dirty tile rendering cache arrays
-    **********************************************************************************************************************/
-    struct
-    {
-        uint8_t vision[(VIEW_TH * VIEW_TW) / 8]; // TODO: not yet implemented
-        uint8_t viewTiles[VIEW_TH][VIEW_TW];
-        uint8_t dirtyTiles[(VIEW_TH * VIEW_TW) / 8];
-        ViewEntities viewCreatures;
-        ViewEntities viewItems;
-        ViewEntities viewObjects;
-    } view;
-
-    /**********************************************************************************************************************
-    *   graphics cache
-    **********************************************************************************************************************/
-    struct
-    {
-        // uint16_t frameBuffer[BUFFER_H*SCREEN_W];
-        // PartialFrameBuffer frameBuffer;
-
-        bool dirtyTiles[VIEW_TH][VIEW_TW];
-        Creature newSprites[VIEW_TH][VIEW_TW];
-
-        Glyph16x16 tilePixels; // 512 bytes
-        Glyph16x16 spritePixels; // 512 bytes
-        uint8_t tile_id; // Which tile is cached
-        uint8_t sprite_id; // Which sprite is cached
-        uint8_t dirty; // Flag if needs refresh
-    } tileCache;
 
     /**********************************************************************************************************************
     *   player data
@@ -239,7 +209,7 @@ typedef struct
     **********************************************************************************************************************/
     struct
     {
-        char text[SMALL_STRINGS][MAX_MENU_SIZE];
+        SmallStringArray text[MAX_MENU_SIZE];
         uint8_t depth;
         Vec_8 eraseSel;
         Vec_8_Signed sel[MAX_MENU_DEPTH]; //TODO: placeholder until I know the depth
@@ -278,7 +248,52 @@ typedef struct
         uint16_t master_dimmer;
         Note notes[GENERATED_MELODY_LENGTH * 2];
     } music;
-} GameRunState;
+} CoreRunState;
+
+
+typedef struct
+{
+    State state;
+} BattleRunState;
+
+typedef struct
+{
+    /**********************************************************************************************************************
+ *   graphics cache
+ **********************************************************************************************************************/
+    struct
+    {
+        // uint16_t frameBuffer[BUFFER_H*SCREEN_W];
+        // PartialFrameBuffer frameBuffer;
+
+        bool dirtyTiles[VIEW_TH][VIEW_TW];
+        Creature newSprites[VIEW_TH][VIEW_TW];
+        Tile tileCache;
+
+        Glyph16x16 tilePixels; // 512 bytes
+        Glyph16x16 spritePixels; // 512 bytes
+        Glyph spriteCache; // 512 bytes
+        Sprite entityCache; // 512 bytes
+        uint8_t tile_id; // Which tile is cached
+        uint8_t sprite_id; // Which sprite is cached
+        uint8_t dirty; // Flag if needs refresh
+    } tileCache;
+
+    /**********************************************************************************************************************
+    *   Dirty tile rendering cache arrays
+    **********************************************************************************************************************/
+    struct
+    {
+        uint8_t vision[(VIEW_TH * VIEW_TW) / 8]; // TODO: not yet implemented
+        uint8_t viewTiles[VIEW_TH][VIEW_TW];
+        uint8_t dirtyTiles[(VIEW_TH * VIEW_TW) / 8];
+        ViewEntities viewCreatures;
+        ViewEntities viewItems;
+        ViewEntities viewObjects;
+    } view;
+
+    StatsRange statsCache;
+} MapRunState;
 
 
 typedef struct
@@ -287,8 +302,9 @@ typedef struct
 } TitleRunState;
 
 
-extern GameRunState g_run; // Declaration only
-
+extern CoreRunState g_core; // Declaration only
+extern BattleRunState g_battle; // Declaration only
+extern MapRunState g_map; // Declaration only
 extern TitleRunState g_title; // Declaration only
 
 void GameRunInit();

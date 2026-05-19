@@ -81,19 +81,34 @@ typedef struct __attribute__((packed))
     uint8_t (*GetRandom_uint8_t)(uint8_t min, uint8_t max);
 
     uint8_t (*GetRandomUniform)(uint8_t min, uint8_t max);
-    bool (*Abs)(int max);
+    uint32_t (*Abs)(int max);
     char* (*StrChr)(const char* n, int c);
+
+    void (*Print)(const char* fmt, ...);
+    void (*PrintVar)(const char* fmt, ...);
 } HardwareInterface;
 
 typedef struct __attribute__((packed))
 {
-    void (*GetRom)(void*, uint32_t size); //rom data
-    void (*GetRam)(void*, uint32_t size); //psram
-    void (*SaveToRam)(void*, uint32_t size); //psram
-    void (*SaveGame)(void*, uint32_t size); //fram
+    void (*GetRom)(uint32_t addr, uint8_t* buf, uint32_t size); //rom data
+
+    void (*GetRam)(uint32_t addr, char* buf, uint32_t size); //psram
+    void (*SaveToRam)(uint32_t addr, char* buf, uint32_t size); //psram
+
+    void (*SaveGame)(uint32_t addr, char* buf, uint32_t size); //fram
+
+    void (*Print)(const char* fmt, ...);
+    void (*PrintVar)(const char* fmt, ...);
 } MemoryInterface;
 
-typedef struct  __attribute__((packed))
+
+typedef struct __attribute__((packed))
+{
+    void (*Print)(); //rom data
+} DebugInterface;
+
+
+typedef struct __attribute__((packed))
 {
     /**********************************************************************************************************************/
     /**  GRAPHICS PLATFORM DEFINED
@@ -120,4 +135,6 @@ typedef struct  __attribute__((packed))
     /**  MEMORY PLATFORM DEFINED
     **********************************************************************************************************************/
     MemoryInterface memory;
+
+    DebugInterface debug;
 } GameInterface;

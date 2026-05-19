@@ -241,7 +241,7 @@ static inline void Int999ApplyValue(HardwareInterface hardware, IntMax999* hp, i
  *  ON SUCCESS - returns true
  *  ON FAIL - returns false
 **********************************************************************************************************************/
-SET_MEMORY(".core")
+SET_MEMORY(".map")
 static inline bool WithinRange(uint8_t x, uint8_t y, uint8_t tx, uint8_t ty, uint8_t range)
 {
     if (tx >= x - range && tx < (x + range) && ty >= y - range && ty < (y + range))

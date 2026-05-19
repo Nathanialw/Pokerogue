@@ -468,19 +468,21 @@ const Creature themeGroups[BIOME_COUNT][THEME_MONSTER_TYPES] = {
 //      menus
 SET_MEMORY(".strings_menu_main")
 const char Text_Menu_main[MAIN_MENUS_SIZE][SMALL_STRINGS] = {
-    // #include "inc/text_menus.inc"
+#include "inc/text_menu_main.inc"
 };
 SET_MEMORY(".strings_menu_battle")
 const char Text_Menu_battleMenu[BATTLE_MENU_SIZE][SMALL_STRINGS] = {
+#include "inc/text_menu_battle.inc"
 };
 SET_MEMORY(".strings_menu_options")
 const char Text_Menu_options[OPTIONS_MENU_SIZE][SMALL_STRINGS] = {
+#include "inc/text_menu_options.inc"
 };
 
 
 //      names
 SET_MEMORY(".strings_names_items")
-extern const SmallStringArray Text_Names_items[ITEM_TEXT_ARRAY_SIZE] = {
+const SmallStringArray Text_Names_items[ITEM_TEXT_ARRAY_SIZE] = {
 #include "inc/text_names_items.inc"
 };
 SET_MEMORY(".strings_names_creatures")
@@ -645,17 +647,17 @@ const uint8_t font8x8[CHARACTER_COUNT * 8] = {
 #include "inc/data_font8x8.inc"
 };
 SET_MEMORY(".font_16x16")
-const uint16_t font16x16[CHARACTER_COUNT * 32] = {
+const uint8_t font16x16[CHARACTER_COUNT * 32] = {
 #include "inc/data_font16x16.inc"
 };
-
 
 
 /**********************************************************************************************************************/
 /* SOUNDS
 **********************************************************************************************************************/
 SET_MEMORY(".sounds_music_data")
-const MusicData musicData[MUSIC_COUNT] = { // maybe one piece for each biome, when we how much space we are looking at
+const MusicData musicData[MUSIC_COUNT] = {
+    // maybe one piece for each biome, when we how much space we are looking at
 #include "inc/sounds_music_data.inc"
 };
 SET_MEMORY(".sounds_music_notes")
@@ -664,20 +666,23 @@ const Note songs[TOTAL_MUSIC_NOTES] = {
 };
 
 SET_MEMORY(".sounds_creatures")
-const Note creatures[CREATURE_COUNT] = { //probably not Notes, we will see though
+const Note creatures[CREATURE_COUNT] = {
+    //probably not Notes, we will see though
 #include "inc/sounds_creatures.inc"
 };
 SET_MEMORY(".sounds_spells")
-const Note spells[SPELL_COUNT] = { //probably not Notes, we will see though
+const Note spells[SPELL_COUNT] = {
+    //probably not Notes, we will see though
 #include "inc/sounds_spells.inc"
 };
 SET_MEMORY(".sounds_skills")
-const Note attacks[ABILITY_COUNT] = { //probably not Notes, we will see though
+const Note attacks[ABILITY_COUNT] = {
+    //probably not Notes, we will see though
 #include "inc/sounds_skills.inc"
 };
 SET_MEMORY(".sounds_menus")
 const Note menus[10] = {
-#include "inc/sounds_menu.inc" = {
+#include "inc/sounds_menu.inc"
 };
 SET_MEMORY(".sounds_notes")
 const int32_t noteFreqFixed[128] =
@@ -740,36 +745,39 @@ const ObjectData objectData[OBJECT_COUNT] = {
 /*      COLOR
 **********************************************************************************************************************/
 SET_MEMORY(".colors_16")
-const uint16_t GetColor[PALETTE_COUNT] = {
+const uint8_t GetColor[PALETTE_COUNT*2] = {
 #include "inc/data_colors16.inc"
 };
 SET_MEMORY(".colors_256")
-const uint16_t GetColor256[256] = {
+const uint8_t GetColor256[256*2] = {
 #include "inc/data_colors256.inc"
 };
 
 
-SET_MEMORY(".battle")
+/**********************************************************************************************************************/
+/*
+**********************************************************************************************************************/
+SET_MEMORY(".battle.rodata")
 const Battle_Animation itemsAttack[ITEM_COUNT] = {
 #include "inc/funcs_animation_items_attack.inc"
 };
-SET_MEMORY(".battle")
+SET_MEMORY(".battle.rodata")
 const Battle_Animation itemsStruck[ITEM_COUNT] = {
 #include "inc/funcs_animation_items_struck.inc"
 };
-SET_MEMORY(".battle")
-const Battle_Animation spellsAttack[SPELL_COUNT] ={
+SET_MEMORY(".battle.rodata")
+const Battle_Animation spellsAttack[SPELL_COUNT] = {
 #include "inc/funcs_animation_spells_attack.inc"
 };
-SET_MEMORY(".battle")
+SET_MEMORY(".battle.rodata")
 const Battle_Animation spellsStruck[SPELL_COUNT] = {
 #include "inc/funcs_animation_spells_struck.inc"
 };
-SET_MEMORY(".battle")
+SET_MEMORY(".battle.rodata")
 const Battle_Animation skillsAttack[ABILITY_COUNT] = {
 #include "inc/funcs_animation_skills_attack.inc"
 };
-SET_MEMORY(".battle")
+SET_MEMORY(".battle.rodata")
 const Battle_Animation skillsStruck[ABILITY_COUNT] = {
 #include "inc/funcs_animation_skills_struck.inc"
 };
@@ -777,23 +785,22 @@ const Battle_Animation skillsStruck[ABILITY_COUNT] = {
 /**********************************************************************************************************************/
 /*
 **********************************************************************************************************************/
-SET_MEMORY(".core")
+SET_MEMORY(".battle.rodata")
 const SkillEffect abilityFunctions[ABILITY_COUNT] = {
 #include "inc/funcs_skills.inc"
 };
-SET_MEMORY(".core")
+SET_MEMORY(".core.rodata")
 const SpellEffect spellFunctions[SPELL_COUNT] = {
 #include "inc/funcs_spells.inc"
 };
-SET_MEMORY(".core")
+SET_MEMORY(".core.rodata")
 const ItemEffect itemFunctions[ITEM_COUNT] = {
 #include "inc/funcs_items.inc"
 };
-SET_MEMORY(".map")
+SET_MEMORY(".map.rodata")
 const ObjectEffect objectFunctions[OBJECT_COUNT] = {
 #include "inc/funcs_objects.inc"
 };
-
 
 
 #endif

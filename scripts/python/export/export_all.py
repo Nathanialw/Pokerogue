@@ -76,7 +76,7 @@ def run():
     # spell struct data
     export_structs.spells("spell")
     # spell functions headers
-    export.func_c_headers("spell", "Cast", "bool", "EntityId partyID, EntityId enemyID, SpellData spellData")
+    export.func_c_headers("spell", "Cast", "bool", "HardwareInterface hardware, MemoryInterface memory, EntityId partyID, EntityId enemyID, SpellData spellData")
     # spell functions
     export.funcs_to_c_array("spell", "Cast")
     # spell animation functions
@@ -125,7 +125,7 @@ def run():
     export.export_map_sprites_char("object")
     export.export_map_sprites("object")
     # object functions header
-    export.func_c_headers("object", "Interact", "bool", "EntityId object_id, EntityId e_id, ObjectData objectData")
+    export.func_c_headers("object", "Interact", "bool", "HardwareInterface hardware, EntityId object_id, EntityId e_id, ObjectData objectData")
     # object functions
     export.funcs_to_c_array("object", "Interact")
     # object name strings

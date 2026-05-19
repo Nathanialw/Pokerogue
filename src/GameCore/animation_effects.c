@@ -55,23 +55,21 @@ const uint8_t* GetBattlerSprite(MemoryInterface memory, bool onAttacker)
 SpriteLayout GetBattlerLayout(MemoryInterface memory, bool onAttacker)
 {
     if (onAttacker)
-        return Flash_GetBattlerLayout(memory, GetCreatureType(g_run.battleMode.enemyMonsterID), false);
-    return Flash_GetBattlerLayout(memory, GetCreatureType(g_run.battleMode.enemyMonsterID), true);
+        return Flash_GetBattlerLayout(memory, GetCreatureType(g_core.battleMode.enemyMonsterID), false);
+    return Flash_GetBattlerLayout(memory, GetCreatureType(g_core.battleMode.enemyMonsterID), true);
 }
 
 void RefreshBattler(GraphicsInterface graphics, MemoryInterface memory, bool onAttacker, Rect_16 r)
 {
     SpriteLayout layout = GetBattlerLayout(memory, onAttacker);
-    const uint8_t* sprite = GetBattlerSprite(memory, onAttacker);
-    DrawBattlerToBuffer(graphics, memory, r.x, r.y, layout, sprite);
+    DrawBattlerToBuffer(graphics, memory, r.x, r.y, layout, CREATURE, onAttacker);
 }
 
 
 void ReDrawBattler(GraphicsInterface graphics, MemoryInterface memory, bool onAttacker, Rect_16 r)
 {
     SpriteLayout layout = GetBattlerLayout(memory, onAttacker);
-    const uint8_t* sprite = GetBattlerSprite(memory, onAttacker);
-    DrawBattler(graphics, memory, r.x, r.y, layout, sprite);
+    DrawBattler(graphics, memory, r.x, r.y, layout, CREATURE, onAttacker);
 }
 
 /************************************************************************************************************

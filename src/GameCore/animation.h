@@ -6,8 +6,8 @@
 #include "types.h"
 
 void AnimationUpdateHealth(GraphicsInterface graphics, HardwareInterface hardware, bool attackersTurn);
-void BattlerAnimationAttack(GraphicsInterface graphics, bool player);
-void BattlerAnimationStruck(GraphicsInterface graphics, bool player);
+void BattlerAnimationAttack(GraphicsInterface graphics, MemoryInterface memory, bool player);
+void BattlerAnimationStruck(GraphicsInterface graphics, MemoryInterface memory, bool player);
 void AnimationBattlerStart(GraphicsInterface graphics, HardwareInterface hardware, MemoryInterface, bool onAttacker);
 void AnimationBattlerDie(GraphicsInterface graphics, HardwareInterface hardware, MemoryInterface, bool onAttacker);
 void AnimationScreenFade(GraphicsInterface graphics, HardwareInterface hardware);

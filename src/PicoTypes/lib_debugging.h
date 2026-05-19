@@ -2,6 +2,8 @@
 // Created by nathanial on 5/2/26.
 //
 #pragma once
+#include "lib_memory.h"
+
 
 /**********************************************************************************************************************/
 /**
@@ -40,3 +42,6 @@ do { fprintf(stderr, fmt, ##__VA_ARGS__); fflush(stderr);} while(0)
 #define PRINT(fmt, ...) do {} while(0) // this should be optimized out by the compiler
 #define PRINT_INLINE(fmt, ...) do {} while(0) // this should be optimized out by the compiler
 #endif
+
+
+

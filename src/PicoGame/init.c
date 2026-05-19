@@ -39,6 +39,8 @@ void SleepMS(uint32_t t);
 void HardwareReset(void);
 uint8_t GetRandomUniform(uint8_t min, uint8_t max);
 uint8_t GetRandom_uint8_t(uint8_t min, uint8_t max);
+uint32_t Abs(int n);
+
 
 HardwareInterface GetHardwareInterface(void)
 {
@@ -46,13 +48,17 @@ HardwareInterface GetHardwareInterface(void)
         .HardwareReset = HardwareReset,
         .SleepMS = SleepMS,
         .MemSet = memset,
+        .Abs = Abs,
         .GetRandomUniform = GetRandomUniform,
         .GetRandom_uint8_t = GetRandom_uint8_t,
         .StrChr = strchr,
+        .Print = Print,
+        .PrintVar = PrintVar,
 
     };
     return hardware;
 }
+
 
 
 void SleepMS(uint32_t t)
@@ -61,8 +67,14 @@ void SleepMS(uint32_t t)
 }
 
 /**********************************************************************************************************************/
-/**  Triggers reset pin on the Pico
+/** returns the absolute value of a number
 **********************************************************************************************************************/
+uint32_t Abs(int n)
+{
+    return (n < 0) ? -n : n;
+}
+
+
 bool Pico_Reset(void)
 {
     reset_usb_boot(0, 0);
@@ -183,12 +195,6 @@ void Pico_Init(void)
     // EEPROM_FullMemoryTest(size);
     // EEPROM_RetentionCheck(size);
     //
-
-
-    // EEPROM_Clear(size); // erase whole chip first
-    // printf("Erased.\n");
-    // EEPROM_Flash();
-    // EEPROM_Verify(size);
 
 
     // EEPROM_Dump(size);

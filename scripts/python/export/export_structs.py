@@ -40,14 +40,15 @@ def creatures_level_up_skills(entity):
 
         # Write individual constants
         f.write(f"// Individual {entity}s data\n")
+        # for b in names:
         for b in names:
-            f.write(f"{{ ")
+            f.write(f"{{ .c = {{ ")
             for i in range(16):
                 if i < len(b):
                     f.write(f"{{ .skillID = {b[i][0]}, .level = {b[i][1]}, }}, ")
                 else:
                     f.write(f"{{ .skillID = NO_ABILITY, .level = 0, }}, ")
-            f.write(f"}},\n")
+            f.write(f"}} }},\n")
 
         f.write("\n")
         f.write(f"//ALL_NAMES_COUNT = {len(names)};\n")

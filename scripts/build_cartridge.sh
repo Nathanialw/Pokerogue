@@ -1,6 +1,7 @@
 #!/bin/bash
 
-cd python/cartridge
 
-python -m make_cartridge.py
+python -m python.cartridge.make_cartridge
 
+cd ..
+cd ..

@@ -28,47 +28,87 @@ EntityId PlayerPickItem(EntityId id);
  *  Sets player to a random empty cell on the map
  *  sets sight rango around player
 **********************************************************************************************************************/
+SET_MEMORY(".map.rodata")
+static const char str_init_player_start[] = "InitPlayer start";
+
+SET_MEMORY(".map.rodata")
+static const char str_init_player_place[] = "Place player";
+
+SET_MEMORY(".map.rodata")
+static const char str_init_player_spawn[] = "spawn player";
+
+SET_MEMORY(".map.rodata")
+static const char str_init_player_party[] = "create party 1";
+
+SET_MEMORY(".map.rodata")
+static const char str_init_player_capture[] = "capture";
+
+SET_MEMORY(".map.rodata")
+static const char str_init_player_item[] = "create item";
+
+SET_MEMORY(".map.rodata")
+static const char str_init_player_picp_up[] = "InitPlayer pick up";
+
+SET_MEMORY(".map.rodata")
+static const char str_init_player_fog[] = "InitPlayer set fog";
+
+SET_MEMORY(".map.rodata")
+static const char str_init_player_DONE[] = "InitPlayer DONE";
+
 SET_MEMORY(".map")
 void InitPlayer(HardwareInterface hardware, MemoryInterface memory)
 {
-    g_run.player.currentBagSize = DEFAULT_BAG_SIZE;
-    g_run.player.currentSpellbookSize = DEFAULT_SPELLBOOK_SIZE;
+    hardware.Print(str_init_player_start);
+
+    g_core.player.currentBagSize = DEFAULT_BAG_SIZE;
+    g_core.player.currentSpellbookSize = DEFAULT_SPELLBOOK_SIZE;
 
     for (uint8_t i = 0; i < MAX_PARTY_SIZE; ++i)
-        g_run.player.partyID[i] = NO_ENTITY;
+        g_core.player.partyID[i] = NO_ENTITY;
 
     for (uint8_t i = 0; i < MAX_BAG_SIZE; ++i)
-        g_run.player.itemID[i] = NO_ENTITY;
+        g_core.player.itemID[i] = NO_ENTITY;
 
     for (uint8_t i = 0; i < MAX_SPELLBOOK_SIZE; ++i)
-        g_run.player.spellID[i] = NO_SPELL;
+        g_core.player.spellID[i] = NO_SPELL;
 
-    g_run.player.spellID[0] = HEAL;
-    g_run.player.spellID[1] = DESCEND;
+    g_core.player.spellID[0] = HEAL;
+    g_core.player.spellID[1] = DESCEND;
 
-    DEBUG("----finding open map location");
+    hardware.Print(str_init_player_place);
+
     Position pos = FindOpenMapLocation(hardware, CREATURE);
     uint8_t x = pos.x;
     uint8_t y = pos.y;
-    DEBUG("----placing player at %d %d", x, y);
 
-    DEBUG("----setting player position");
-    g_run.player.id = SpawnEntity(hardware, memory, CREATURE, HUMAN, x, y, 0);
-    g_run.creatures.speed[g_run.player.id].max = 99;
-    g_run.creatures.speed[g_run.player.id].current = 15;
-    DEBUG("----setting player sight range");
+    hardware.Print(str_init_player_spawn);
+
+    g_core.player.id = SpawnEntity(hardware, memory, CREATURE, HUMAN, x, y, 0);
+
+    g_core.creatures.speed[g_core.player.id].max = 99;
+    g_core.creatures.speed[g_core.player.id].current = 15;
+
+    hardware.Print(str_init_player_party);
 
     EntityId e_id;
     e_id = SpawnEntity(hardware, memory, CREATURE, LAMIA, x, y, 5);
-    PlayerCaptureMonster(e_id);
-    e_id = SpawnEntity(hardware, memory, ITEM, HEALTH_POTION, x, y, 0);
-    PlayerPickItem(e_id);
-    DEBUG("----setting player stats");
 
+    hardware.Print(str_init_player_capture);
+    PlayerCaptureMonster(e_id);
+
+    hardware.Print(str_init_player_item);
+    e_id = SpawnEntity(hardware, memory, ITEM, HEALTH_POTION, x, y, 0);
+
+    hardware.Print(str_init_player_picp_up);
+    PlayerPickItem(e_id);
+
+
+    hardware.Print(str_init_player_fog);
     for (uint16_t j = y - 5; j < y + 5; ++j)
         for (uint16_t i = x - 5; i < x + 5; ++i)
             SetFog(i, j, false);
-    DEBUG("----setting player vision");
+
+    hardware.Print(str_init_player_DONE);
 }
 
 /**********************************************************************************************************************/
@@ -86,10 +126,10 @@ EntityId CachePlayerCreatureData(HardwareInterface hardware)
 
     for (uint8_t i = 0; i < MAX_PARTY_SIZE; ++i)
     {
-        if (g_run.player.partyID[i] != NO_ENTITY && g_run.player.partyID[i] > creature_idx)
+        if (g_core.player.partyID[i] != NO_ENTITY && g_core.player.partyID[i] > creature_idx)
         {
-            CopyCreature(hardware, g_run.player.partyID[i], creature_idx);
-            g_run.player.partyID[i] = creature_idx;
+            CopyCreature(hardware, g_core.player.partyID[i], creature_idx);
+            g_core.player.partyID[i] = creature_idx;
             creature_idx++;
         }
     }
@@ -103,14 +143,14 @@ EntityId CachePlayerItemData()
 {
     EntityId item_idx = 0;
     EntityId sorted_indexes[MAX_BAG_SIZE];
-    SortEntityArray(sorted_indexes, g_run.player.itemID, MAX_BAG_SIZE);
+    SortEntityArray(sorted_indexes, g_core.player.itemID, MAX_BAG_SIZE);
 
     for (uint8_t i = 0; i < MAX_BAG_SIZE; ++i)
     {
         if (sorted_indexes[i] != NO_ENTITY && sorted_indexes[i] != item_idx)
         {
-            CopyItem(g_run.player.itemID[i], item_idx);
-            g_run.player.itemID[i] = item_idx;
+            CopyItem(g_core.player.itemID[i], item_idx);
+            g_core.player.itemID[i] = item_idx;
             item_idx++;
         }
     }
@@ -129,11 +169,11 @@ SET_MEMORY(".core")
 EntityId PlayerCaptureMonster(EntityId e_id)
 {
     for (uint8_t i = 0; i < MAX_PARTY_SIZE; ++i)
-        if (g_run.player.partyID[i] == NO_ENTITY)
+        if (g_core.player.partyID[i] == NO_ENTITY)
         {
-            g_run.player.partyID[i] = CaptureMonster(e_id);
-            g_run.player.cur_xp[i] = 0;
-            g_run.player.tar_xp[i] = 100; //TODO: calculate needed xp to level
+            g_core.player.partyID[i] = CaptureMonster(e_id);
+            g_core.player.cur_xp[i] = 0;
+            g_core.player.tar_xp[i] = 100; //TODO: calculate needed xp to level
             return e_id;
         }
 
@@ -150,9 +190,9 @@ EntityId PlayerPickItem(EntityId e_id)
 {
     if (e_id == NO_ENTITY) return e_id;
     for (uint8_t i = 0; i < MAX_BAG_SIZE; ++i)
-        if (g_run.player.itemID[i] == NO_ENTITY)
+        if (g_core.player.itemID[i] == NO_ENTITY)
         {
-            g_run.player.itemID[i] = PickItem(e_id);
+            g_core.player.itemID[i] = PickItem(e_id);
             return e_id;
         }
 
@@ -171,9 +211,10 @@ void SortItems(void)
 /**********************************************************************************************************************/
 /** Returns the player position as map cell index
 **********************************************************************************************************************/
+SET_MEMORY(".map")
 Position GetPlayerPosition(void)
 {
-    return GetEntityPosition(CREATURE, g_run.player.id);
+    return GetEntityPosition(CREATURE, g_core.player.id);
 }
 
 /**********************************************************************************************************************/
@@ -181,26 +222,28 @@ Position GetPlayerPosition(void)
  * stores the player delta value into the scroll value
  * clears the player delta value
 **********************************************************************************************************************/
+SET_MEMORY(".map")
 void UpdatePlayerPosition(void)
 {
     Position pos = GetPlayerPosition();
-    uint8_t x = pos.x + g_run.player.d.x;
-    uint8_t y = pos.y + g_run.player.d.y;
-    QueueObjectMovePosition(g_run.player.id, x, y);
-    g_run.player.scroll.x = g_run.player.d.x;
-    g_run.player.scroll.y = g_run.player.d.y;
-    g_run.player.d.x = 0;
-    g_run.player.d.y = 0;
+    uint8_t x = pos.x + g_core.player.d.x;
+    uint8_t y = pos.y + g_core.player.d.y;
+    QueueObjectMovePosition(g_core.player.id, x, y);
+    g_core.player.scroll.x = g_core.player.d.x;
+    g_core.player.scroll.y = g_core.player.d.y;
+    g_core.player.d.x = 0;
+    g_core.player.d.y = 0;
 }
 
 /**********************************************************************************************************************/
 /**Set the player movement delta
  * -1 or 0 or 1 for single cell movement
 **********************************************************************************************************************/
+SET_MEMORY(".map")
 Delta SetPlayerDelta(Delta newDelta)
 {
-    g_run.player.d = newDelta;
-    return g_run.player.d;
+    g_core.player.d = newDelta;
+    return g_core.player.d;
 }
 
 /**********************************************************************************************************************/
@@ -209,7 +252,7 @@ Delta SetPlayerDelta(Delta newDelta)
 SET_MEMORY(".map")
 EntityId GetPlayerID(void)
 {
-    return g_run.player.id;
+    return g_core.player.id;
 }
 
 /**********************************************************************************************************************/
@@ -217,7 +260,7 @@ EntityId GetPlayerID(void)
 **********************************************************************************************************************/
 uint8_t GetPlayerType(void)
 {
-    return GetCreatureType(g_run.player.id);
+    return GetCreatureType(g_core.player.id);
 }
 
 /**********************************************************************************************************************/
@@ -225,15 +268,16 @@ uint8_t GetPlayerType(void)
 **********************************************************************************************************************/
 EntityId* GetPlayerItemsIDs(void)
 {
-    return g_run.player.itemID;
+    return g_core.player.itemID;
 }
 
 /**********************************************************************************************************************/
 /**Returns the player's party array
 **********************************************************************************************************************/
+SET_MEMORY(".core")
 EntityId* GetPlayerMonsterIDs(void)
 {
-    return g_run.player.partyID;
+    return g_core.player.partyID;
 }
 
 /**********************************************************************************************************************/
@@ -242,7 +286,7 @@ EntityId* GetPlayerMonsterIDs(void)
 bool IsInParty(EntityId id)
 {
     for (uint8_t i = 0; i < MAX_PARTY_SIZE; ++i)
-        if (g_run.player.partyID[i] == id)
+        if (g_core.player.partyID[i] == id)
             return true;
     return false;
 }
@@ -251,10 +295,11 @@ bool IsInParty(EntityId id)
 /**Destroys the item entity
  * Sets the bag index of the item to NO_ITEM
 **********************************************************************************************************************/
+SET_MEMORY(".map")
 void ConsumeItem(uint8_t idx, EntityId e_id)
 {
     DestroyItem(e_id);
-    g_run.player.itemID[idx] = NO_ENTITY;
+    g_core.player.itemID[idx] = NO_ENTITY;
 }
 
 /**********************************************************************************************************************/
@@ -264,16 +309,15 @@ void ConsumeItem(uint8_t idx, EntityId e_id)
 **********************************************************************************************************************/
 bool PlayerDefeated(void)
 {
-    if (CheckAlive(g_run.battleMode.playerMonsterID))
+    if (CheckAlive(g_core.battleMode.playerMonsterID))
         return false;
 
     for (uint8_t i = 0; i < MAX_PARTY_SIZE; ++i)
     {
-        uint8_t e_id = g_run.player.partyID[i];
+        uint8_t e_id = g_core.player.partyID[i];
         if (GetCreatureType(e_id) != NO_CREATURE && CheckAlive(e_id))
         {
-            DEBUG("----set new active %d %d", e_id, GetCreatureType(e_id));
-            g_run.battleMode.playerMonsterID = e_id;
+            g_core.battleMode.playerMonsterID = e_id;
             return false;
         }
     }
@@ -288,8 +332,8 @@ bool PlayerDefeated(void)
 SET_MEMORY(".core")
 void DestroyPlayerCreature(HardwareInterface hardware)
 {
-    EntityId player_creature_id = g_run.battleMode.playerMonsterID;
-    EntityId ai_creature_id = g_run.battleMode.enemyMonsterID;
+    EntityId player_creature_id = g_core.battleMode.playerMonsterID;
+    EntityId ai_creature_id = g_core.battleMode.enemyMonsterID;
     GainXP(player_creature_id, ai_creature_id);
     DestroyCreature(hardware, ai_creature_id);
 }
@@ -300,8 +344,8 @@ void DestroyPlayerCreature(HardwareInterface hardware)
 SET_MEMORY(".core")
 void DestroyEnemyCreature(HardwareInterface hardware)
 {
-    EntityId player_creature_id = g_run.battleMode.playerMonsterID;
-    EntityId ai_creature_id = g_run.battleMode.enemyMonsterID;
+    EntityId player_creature_id = g_core.battleMode.playerMonsterID;
+    EntityId ai_creature_id = g_core.battleMode.enemyMonsterID;
     GainXP(player_creature_id, ai_creature_id);
     DestroyCreature(hardware, ai_creature_id);
 }
@@ -311,7 +355,7 @@ void DestroyEnemyCreature(HardwareInterface hardware)
 **********************************************************************************************************************/
 bool CheckBattleEnd(EntityId attackerID, EntityId defenderID)
 {
-    uint8_t hp = Int999GetCurrent(&g_run.creatures.hp[defenderID]);
+    uint8_t hp = Int999GetCurrent(&g_core.creatures.hp[defenderID]);
     if (hp == 0)
     {
         return false;
@@ -324,8 +368,8 @@ bool CheckBattleEnd(EntityId attackerID, EntityId defenderID)
 **********************************************************************************************************************/
 bool CheckPlayerAttackOutcome()
 {
-    EntityId player_creature_id = g_run.battleMode.playerMonsterID;
-    EntityId ai_creature_id = g_run.battleMode.enemyMonsterID;
+    EntityId player_creature_id = g_core.battleMode.playerMonsterID;
+    EntityId ai_creature_id = g_core.battleMode.enemyMonsterID;
     return CheckBattleEnd(player_creature_id, ai_creature_id);
 }
 
@@ -334,8 +378,8 @@ bool CheckPlayerAttackOutcome()
 **********************************************************************************************************************/
 bool CheckEnemyAttackOutcome()
 {
-    EntityId player_creature_id = g_run.battleMode.playerMonsterID;
-    EntityId ai_creature_id = g_run.battleMode.enemyMonsterID;
+    EntityId player_creature_id = g_core.battleMode.playerMonsterID;
+    EntityId ai_creature_id = g_core.battleMode.enemyMonsterID;
     CheckBattleEnd(ai_creature_id, player_creature_id);
     return PlayerDefeated();
 }
@@ -343,30 +387,30 @@ bool CheckEnemyAttackOutcome()
 /**********************************************************************************************************************/
 /*
 **********************************************************************************************************************/
-
+SET_MEMORY(".map")
 void PlacePlayerOnMap(HardwareInterface hardware)
 {
     Position pos = FindOpenMapLocation(hardware, CREATURE);
-    uint8_t x = pos.x;
-    g_run.creatures.position[g_run.player.id].x = x;
-    uint8_t y = pos.y;
-    g_run.creatures.position[g_run.player.id].y = y;
+    g_core.creatures.position[g_core.player.id].x = pos.x;
+    g_core.creatures.position[g_core.player.id].y = pos.y;
 }
 
 /**********************************************************************************************************************/
 /*  interact with item in player's cell
 /*  interact with object in player's cell
 **********************************************************************************************************************/
+SET_MEMORY(".map")
 void PlayerInteractItemInCell()
 {
     Position pos = GetPlayerPosition();
-    EntityId item_id = CheckTileForEntity(ITEM, g_run.player.id, pos);
+    EntityId item_id = CheckTileForEntity(ITEM, g_core.player.id, pos);
     PlayerPickItem(item_id);
 }
 
-void PlayerInteractObjectInCell(MemoryInterface memory)
+SET_MEMORY(".map")
+void PlayerInteractObjectInCell(MemoryInterface memory, HardwareInterface hardware)
 {
     Position pos = GetPlayerPosition();
-    EntityId object_id = CheckTileForEntity(OBJECT, g_run.player.id, pos);
-    InteractObject(memory, object_id, g_run.player.id);
+    EntityId object_id = CheckTileForEntity(OBJECT, g_core.player.id, pos);
+    InteractObject(memory, hardware, object_id, g_core.player.id);
 }

@@ -32,11 +32,12 @@ void DungeonGraph(HardwareInterface hardware);
 void DungeonCave(HardwareInterface hardware);
 
 // TODO: add more dungeon layouts
+SET_MEMORY(".map_gen.rodata")
 const DungeonLayout GenerateMap[TOTAL_DUNGEON_GEN_ALGOS] =
 {
     DungeonBasic, // trad roguelike layout
-    DungeonGraph, // almost the same as above
-    DungeonCave, // natural looking cave
+    // DungeonGraph, // almost the same as above
+    // DungeonCave, // natural looking cave
 };
 
 
@@ -62,10 +63,10 @@ void GenerateDungeon(HardwareInterface hardware, uint8_t type)
 SET_MEMORY(".map_gen")
 void UpdateLevel(uint8_t floor, Biomes biome)
 {
-    g_run.floor = floor;
-    g_run.biome = biome;
-    g_run.turn_count = 0;
-    g_run.turn_final = 300; //TODO: Generate a random number of turns
+    g_core.floor = floor;
+    g_core.biome = biome;
+    g_core.turn_count = 0;
+    g_core.turn_final = 300; //TODO: Generate a random number of turns
 }
 
 /**********************************************************************************************************************/
@@ -117,7 +118,7 @@ SET_MEMORY(".core")
 uint8_t GetMapTile(uint8_t x, uint8_t y)
 {
     uint16_t index = (y * MAP_W) + x;
-    uint8_t byte = g_run.map[index / 2];
+    uint8_t byte = g_core.map[index / 2];
     if (index & 1)
         return byte >> 4; // High nibble for odd indices
 
@@ -142,7 +143,7 @@ SET_MEMORY(".core")
 void SetMapTile(uint8_t x, uint8_t y, TileType tile)
 {
     uint16_t index = (y * MAP_W) + x;
-    uint8_t* byte = &g_run.map[index / 2];
+    uint8_t* byte = &g_core.map[index / 2];
     if (index & 1)
     {
         *byte = (*byte & 0x0F) | (tile << 4); // Set high nibble
@@ -159,15 +160,15 @@ void SetMapTile(uint8_t x, uint8_t y, TileType tile)
  *  populates new map
  *  place player onto the map in an empty cell
 **********************************************************************************************************************/
-SET_MEMORY(".core")
+SET_MEMORY(".map")
 void GoNextLevel(HardwareInterface hardware, MemoryInterface memory, MapLevelChange dir)
 {
-    if (dir == MAP_LEVEL_UP && g_run.floor > 1)
-        g_run.floor--;
-    else if (dir == MAP_LEVEL_DOWN && g_run.floor < MAX_LEVELS)
-        g_run.floor++;
+    if (dir == MAP_LEVEL_UP && g_core.floor > 1)
+        g_core.floor--;
+    else if (dir == MAP_LEVEL_DOWN && g_core.floor < MAX_LEVELS)
+        g_core.floor++;
 
-    UpdateLevel(g_run.floor, DESERT);
+    UpdateLevel(g_core.floor, DESERT);
     GenerateDungeon(hardware, 0);
 
 }
@@ -187,7 +188,7 @@ SET_MEMORY(".map")
 bool IsFogged(uint16_t x, uint16_t y)
 {
     uint16_t idx = (y * MAP_W) + x;
-    return (g_run.fog[idx >> 3] >> (idx & 7)) & 1;
+    return (g_core.fog[idx >> 3] >> (idx & 7)) & 1;
 }
 
 /**********************************************************************************************************************/
@@ -199,9 +200,9 @@ void SetFog(uint16_t x, uint16_t y, bool fogged)
     uint16_t idx = y * MAP_W + x;
     uint8_t mask = 1 << (idx & 7);
     if (fogged)
-        g_run.fog[idx >> 3] |= mask;
+        g_core.fog[idx >> 3] |= mask;
     else
-        g_run.fog[idx >> 3] &= ~mask;
+        g_core.fog[idx >> 3] &= ~mask;
 }
 
 /**********************************************************************************************************************/
@@ -214,7 +215,7 @@ void SetMapFog(uint8_t set)
         for (uint16_t x = 0; x < MAP_W / 8; x++)
         {
             // SetFog(x, y, set);
-            g_run.fog[y + (x * MAP_W / 8)] = set;
+            g_core.fog[y + (x * MAP_W / 8)] = set;
         }
 }
 
@@ -224,14 +225,6 @@ void SetMapFog(uint8_t set)
  *
 **********************************************************************************************************************/
 
-/**********************************************************************************************************************/
-/** Generate map by index
-**********************************************************************************************************************/
-SET_MEMORY(".map_gen")
-void InitMapLayout(HardwareInterface hardware)
-{
-    GenerateDungeon(hardware, 2);
-}
 
 /**********************************************************************************************************************/
 /** Searches map for a random empty tile
@@ -260,10 +253,11 @@ Position FindOpenMapLocation(HardwareInterface hardware, ObjectsTypes type)
 SET_MEMORY(".map_gen")
 void InitMap(HardwareInterface hardware)
 {
-    g_run.floor++;
-    g_run.biome = DESERT;
-    UpdateLevel(g_run.floor, g_run.biome);
-    InitMapLayout(hardware);
+    g_core.floor++;
+    g_core.biome = DESERT;
+    UpdateLevel(g_core.floor, g_core.biome);
+    uint8_t map_type = 0;
+    GenerateDungeon(hardware, map_type);
 }
 
 /**********************************************************************************************************************/
@@ -279,7 +273,10 @@ typedef struct
     uint16_t x, y, w, h;
 } Room;
 
+
+SET_MEMORY(".map_gen.data")
 Room rooms[MAX_ROOMS];
+SET_MEMORY(".map_gen.data")
 uint8_t roomCount = 0;
 
 /**********************************************************************************************************************/
@@ -370,10 +367,18 @@ void ConnectRooms(HardwareInterface hardware, Room a, Room b)
  *  Creates random position and dimention rooms of ground tiles around the map
  *  Connects those rooms with corridors of ground tiles
 **********************************************************************************************************************/
+SET_MEMORY(".map_gen.rodata")
+static const char generate_dungeon[] = "GenerateDungeon() BEGIN";
+SET_MEMORY(".map_gen.rodata")
+static const char generate_dungeon_reset[] = "GenerateDungeon() RESET";
+SET_MEMORY(".map_gen.rodata")
+static const char generate_dungeon_done[] = "GenerateDungeon() DONE";
+
+
 SET_MEMORY(".map_gen")
 void DungeonBasic(HardwareInterface hardware)
 {
-    DEBUG("GenerateDungeon() BEGIN");
+    hardware.Print(generate_dungeon);
 
     roomCount = 0;
 
@@ -381,7 +386,7 @@ void DungeonBasic(HardwareInterface hardware)
         for (uint16_t x = 0; x < MAP_W; x++)
             SetMapTile(x, y, WALL_STONE);
 
-    DEBUG("GenerateDungeon() Layout reset");
+    hardware.Print(generate_dungeon_reset);
 
     for (uint8_t i = 0; i < MAX_ROOMS; i++)
     {
@@ -415,7 +420,7 @@ void DungeonBasic(HardwareInterface hardware)
         }
     }
 
-    DEBUG("NUM ROOMS CREATED %d", roomCount);
+    hardware.Print(generate_dungeon_done);
 }
 
 /**********************************************************************************************************************/
@@ -442,7 +447,7 @@ uint16_t edgeCount = 0;
 /**********************************************************************************************************************/
 /*  Returns the distance between a given x1,y1 and a given x2,y2 in number of cells to traverse axis aligned
 **********************************************************************************************************************/
-SET_MEMORY(".map_gen")
+
 uint16_t Dist2(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2)
 {
     int16_t dx = (int16_t)x1 - (int16_t)x2;
@@ -454,7 +459,7 @@ uint16_t Dist2(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2)
 /**********************************************************************************************************************/
 /*
 **********************************************************************************************************************/
-SET_MEMORY(".map_gen")
+
 void RoomCenter(Room r, uint8_t* cx, uint8_t* cy)
 {
     *cx = r.x + r.w / 2;
@@ -464,7 +469,7 @@ void RoomCenter(Room r, uint8_t* cx, uint8_t* cy)
 /**********************************************************************************************************************/
 /*
 **********************************************************************************************************************/
-SET_MEMORY(".map_gen")
+
 void BuildEdges(void)
 {
     edgeCount = 0;
@@ -514,7 +519,7 @@ void BuildEdges(void)
 /**********************************************************************************************************************/
 /*
 **********************************************************************************************************************/
-SET_MEMORY(".map_gen")
+
 void CarveCorridorZigZag(HardwareInterface hardware, uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2)
 {
     int16_t x = x1;
@@ -542,7 +547,7 @@ void CarveCorridorZigZag(HardwareInterface hardware, uint8_t x1, uint8_t y1, uin
 /**********************************************************************************************************************/
 /*
 **********************************************************************************************************************/
-SET_MEMORY(".map_gen")
+
 void CarveCorridorLinear(HardwareInterface hardware, uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2)
 {
     if (hardware.GetRandom_uint8_t(0, 1))
@@ -580,7 +585,7 @@ void CarveCorridorLinear(HardwareInterface hardware, uint8_t x1, uint8_t y1, uin
 /**********************************************************************************************************************/
 /*
 **********************************************************************************************************************/
-SET_MEMORY(".map_gen")
+
 void BuildMST(HardwareInterface hardware)
 {
     uint8_t visited[MAX_ROOMS] = {0};
@@ -679,7 +684,7 @@ void BuildMST(HardwareInterface hardware)
 /**********************************************************************************************************************/
 /*
 **********************************************************************************************************************/
-SET_MEMORY(".map_gen")
+
 void AddExtraConnections(HardwareInterface hardware)
 {
     for (uint16_t i = 0; i < edgeCount; i++)
@@ -729,7 +734,7 @@ void DebugPrintMap(void)
 /**********************************************************************************************************************/
 /*
 **********************************************************************************************************************/
-SET_MEMORY(".map_gen")
+
 void DungeonGraph(HardwareInterface hardware)
 {
     roomCount = 0;
@@ -781,7 +786,7 @@ void DungeonGraph(HardwareInterface hardware)
 /**********************************************************************************************************************/
 /*
 **********************************************************************************************************************/
-SET_MEMORY(".map_gen")
+
 void DungeonCave(HardwareInterface hardware)
 {
     uint16_t x = MAP_W / 2;

@@ -16,7 +16,7 @@
 /** ACCESSIBLE FOR TESTING
 **********************************************************************************************************************/
 #ifdef ENABLE_DEBUG_OUTPUT
-uint16_t CalcModifier(EntityId attackerID, EntityId defenderID, Type attackType, uint16_t damage);
+uint16_t CalcModifier(MemoryInterface memory, EntityId attackerID, EntityId defenderID, Type attackType, uint16_t damage);
 uint16_t CalcDamage(EntityId creatureID, uint16_t abilityPower);
 uint16_t CalcHeal(EntityId creatureID, uint16_t abilityPower);
 #endif

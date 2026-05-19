@@ -36,4 +36,4 @@ void DestroyEnemyCreature(HardwareInterface hardware);
 void DestroyPlayerCreature(HardwareInterface hardware);
 void PlacePlayerOnMap(HardwareInterface hardware);
 void PlayerInteractItemInCell();
-void PlayerInteractObjectInCell(MemoryInterface memory);
+void PlayerInteractObjectInCell(MemoryInterface memory, HardwareInterface hardware);

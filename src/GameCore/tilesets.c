@@ -4,7 +4,7 @@
 #include "tilesets.h"
 
 #include "memory_access.h"
-#include "memory_rom.h"
+#include "memory_ram.h"
 
 /**********************************************************************************************************************/
 /*
@@ -44,42 +44,87 @@ void TilesetFromGlyph1bpp(TileSet* tileset, uint16_t tile_id, uint8_t glyph_inde
 }
 
 /**********************************************************************************************************************/
-/*
-**********************************************************************************************************************/
+/* saves 1bpp data into cache, applies fg and bg color for 0 and 1
+*       union is a g_core.tileCache.spriteCache
+*       g_core.tileCache.spriteCache.bytes uint8_t array
+*       g_core.tileCache.spriteCache.glyph uint16_t array
+********************************************* *************************************************************************/
+SET_MEMORY(".core.data")
+static const char FullRedraw_starsta[] = "0x02x,";
+SET_MEMORY(".core.data")
+static const char FullRedraw_starstab[] = " - %d\n";
+
 SET_MEMORY(".core")
-void CharFromGlyph1bpp(MemoryInterface memory, uint16_t* character, uint8_t glyph_index, FontSize fontSize, uint16_t fg, uint16_t bg)
+void CharFromGlyph1bpp(MemoryInterface memory, Glyph buffer, uint16_t* character, uint8_t glyph_index, FontSize fontSize, uint16_t fg, uint16_t bg)
 {
     if (fontSize == FONT8x8)
     {
         // const uint8_t* glyph = &g_gameFlash.spriteData.font8x8[glyph_index * 8];
-        uint8_t glyph[8];
-        Flash_GetFontChar8x8(memory, glyph, glyph_index);
+
+        // Flash_GetFontChar8x8(memory, g_core.tileCache.spriteCache.bytes, glyph_index);
+
+        // for (int y = 0; y < 8; y++)
+        // {
+        // uint8_t row = g_core.tileCache.spriteCache.glyph[y];
+        // for (int x = 0; x < 8; x++)
+        // {
+        // character[y * 8 + x] = (row & (1 << x)) ? fg : bg;
+        // }
+        // }
+
+        // Flash_GetFontChar8x8(memory, g_core.tileCache.spriteCache.bytes, glyph_index);
+        Flash_GetFontChar8x8(memory, buffer.bytes, glyph_index);
 
         for (int y = 0; y < 8; y++)
         {
-            uint8_t row = glyph[y];
+            uint8_t row = buffer.glyph[y];
+
             for (int x = 0; x < 8; x++)
             {
-                character[y * 8 + x] = (row & (1 << x)) ? fg : bg;
+                character[y * 8 + x] = (row & (1 << (7 - x))) ? fg : bg;
             }
         }
     }
+
     else if (fontSize == FONT16x16)
     {
-        // uint16_t glyph_base = glyph_index * GLYPH_WORDS16x16;
-        uint16_t glyph[16];
-        Flash_GetFontChar16x16(memory, glyph, glyph_index);
+        // {
+        //     Flash_GetFontChar16x16(memory, g_core.tileCache.spriteCache.bytes, glyph_index);
+        //
+        //     for (int y = 0; y < 16; y++)
+        //     {
+        // uint16_t row_mask = (g_gameFlash.spriteData.font16x16[glyph_base + y * 2] << 8) | g_gameFlash.spriteData.font16x16[glyph_base + y * 2 + 1];
+        //
+        //         for (int x = 0; x < 16; x++)
+        //         {
+        //             uint16_t bit = 0x8000 >> x;
+        //             character[y * 16 + x] = (g_core.tileCache.spriteCache.glyph & bit) ? fg : bg;
+        //         }
+        //     }
+        // }
+        // Flash_GetFontChar16x16(memory, g_core.tileCache.spriteCache.bytes, glyph_index);
+
+        // for (int y = 0; y < 32; y++)
+            // memory.Print(FullRedraw_starsta, buffer.bytes[y]);
+
+
+        Flash_GetFontChar16x16(memory, buffer.bytes, glyph_index);
+        // memory.Print(FullRedraw_starsta, fg);
+
+        // for (int y = 0; y < 32; y++)
+            // memory.Print(FullRedraw_starsta, buffer.bytes[y]);
 
         for (int y = 0; y < 16; y++)
         {
-            // uint16_t row_mask = (g_gameFlash.spriteData.font16x16[glyph_base + y * 2] << 8) | g_gameFlash.spriteData.font16x16[glyph_base + y * 2 + 1];
+            uint16_t row = buffer.glyph[y];
 
             for (int x = 0; x < 16; x++)
             {
                 uint16_t bit = 0x8000 >> x;
-                // character[y * 16 + x] = (row_mask & bit) ? fg : bg;
+                character[y * 16 + x] = (row & bit) ? fg : bg;
             }
         }
+        // memory.Print(FullRedraw_starstab, glyph_index);
     }
 }
 

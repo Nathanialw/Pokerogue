@@ -26,20 +26,23 @@
 
 #define TITLE_RATE_DELAY 500
 
+
 /**********************************************************************************************************************/
 /*
 **********************************************************************************************************************/
+SET_MEMORY(".map")
 void SetGameLoopRateDefault()
 {
-    g_run.btns.gameLoopRate = g_run.btns.defaultGameLoopRate;
+    g_core.btns.gameLoopRate = g_core.btns.defaultGameLoopRate;
 }
 
 /**********************************************************************************************************************/
 /*
 **********************************************************************************************************************/
+SET_MEMORY(".map")
 void SetGameLoopRate(uint16_t time)
 {
-    g_run.btns.gameLoopRate = time;
+    g_core.btns.gameLoopRate = time;
 }
 
 /**********************************************************************************************************************/
@@ -51,20 +54,21 @@ void TitleRateDelay(HardwareInterface hardware)
     hardware.SleepMS(TITLE_RATE_DELAY);
 }
 
-
+SET_MEMORY(".map")
 void GameLoopRateDelay(HardwareInterface hardware)
 {
-    hardware.SleepMS(g_run.btns.gameLoopRate);
+    hardware.SleepMS(g_core.btns.gameLoopRate);
 }
 
 
 /**********************************************************************************************************************/
 /*
 **********************************************************************************************************************/
+SET_MEMORY(".core")
 State SetInputState(InputState state)
 {
-    g_run.state.inputState = state;
-    return g_run.state;
+    g_core.state.inputState = state;
+    return g_core.state;
 }
 
 /**********************************************************************************************************************/
@@ -72,8 +76,8 @@ State SetInputState(InputState state)
 **********************************************************************************************************************/
 State SetBattleState(BattleState state)
 {
-    g_run.state.battleState = state;
-    return g_run.state;
+    g_core.state.battleState = state;
+    return g_core.state;
 }
 
 /**********************************************************************************************************************/
@@ -81,7 +85,7 @@ State SetBattleState(BattleState state)
 **********************************************************************************************************************/
 bool CheckBattleState(BattleState state)
 {
-    if (g_run.state.battleState == state)
+    if (g_core.state.battleState == state)
         return true;
     return false;
 }
@@ -91,8 +95,8 @@ bool CheckBattleState(BattleState state)
 **********************************************************************************************************************/
 State SetGameState(GameState state)
 {
-    g_run.state.gameState = state;
-    return g_run.state;
+    g_core.state.gameState = state;
+    return g_core.state;
 }
 
 
@@ -101,7 +105,7 @@ State SetGameState(GameState state)
 **********************************************************************************************************************/
 void UpdateBattleRunningState(GraphicsInterface graphics, HardwareInterface hardware, InputInterface input, MemoryInterface memory)
 {
-    if (g_run.state.inputState == BATTLE)
+    if (g_core.state.inputState == INPUT_BATTLE)
     {
         if (input.GetButtonA())
         {
@@ -133,13 +137,13 @@ void UpdateBattleRunningState(GraphicsInterface graphics, HardwareInterface hard
 
         if (input.GetJSPressed())
         {
-            if (!SetMenuDelta(input, memory, input.GetInputKeyState().d))
+            if (!SetMenuDelta(hardware, input, memory, input.GetInputKeyState().d))
                 UpdateBattleMenu(input);
         }
 
         if (input.GetDPPressed())
         {
-            if (!SetMenuDelta(input, memory, input.GetInputKeyState().d))
+            if (!SetMenuDelta(hardware, input, memory, input.GetInputKeyState().d))
                 UpdateBattleMenu(input);
         }
         return;
@@ -149,15 +153,16 @@ void UpdateBattleRunningState(GraphicsInterface graphics, HardwareInterface hard
 /**********************************************************************************************************************/
 /*  input handling based on game state
 **********************************************************************************************************************/
+SET_MEMORY(".map")
 void UpdateGameRunningState(GraphicsInterface graphics, HardwareInterface hardware, InputInterface input, MemoryInterface memory)
 {
-    if (g_run.state.inputState == MENU)
+    if (g_core.state.inputState == INPUT_MENU)
     {
         if (input.GetButtonA())
         {
-            if (!OpenSubMenu(input, memory))
+            if (!OpenSubMenu(hardware, input, memory))
             {
-                SetInputState(MOVING);
+                SetInputState(INPUT_MOVING);
             }
             return;
         }
@@ -166,9 +171,9 @@ void UpdateGameRunningState(GraphicsInterface graphics, HardwareInterface hardwa
         {
             if (!MenuBack(memory))
             {
-                SetInputState(MOVING);
+                SetInputState(INPUT_MOVING);
                 SetGameLoopRateDefault();
-                FullRedraw(graphics, memory);
+                FullRedraw(graphics, hardware, memory);
             }
 
             return;
@@ -192,22 +197,22 @@ void UpdateGameRunningState(GraphicsInterface graphics, HardwareInterface hardwa
 
         if (input.GetJSPressed())
         {
-            if (!SetMenuDelta(input, memory, input.GetInputKeyState().d))
-                OpenSubMenu(input, memory);
+            if (!SetMenuDelta(hardware, input, memory, input.GetInputKeyState().d))
+                OpenSubMenu(hardware, input, memory);
             return;
         }
 
 
         if (input.GetDPPressed())
         {
-            if (!SetMenuDelta(input, memory, input.GetInputKeyState().d))
-                OpenSubMenu(input, memory);
+            if (!SetMenuDelta(hardware, input, memory, input.GetInputKeyState().d))
+                OpenSubMenu(hardware, input, memory);
             return;
         }
     }
 
 
-    if (g_run.state.inputState == MOVING)
+    if (g_core.state.inputState == INPUT_MOVING)
     {
         if (input.GetButtonA())
         {
@@ -216,7 +221,7 @@ void UpdateGameRunningState(GraphicsInterface graphics, HardwareInterface hardwa
 
         if (input.GetButtonB())
         {
-            PlayerInteractObjectInCell(memory);
+            PlayerInteractObjectInCell(memory, hardware);
         }
 
         if (input.GetButtonX())
@@ -226,7 +231,7 @@ void UpdateGameRunningState(GraphicsInterface graphics, HardwareInterface hardwa
         if (input.GetButtonY())
         {
             InitMainMenu();
-            SetInputState(MENU);
+            SetInputState(INPUT_MENU);
             SetGameLoopRate(MENU_INPUT_POLLING_RATE);
             return;
         }
@@ -303,20 +308,10 @@ bool UpdateGameTitleState(InputInterface input)
 /**********************************************************************************************************************/
 /**  Game State forking
 **********************************************************************************************************************/
-void HandleGameState(GameInterface* spi)
+SET_MEMORY(".battle")
+void HandleBattleState(GameInterface* spi)
 {
-    if (g_run.state.inputState == MOVING)
-    {
-        UpdateGame(spi->hardware);
-        RenderObjects(spi->graphics, spi->hardware, spi->memory);
-    }
-    if (g_run.state.inputState == MENU)
-    {
-        HandleMenu(spi->graphics, spi->hardware, spi->memory);
-        HandleGameMenu(spi->graphics, spi->hardware, spi->memory);
-        DrawCursor(spi->graphics, spi->memory);
-    }
-    if (g_run.state.inputState == BATTLE)
+    if (g_core.state.inputState == INPUT_BATTLE)
     {
         if (CheckBattleState(BATTLE_INIT))
         {
@@ -327,22 +322,22 @@ void HandleGameState(GameInterface* spi)
         }
         else if (CheckBattleState(BATTLE_ATTACK))
         {
-            BattlerAnimationAttack(spi->graphics, true); //attacking animation
-            BattlerAnimationStruck(spi->graphics, false); //hit animation
+            BattlerAnimationAttack(spi->graphics, spi->memory, true); //attacking animation
+            BattlerAnimationStruck(spi->graphics, spi->memory, false); //hit animation
             AnimationUpdateHealth(spi->graphics, spi->hardware, true);
             if (!CheckPlayerAttackOutcome())
             {
                 AnimationBattlerDie(spi->graphics, spi->hardware, spi->memory, false);
                 DestroyEnemyCreature(spi->hardware);
                 AnimationScreenFade(spi->graphics, spi->hardware); //ANIMATION - enemy creature drops off screen
-                FullRedraw(spi->graphics, spi->memory);
-                SetInputState(MOVING);
+                FullRedraw(spi->graphics, spi->hardware, spi->memory);
+                SetInputState(INPUT_MOVING);
                 return;
             }
 
             UseSkill(spi->hardware, spi->memory, false);
-            BattlerAnimationAttack(spi->graphics, false); //attacking animation
-            BattlerAnimationStruck(spi->graphics, true); //hit animation
+            BattlerAnimationAttack(spi->graphics, spi->memory, false); //attacking animation
+            BattlerAnimationStruck(spi->graphics, spi->memory, true); //hit animation
             AnimationUpdateHealth(spi->graphics, spi->hardware, false);
             if (CheckEnemyAttackOutcome())
             {
@@ -357,12 +352,55 @@ void HandleGameState(GameInterface* spi)
         else if (CheckBattleState(BATTLE_MENUS))
         {
             HandleBattleMenu(spi->graphics, spi->hardware, spi->memory);
+            DrawCursor(spi->graphics, spi->memory);
         }
+    }
+}
+
+
+SET_MEMORY(".map.rodata")
+const char test01[] = "UpdateGame\n";
+
+SET_MEMORY(".map.rodata")
+const char test02[] = "RenderObjects\n";
+
+
+SET_MEMORY(".map.rodata")
+const char test021[] = "DONE";
+/**********************************************************************************************************************/
+/**  Game State forking
+**********************************************************************************************************************/
+SET_MEMORY(".map")
+void HandleGameState(GameInterface* spi)
+{
+    if (g_core.state.inputState == INPUT_MOVING)
+    {
+        spi->hardware.Print(test01);
+        UpdateGame(spi->hardware);
+        spi->hardware.Print(test02);
+        RenderObjects(spi->graphics, spi->hardware, spi->memory);
+    }
+
+    if (g_core.state.inputState == INPUT_MENU)
+    {
+        HandleMenu(spi->graphics, spi->hardware, spi->memory);
+        spi->hardware.Print(test01);
+        HandleGameMenu(spi->graphics, spi->hardware, spi->memory);
+        spi->hardware.Print(test02);
         DrawCursor(spi->graphics, spi->memory);
+        spi->hardware.Print(test021);
     }
 
     // spi.audio.PlaySoundEffect();
 }
+
+
+SET_MEMORY(".splash.rodata")
+const char str_splash_exit[] = "Exiting splash_entry, Going to map_gen_entry";
+
+SET_MEMORY(".splash.rodata")
+const char str_splash_entry[] = "Going to splash_entry";
+
 
 /**********************************************************************************************************************/
 /**  main game state update loop
@@ -370,7 +408,7 @@ void HandleGameState(GameInterface* spi)
 SET_MEMORY(".splash_entry")
 uint8_t GameLoopTitleScreen(GameInterface* spi)
 {
-    spi->graphics.FillScreen(0xF000); // TODO: update to real title screen
+    spi->hardware.Print(str_splash_entry);
     int start = 0;
     while (start == 0)
     {
@@ -379,6 +417,7 @@ uint8_t GameLoopTitleScreen(GameInterface* spi)
         TitleRateDelay(spi->hardware);
     }
 
+    spi->hardware.Print(str_splash_exit);
     return GAME_MAP_GEN;
 }
 
@@ -392,67 +431,80 @@ bool MainBattleLoop(GameInterface* spi)
 SET_MEMORY(".battle_entry")
 uint8_t BattleLoopMain(GameInterface* spi)
 {
+    InitBattleMenu();
+
     bool battling = true;
     while (battling)
     {
         UpdateBattleRunningState(spi->graphics, spi->hardware, spi->input, spi->memory);;
+        HandleBattleState(spi);
         battling = MainBattleLoop(spi);;
     }
 
     return GAME_MAP;
 }
 
+
+SET_MEMORY(".map_gen.rodata")
+static const char str_map_gen_entry_entry[] = "Going to map_gen_entry";
+
 SET_MEMORY(".map_gen_entry")
 uint8_t GameLoopEntry(GameInterface* spi)
 {
+    spi->graphics.FillScreen(0x000F); // TODO: update to real title screen
+    spi->hardware.Print(str_map_gen_entry_entry);
+
     InitGame(spi->hardware, spi->memory);
-    return GAME_MAP;
+    return GAME_MAP;;
 }
+
 
 SET_MEMORY(".map_entry")
 uint8_t GameLoopMain(GameInterface* spi)
 {
-    ResetEntities(spi->hardware, spi->memory, true);
+    g_core.state.overlay = OVERLAY_MAP;
+    spi->graphics.FillScreen(0x0f00); // TODO: update to real title screen
+    ResetEntities(spi->hardware, spi->memory, false);
+    InitPlayer(spi->hardware, spi->memory);
     PopulateLevelCreatures(spi->hardware, spi->memory);
     PopulateLevelObjects(spi->hardware, spi->memory);
     PopulateLevelItems(spi->hardware, spi->memory);
     PlacePlayerOnMap(spi->hardware);
     SetMapFog(0xFF);
-
     InitCamera(0, 0, TILE_W * VIEW_TW, TILE_H * VIEW_TH);
     SetCameraPlayer();
 
-    FullRedraw(spi->graphics, spi->memory);
+    FullRedraw(spi->graphics, spi->hardware, spi->memory);
 
-    while (g_run.state.gameState == GAME_RUNNING)
+    while (g_core.state.overlay == OVERLAY_MAP)
     {
         spi->input.HandleInput();
         UpdateGameRunningState(spi->graphics, spi->hardware, spi->input, spi->memory);
         HandleGameState(spi);
         GameLoopRateDelay(spi->hardware);
     }
+    return g_core.state.gameState;
 }
 
 // __attribute__((section(".strings")))
-bool GameLoopNewMap(GameInterface* spi)
+uint8_t GameLoopNewMap(GameInterface* spi)
 {
-    NewMap();
-    SetGameState(GAME_RUNNING);
-    return true;
+    // NewMap();
+    // SetGameState(OVERLAY_GAME_RUNNING);
+    return 0;
 }
 
 
-bool GameLoopShutdown(GameInterface* spi)
+uint8_t GameLoopShutdown(GameInterface* spi)
 {
-    return false;
+    return 0;
 }
 
 
 typedef uint8_t (*GameLoopFunc)(GameInterface* spi);
-GameLoopFunc GameLoopState[GAME_STATE_SIZE] = {GameLoopTitleScreen, GameLoopMain, GameLoopNewMap, GameLoopShutdown};
+GameLoopFunc GameLoopState[10] = {GameLoopTitleScreen, GameLoopEntry, GameLoopMain, GameLoopNewMap, GameLoopShutdown};
 
 
-SET_MEMORY(".battle")
 void TestMain(GameInterface* spi)
 {
     uint16_t color = 0x000A;
@@ -478,12 +530,12 @@ void TestMain(GameInterface* spi)
 **********************************************************************************************************************/
 void GameLoop(GameInterface* spi)
 {
-    SetInputState(MOVING);
-    SetGameState(TITLE_SCREEN);
+    SetInputState(INPUT_MOVING);
+    // SetGameState(TITLE_SCREEN);  OVERLAY_TITLE_SCREEN
 
     while (1)
     {
-        bool b = GameLoopState[g_run.state.gameState](spi);
+        bool b = GameLoopState[g_core.state.gameState](spi);
         if (!b) return;
     }
 }

@@ -43,6 +43,7 @@ typedef struct State
     uint8_t battleState : 2;
     uint8_t inputState : 3;
     uint8_t _pad : 1;
+    uint8_t overlay;
 } State;
 
 

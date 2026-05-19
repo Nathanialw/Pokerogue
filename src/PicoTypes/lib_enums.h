@@ -11,12 +11,11 @@
 typedef enum
 {
     // IDLE,
-    MOVING,
-    MENU,
-    REBOOT,
-    ENTER_BATTLE,
-    BATTLE,
-    INPUT_STATE_SIZE,
+    INPUT_MOVING,
+    INPUT_MENU,
+    INPUT_ENTER_BATTLE,
+    INPUT_BATTLE,
+    INPUT_INPUT_STATE_SIZE,
 } InputState;
 
 /**********************************************************************************************************************/
